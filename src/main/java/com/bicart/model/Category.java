@@ -1,7 +1,5 @@
 package com.bicart.model;
 
-
-import com.bicart.constant.ShipmentStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -9,15 +7,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.UniqueElements;
 
+@Entity
+@Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name="shipment")
-@Getter
-@Builder
-public class Shipment extends BaseEntity {
+@Table(name = "category")
+public class Category extends BaseEntity{
     @Id
     private String id;
-    private ShipmentStatus currentStatus;
+
+    @UniqueElements
+    private String name;
+    private String description;
 }

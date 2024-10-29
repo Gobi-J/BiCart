@@ -4,14 +4,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import com.bicart.constant.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,21 +36,7 @@ public class User extends BaseEntity implements UserDetails {
    @Column(unique = true, nullable=false)
    private String password;
 
-
-   @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-   @JoinColumn(name = "cart_id")
-   private Cart cart;
-
-   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-   @JoinColumn(name = "address_id")
-   private Set<Address> addresses;
-
-   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-   @JoinColumn(name = "order_id")
-   private Set<Order> orders;
-
-   @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-   @Fetch(FetchMode.JOIN)
+   @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
    @JoinTable(
            name = "user_role",
            joinColumns = @JoinColumn(name = "user_id"),
@@ -63,7 +46,7 @@ public class User extends BaseEntity implements UserDetails {
 
    @Override
    public Collection<? extends GrantedAuthority> getAuthorities() {
-      return Collections.singleton(new SimpleGrantedAuthority("Employee"));
+      return Collections.singleton(new SimpleGrantedAuthority(roles.iterator().next().getRole()));
    }
 
    @Override

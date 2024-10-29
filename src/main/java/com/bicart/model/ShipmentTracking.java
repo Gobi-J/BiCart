@@ -1,10 +1,10 @@
 package com.bicart.model;
 
+import com.bicart.constant.ShipmentStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -17,16 +17,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "product")
-public class Product extends BaseEntity {
+@Table(name = "shipment_tracking")
+public class ShipmentTracking extends BaseEntity{
     @Id
     private String id;
-    private String name;
-    private String description;
-    private double price;
-    private int quantity;
+    private String location;
+    private ShipmentStatus status;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    @JoinColumn(name = "sub_category_id")
-    private SubCategory subCategory;
+    private Shipment shipment;
 }

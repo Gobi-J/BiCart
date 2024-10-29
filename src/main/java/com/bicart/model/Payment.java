@@ -1,5 +1,6 @@
 package com.bicart.model;
 
+import com.bicart.constant.PaymentStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -15,17 +16,17 @@ import lombok.NoArgsConstructor;
 @Table(name="payment")
 @Getter
 @Builder
-public class Payment {
+public class Payment extends BaseEntity {
 
     @Id
-    private int id;
+    private String  id;
 
     @Column(name = "payment_mode", nullable = false)
     private String paymentMode;
 
     @Column(nullable=false)
-    private String price;
+    private long price;
 
     @Column(nullable=false)
-    private String status;
+    private PaymentStatus status;
 }

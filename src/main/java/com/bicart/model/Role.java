@@ -1,7 +1,5 @@
 package com.bicart.model;
 
-
-import com.bicart.constant.ShipmentStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -13,11 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="shipment")
+@Table(name="role")
 @Getter
 @Builder
-public class Shipment extends BaseEntity {
+public class Role extends BaseEntity {
     @Id
     private String id;
-    private ShipmentStatus currentStatus;
+    private String role;
+    private String description;
 }

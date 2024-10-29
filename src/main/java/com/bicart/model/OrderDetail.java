@@ -17,16 +17,24 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "product")
-public class Product extends BaseEntity {
+@Table(name = "order_detail")
+public class OrderDetail extends BaseEntity{
     @Id
     private String id;
-    private String name;
-    private String description;
-    private double price;
     private int quantity;
+    private double price;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    @JoinColumn(name = "sub_category_id")
-    private SubCategory subCategory;
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "order_id")
+    private Order order;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
+
+
 }

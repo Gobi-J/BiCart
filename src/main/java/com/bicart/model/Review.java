@@ -1,30 +1,34 @@
 package com.bicart.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
+@Entity
+@Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name="review")
-@Getter
-@Builder
+@Table(name = "review")
 public class Review extends BaseEntity{
-
     @Id
     private String id;
-
-    private String review;
-
-    @Column(nullable=false)
+    private String message;
     private int rating;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "product_id")
+    private Product product;
 }

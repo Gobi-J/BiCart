@@ -5,28 +5,29 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Entity
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "product")
-public class Product extends BaseEntity {
+@Table(name = "cart")
+public class Cart extends BaseEntity{
     @Id
     private String id;
-    private String name;
-    private String description;
-    private double price;
     private int quantity;
+    private double price;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    @JoinColumn(name = "sub_category_id")
-    private SubCategory subCategory;
+    @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "user_id")
+    private User user;
 }

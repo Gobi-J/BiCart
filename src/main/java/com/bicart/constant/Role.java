@@ -1,6 +1,7 @@
 package com.bicart.constant;
 
 public enum Role {
-    user,
-    admin
+    USER,
+    ADMIN,
+    SUPER_ADMIN
 }

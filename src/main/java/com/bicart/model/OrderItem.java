@@ -17,8 +17,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "order_detail")
-public class OrderDetail extends BaseEntity{
+@Table(name = "order_item")
+public class OrderItem extends BaseEntity{
     @Id
     private String id;
     private int quantity;

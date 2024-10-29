@@ -7621,3 +7621,8 @@ Caused by: java.sql.SQLSyntaxErrorException: Unknown database 'bicart'
 2024-10-29 15:23:08 [RMI TCP Connection(3)-192.168.16.208] INFO  o.a.c.c.C.[.[.[/api] - Initializing Spring DispatcherServlet 'dispatcherServlet'
 2024-10-29 15:23:08 [RMI TCP Connection(3)-192.168.16.208] INFO  o.s.w.s.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
 2024-10-29 15:23:08 [RMI TCP Connection(3)-192.168.16.208] INFO  o.s.w.s.DispatcherServlet - Completed initialization in 2 ms
+2024-10-29 16:31:44 [HikariPool-1 housekeeper] WARN  c.z.h.p.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=5m39s838ms998µs500ns).
+2024-10-29 18:39:05 [HikariPool-1 housekeeper] WARN  c.z.h.p.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m48s787ms217µs200ns).
+2024-10-29 18:39:30 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-10-29 18:39:30 [SpringApplicationShutdownHook] INFO  c.z.h.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-10-29 18:39:30 [SpringApplicationShutdownHook] INFO  c.z.h.HikariDataSource - HikariPool-1 - Shutdown completed.

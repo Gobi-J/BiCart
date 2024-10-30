@@ -17,6 +17,6 @@ import lombok.NoArgsConstructor;
 public class Role extends BaseEntity {
     @Id
     private String id;
-    private String role;
+    private String roleName;
     private String description;
 }

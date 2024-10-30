@@ -5,10 +5,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Entity
 @Table(name="user")
 @Getter
+@Setter
 @Builder
 public class User extends BaseEntity implements UserDetails {
 

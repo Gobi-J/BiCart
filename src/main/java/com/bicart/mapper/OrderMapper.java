@@ -12,7 +12,7 @@ public class OrderMapper {
                 .quantity(order.getQuantity())
                 .status(order.getStatus())
                 .payment(PaymentMapper.dtoToModel(order.getPayment()))
-                .user(UserMapper.dtoToMapper(order.getUser()))
+                .user(UserMapper.dtoToModel(order.getUser()))
                 .build();
     }
 

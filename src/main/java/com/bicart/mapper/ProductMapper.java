@@ -10,7 +10,6 @@ public class ProductMapper {
                 .name(product.getName())
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
-                .subCategory(SubCategoryMapper.dtoToModel(product.getSubCategory()))
                 .build();
     }
 

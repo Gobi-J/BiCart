@@ -53,7 +53,7 @@ public class ReviewService {
      */
     public ReviewDto addReview(ReviewDto reviewDTO) throws CustomException {
         try {
-           Review review = ReviewMapper.dtoToModel((reviewDTO));
+            Review review = ReviewMapper.dtoToModel((reviewDTO));
             reviewRepository.save(review);
             ReviewDto reviewDto = ReviewMapper.modelToDto((review));
             logger.info("Review added successfully with ID: {}", reviewDto.getId());

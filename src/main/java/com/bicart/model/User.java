@@ -1,5 +1,6 @@
 package com.bicart.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -44,7 +45,11 @@ public class User extends BaseEntity implements UserDetails {
 
    @Override
    public Collection<? extends GrantedAuthority> getAuthorities() {
-      return Collections.singleton(new SimpleGrantedAuthority(roles.iterator().next().getRoleName()));
+        ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        for (Role role : roles) {
+             authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
+        }
+        return Collections.unmodifiableList(authorities);
    }
 
    @Override

@@ -1,8 +1,10 @@
 package com.bicart.service;
 
 import com.bicart.dto.RoleDto;
+import com.bicart.dto.UserDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.RoleMapper;
+import com.bicart.mapper.UserMapper;
 import com.bicart.model.Role;
 import com.bicart.repository.RoleRepository;
 import org.apache.logging.log4j.LogManager;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -96,19 +99,45 @@ public class RoleService {
      * @return the Role object.
      * @throws NoSuchElementException when occurred.
      */
-    public RoleDto getRoleById(String id) throws NoSuchElementException, CustomException {
+    public Role getRoleById(String id) throws NoSuchElementException, CustomException {
         try {
             Role role = roleRepository.findByIdAndIsDeletedFalse(id);
             if (role == null) {
                 throw new NoSuchElementException("Role not found for the given id: " + id);
             }
             logger.info("Retrieved role details for ID: {}", id);
-            return RoleMapper.modelToDto(role);
+            return role;
         } catch (NoSuchElementException e) {
             logger.error("Role not found", e);
             throw e;
         } catch (Exception e) {
             logger.error("Error in retrieving a role : {}", id, e);
+            throw new CustomException("Server error!!", e);
+        }
+    }
+
+    /**
+     * <p>
+     * Deletes the role with the given ID.
+     * </p>
+     *
+     * @param id the ID of the role to be deleted.
+     * @throws CustomException if exception is thrown.
+     */
+    public void deleteRole(String id) throws CustomException {
+        try {
+            Role role = roleRepository.findByIdAndIsDeletedFalse(id);
+            if (role == null) {
+                throw new NoSuchElementException("Role not found for the given id: " + id);
+            }
+            role.setDeleted(true);
+            roleRepository.save(role);
+            logger.info("Role deleted successfully with ID: {}", id);
+        } catch (NoSuchElementException e) {
+            logger.error("Role not found", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error in deleting a role : {}", id, e);
             throw new CustomException("Server error!!", e);
         }
     }

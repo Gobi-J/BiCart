@@ -1,5 +1,6 @@
 package com.bicart.service;
 
+import com.bicart.dto.RoleDto;
 import com.bicart.dto.UserDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.UserMapper;
@@ -41,6 +42,8 @@ public class UserService {
 
     private static final Logger logger = LogManager.getLogger(UserService.class);
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+    @Autowired
+    private RoleService roleService;
 
     /**
      * <p>
@@ -49,10 +52,9 @@ public class UserService {
      *
      * @param user model.
      */
-    public void saveUser(User user) {
+    public User saveUser(User user) {
         try {
-            userRepository.save(user);
-            logger.info("User saved successfully");
+            return userRepository.save(user);
         } catch (Exception e) {
             logger.error("Error in saving user");
             throw new CustomException("Server error!!", e);
@@ -174,6 +176,25 @@ public class UserService {
             return user;
         } catch (Exception e) {
             logger.error("Error in retrieving user for the given id: {}", id);
+            throw new CustomException("Server error!!", e);
+        }
+    }
+
+    public List<UserDto> getUsersByRole(String roleId) {
+        try {
+            Role role = roleService.getRoleById(roleId);
+            if (role == null) {
+                throw new NoSuchElementException("Role not found for the given id: " + roleId);
+            }
+            return userRepository.findByRole(role).stream()
+                    .map(UserMapper::modelToDto)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            if (e instanceof NoSuchElementException) {
+                logger.warn(e);
+                throw e;
+            }
+            logger.error("Error in retrieving a role : {}", roleId, e);
             throw new CustomException("Server error!!", e);
         }
     }

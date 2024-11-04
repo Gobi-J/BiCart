@@ -3,6 +3,7 @@ package com.bicart.service;
 import com.bicart.dto.PaymentDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.PaymentMapper;
+import com.bicart.model.Order;
 import com.bicart.model.Payment;
 import com.bicart.repository.PaymentRepository;
 import org.apache.logging.log4j.LogManager;
@@ -23,6 +24,9 @@ public class PaymentService {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private OrderService orderService;
 
     private static final Logger logger = LogManager.getLogger(PaymentService.class);
     /**
@@ -51,9 +55,11 @@ public class PaymentService {
      * @return the created paymentDto object.
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
-    public PaymentDto addPayment(PaymentDto paymentDTO) throws CustomException {
+    public PaymentDto addPayment(PaymentDto paymentDTO, String orderId) throws CustomException {
         try {
             Payment payment = PaymentMapper.dtoToModel((paymentDTO));
+            Order order = orderService.getOrderById(orderId);
+            payment.setOrder(order);
             paymentRepository.save(payment);
             PaymentDto paymentDto = PaymentMapper.modelToDto((payment));
             logger.info("Payment added successfully with ID: {}", paymentDto.getId());
@@ -103,12 +109,13 @@ public class PaymentService {
             }
             logger.info("Retrieved payment details for ID: {}", id);
             return PaymentMapper.modelToDto(payment);
-        } catch (NoSuchElementException e) {
-            logger.error("Payment not found", e);
-            throw e;
         } catch (Exception e) {
-            logger.error("Error in retrieving an payment : {}", id, e);
-            throw new CustomException("Server error!!", e);
+            if (e instanceof NoSuchElementException) {
+                logger.error("Payment not found", e);
+                throw e;
+            }
+            logger.error("Error in retrieving a payment : {}", id, e);
+            throw new CustomException("Server Error!!!!", e);
         }
     }
 }

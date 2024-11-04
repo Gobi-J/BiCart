@@ -70,6 +70,8 @@ public class AddressService {
      * Retrieves and displays all address.
      * </p>
      *
+     * @param page entries from which page are to be fetched
+     * @param size number of entries needed
      * @return {@link Set <AddressDto>} all the Address.
      * @throws CustomException, when any custom Exception is thrown.
      */
@@ -104,11 +106,42 @@ public class AddressService {
             }
             logger.info("Retrieved address details for ID: {}", id);
             return AddressMapper.modelToDto(address);
-        } catch (NoSuchElementException e) {
-            logger.error("Address not found", e);
-            throw e;
         } catch (Exception e) {
+            if (e instanceof NoSuchElementException) {
+                logger.error("Address not found", e);
+                throw e;
+            }
             logger.error("Error in retrieving an address : {}", id, e);
+            throw new CustomException("Server Error!!!!", e);
+        }
+    }
+
+    public void deleteAddressById(String id) throws CustomException {
+        try {
+            Address address = addressRepository.findByIdAndIsDeletedFalse(id);
+            if (address == null) {
+                throw new NoSuchElementException("Address not found for the given id: " + id);
+            }
+            address.setIsDeleted(true);
+            addressRepository.save(address);
+            logger.info("Address removed successfully with ID: {}", id);
+        } catch (Exception e) {
+            if (e instanceof NoSuchElementException) {
+                logger.error("Address not found", e);
+                throw e;
+            }
+            logger.error("Error in retrieving an address : {}", id, e);
+            throw new CustomException("Server Error!!!!", e);
+        }
+    }
+
+    public Address getAddressModelById(String id) {
+        try {
+            Address address = addressRepository.findByIdAndIsDeletedFalse(id);
+            logger.info("Retrieved address for the given id: {}", id);
+            return address;
+        } catch (Exception e) {
+            logger.error("Error in retrieving address for the given id: {}", id);
             throw new CustomException("Server error!!", e);
         }
     }

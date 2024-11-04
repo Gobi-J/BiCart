@@ -105,12 +105,13 @@ public class ShipmentService {
             }
             logger.info("Retrieved shipment details for ID: {}", id);
             return ShipmentMapper.modelToDto(shipment);
-        } catch (NoSuchElementException e) {
-            logger.error("Shipment not found", e);
-            throw e;
         } catch (Exception e) {
+            if (e instanceof NoSuchElementException) {
+                logger.error("Shipment not found", e);
+                throw e;
+            }
             logger.error("Error in retrieving a shipment : {}", id, e);
-            throw new CustomException("Server error!!", e);
+            throw new CustomException("Server Error!!!!", e);
         }
     }
 }

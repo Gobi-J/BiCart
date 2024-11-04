@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -111,8 +110,14 @@ public class RoleService {
             logger.error("Role not found", e);
             throw e;
         } catch (Exception e) {
+            return RoleMapper.modelToDto(role);
+        } catch (Exception e) {
+            if (e instanceof NoSuchElementException) {
+                logger.error("Role not found", e);
+                throw e;
+            }
             logger.error("Error in retrieving a role : {}", id, e);
-            throw new CustomException("Server error!!", e);
+            throw new CustomException("Server Error!!!!", e);
         }
     }
 

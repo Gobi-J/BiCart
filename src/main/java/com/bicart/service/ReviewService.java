@@ -3,20 +3,22 @@ package com.bicart.service;
 import com.bicart.dto.ReviewDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.ReviewMapper;
+import com.bicart.model.Product;
 import com.bicart.model.Review;
 import com.bicart.repository.ReviewRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 
 @Service
 public class ReviewService {
@@ -24,7 +26,9 @@ public class ReviewService {
     @Autowired
     private ReviewRepository reviewRepository;
 
+
     private static final Logger logger = LogManager.getLogger(ReviewService.class);
+
     /**
      * <p>
      * Saves a review.
@@ -51,9 +55,11 @@ public class ReviewService {
      * @return the created reviewDto object.
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
-    public ReviewDto addReview(ReviewDto reviewDTO) throws CustomException {
+    public ReviewDto addReview(ReviewDto reviewDTO, String productId) throws CustomException {
         try {
             Review review = ReviewMapper.dtoToModel((reviewDTO));
+            Product product = productService.getProductById(productId);
+            review.setProduct(product);
             reviewRepository.save(review);
             ReviewDto reviewDto = ReviewMapper.modelToDto((review));
             logger.info("Review added successfully with ID: {}", reviewDto.getId());
@@ -66,23 +72,52 @@ public class ReviewService {
 
     /**
      * <p>
-     * Retrieves and displays all reviews.
+     * Fetch all reviews given by the user
      * </p>
      *
-     * @return {@link Set <ReviewDto>} all the Reviews.
-     * @throws CustomException, when any custom Exception is thrown.
+     * @param userId whose reviews are to be fetched
+     * @param page   entries from which page are to be fetched
+     * @param size   number of entries needed
+     * @return {@link Set<ReviewDto>} set of all reviews given by the user
+     * @throws CustomException if any exception is thrown
      */
-    public Set<ReviewDto> getAllReviews(int page, int size) throws CustomException {
+    public Set<ReviewDto> getAllReviewsByUserId(String userId, int page, int size) throws CustomException {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<Review> reviewPage = reviewRepository.findAllByIsDeletedFalse(pageable);
-            logger.info("Displayed review details for page : {}", page);
-            return reviewPage.getContent().stream()
+            Page<Review> reviews = reviewRepository.findByUserIdAndIsDeletedFalse(userId, pageable);
+            logger.info("Displayed user's reviews for page : {}", page);
+            return reviews.getContent().stream()
                     .map(ReviewMapper::modelToDto)
                     .collect(Collectors.toSet());
         } catch (Exception e) {
-            logger.error("Error in retrieving all reviews", e);
-            throw new CustomException("Server Error!!!!", e);
+            logger.error("Error getting all reviews by user with id {}", userId, e);
+            throw new CustomException("Server error!!", e);
+        }
+    }
+
+    /**
+     * <p>
+     * Fetch all reviews of a product
+     * </p>
+     *
+     * @param productId whose reviews are to be fetched
+     * @param page      entries from which page are to be fetched
+     * @param size      number of entries needed
+     * @return {@link Set<ReviewDto>} set of all reviews of a product
+     * @throws CustomException if any exception is thrown
+     */
+    public Set<ReviewDto> getAllReviewsByProductId(String productId, int page, int size) throws CustomException {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Review> reviews = reviewRepository.findByProductIdAndIsDeletedFalse(productId, pageable);
+            logger.info("Displayed product's reviews for page : {}", page);
+            return reviews.getContent().stream()
+                    .map(ReviewMapper::modelToDto)
+                    .collect(Collectors.toSet());
+
+        } catch (Exception e) {
+            logger.error("Error getting all reviews by product with id {}", productId, e);
+            throw new CustomException("Server error!!", e);
         }
     }
 
@@ -103,12 +138,13 @@ public class ReviewService {
             }
             logger.info("Retrieved review details for ID: {}", id);
             return ReviewMapper.modelToDto(review);
-        } catch (NoSuchElementException e) {
-            logger.error("Review not found", e);
-            throw e;
         } catch (Exception e) {
-            logger.error("Error in retrieving an review : {}", id, e);
-            throw new CustomException("Server error!!", e);
+            if (e instanceof NoSuchElementException) {
+                logger.error("Review not found", e);
+                throw e;
+            }
+            logger.error("Error in retrieving a review : {}", id, e);
+            throw new CustomException("Server Error!!!!", e);
         }
     }
 }

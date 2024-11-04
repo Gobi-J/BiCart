@@ -1,8 +1,11 @@
 package com.bicart.service;
 
+import com.bicart.dto.OrderDto;
+import com.bicart.dto.ReviewDto;
 import com.bicart.dto.UserDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.UserMapper;
+import com.bicart.model.Address;
 import com.bicart.model.Role;
 import com.bicart.model.User;
 import com.bicart.repository.UserRepository;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,7 +37,13 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private AddressService addressService;
+
+    @Autowired
+    private ReviewService reviewService;
+
+    @Autowired
+    private ProductService productService;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -102,7 +112,6 @@ public class UserService {
     public UserDto updateUser(UserDto userDto) throws CustomException {
         try {
             User user = UserMapper.dtoToModel((userDto));
-
             userRepository.save(user);
             logger.info("User updated successfully for ID: {}", userDto.getId());
             return UserMapper.modelToDto((user));
@@ -117,17 +126,17 @@ public class UserService {
      * Retrieves and displays all users.
      * </p>
      *
-     * @return {@link List <UserDto>} all the Users.
+     * @return {@link Set <UserDto>} all the Users.
      * @throws CustomException, when any custom Exception is thrown.
      */
-    public List<UserDto> getAllUsers(int page, int size) throws CustomException {
+    public Set<UserDto> getAllUsers(int page, int size) throws CustomException {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<User> userPage = userRepository.findAllByIsDeletedFalse(pageable);
             logger.info("Displayed user details for page : {}", page);
             return userPage.getContent().stream()
                     .map(UserMapper::modelToDto)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
         } catch (Exception e) {
             logger.error("Error in retrieving all users", e);
             throw new CustomException("Server Error!!!!", e);
@@ -151,12 +160,13 @@ public class UserService {
             }
             logger.info("Retrieved user details for ID: {}", id);
             return UserMapper.modelToDto(user);
-        } catch (NoSuchElementException e) {
-            logger.error("User not found", e);
-            throw e;
         } catch (Exception e) {
-            logger.error("Error in retrieving an user : {}", id, e);
-            throw new CustomException("Server error!!", e);
+            if (e instanceof NoSuchElementException) {
+                logger.error("User not found", e);
+                throw e;
+            }
+            logger.error("Error retrieving an user", e);
+            throw new CustomException("Server Error!!!!", e);
         }
     }
 
@@ -216,14 +226,15 @@ public class UserService {
             if (roles != null && !roles.isEmpty()) {
                 user.setRoles(null);
             }
-            user.setDeleted(true);
+            user.setIsDeleted(true);
             userRepository.save(user);
             logger.info("User removed successfully with ID: {}", id);
-        } catch (NoSuchElementException e) {
-            logger.error("Error in removing a user : {}", id, e);
-            throw e;
         } catch (Exception e) {
-            logger.error("Error in removing an user : {}", id, e);
+            if (e instanceof NoSuchElementException) {
+                logger.error("Error in removing a user : {}", id, e);
+                throw e;
+            }
+            logger.error("Error removing an user", e);
             throw new CustomException("Server Error!!!!", e);
         }
     }
@@ -250,6 +261,28 @@ public class UserService {
             logger.error("Error in user login", e);
             throw new CustomException("Invalid Username or Password", e);
         }
+    }
+
+    public void deleteAddressWithUserId(String userId, String addressId) {
+        try {
+            Address address = addressService.getAddressModelById(addressId);
+            if (Objects.equals(address.getUser().getId(), userId)) {
+                addressService.deleteAddressById(addressId);
+            } else {
+                throw new CustomException("Address not found for the given user");
+            }
+        } catch (Exception e) {
+            logger.error("Error in address retrieving", e);
+            throw e;
+        }
+    }
+
+    public Set<ReviewDto> getReviewsByUserId(String userId, int page, int size) {
+        return reviewService.getAllReviewsByUserId(userId, page, size);
+    }
+
+    public Set<OrderDto> getOrdersByUserId(String userId, int page, int size) {
+        return productService.getOrdersByUserId(userId, page,size);
     }
 }
 

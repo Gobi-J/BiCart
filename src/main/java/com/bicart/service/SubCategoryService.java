@@ -10,6 +10,8 @@ import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -42,6 +44,18 @@ public class SubCategoryService {
         }
     }
 
+    public SubCategory getSubCategories(int page, int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            return subCategoryRepository.findAllByIsDeletedFalse(pageable).stream()
+                    .map(SubCategoryMapper::modelToDto)
+                    .toList();
+        } catch (Exception e) {
+            logger.error(e);
+            throw new CustomException("Error while fetching sub categories");
+        }
+    }
+
     public SubCategory saveSubCategory(@NonNull SubCategory subCategory) {
         try {
             return subCategoryRepository.save(subCategory);
@@ -51,12 +65,13 @@ public class SubCategoryService {
         }
     }
 
-    public void addSubCategory(@NonNull SubCategoryDto subCategory) {
+    public SubCategoryDto addSubCategory(@NonNull SubCategoryDto subCategoryDto) {
         try {
-            if (subCategoryRepository.existsByName(subCategory.getName())) {
-                throw new CustomException("Sub category with name " + subCategory.getName() + " already exists");
+            if (subCategoryRepository.existsByName(subCategoryDto.getName())) {
+                throw new CustomException("Sub category with name " + subCategoryDto.getName() + " already exists");
             }
-            saveSubCategory(SubCategoryMapper.dtoToModel(subCategory));
+            SubCategory subCategory = saveSubCategory(SubCategoryMapper.dtoToModel(subCategoryDto));
+            return SubCategoryMapper.modelToDto(subCategory);
         } catch (Exception e) {
             logger.error(e);
             throw new CustomException("Error while adding sub category");
@@ -91,7 +106,7 @@ public class SubCategoryService {
             if (subCategory == null) {
                 throw new NoSuchElementException("Sub category " + subCategoryName + " not found");
             }
-            subCategory.setDeleted(true);
+            subCategory.setIsDeleted(true);
             saveSubCategory(subCategory);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {

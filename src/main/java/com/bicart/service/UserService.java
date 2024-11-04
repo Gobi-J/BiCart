@@ -1,6 +1,5 @@
 package com.bicart.service;
 
-import com.bicart.dto.RoleDto;
 import com.bicart.dto.UserDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.UserMapper;

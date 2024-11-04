@@ -52,32 +52,33 @@ public class CategoryService {
         }
     }
 
-    public void saveCategory(Category category) {
+    public Category saveCategory(Category category) {
         try {
-            categoryRepository.save(category);
+            return categoryRepository.save(category);
         } catch (Exception e) {
             logger.error(e);
             throw new CustomException("Error while saving category");
         }
     }
 
-    public void addCategory(CategoryDto category) {
+    public CategoryDto addCategory(CategoryDto categoryDto) {
         try {
-            if (categoryRepository.existsByName(category.getName())) {
-                throw new CustomException("Category with name " + category.getName() + " already exists");
+            if (categoryRepository.existsByName(categoryDto.getName())) {
+                throw new CustomException("Category with name " + categoryDto.getName() + " already exists");
             }
-            saveCategory(CategoryMapper.dtoToModel(category));
+            Category category = saveCategory(CategoryMapper.dtoToModel(categoryDto));
+            return CategoryMapper.modelToDto(category);
         } catch (Exception e) {
             logger.error(e);
             throw new CustomException("Error while adding category");
         }
     }
 
-    public void updateCategory(CategoryDto newCategory) {
+    public CategoryDto updateCategory(CategoryDto newCategory) {
         try {
             Category category = CategoryMapper.dtoToModel(newCategory);
             category.setId(getCategoryByName(newCategory.getName()).getId());
-            saveCategory(category);
+            return CategoryMapper.modelToDto(saveCategory(category));
         } catch (Exception e) {
             logger.error(e);
             throw new CustomException("Error while updating category");
@@ -90,7 +91,7 @@ public class CategoryService {
             if (category == null) {
                 throw new NoSuchElementException("Category not found");
             }
-            category.setDeleted(true);
+            category.setIsDeleted(true);
             saveCategory(category);
         } catch (Exception e) {
             logger.error(e);

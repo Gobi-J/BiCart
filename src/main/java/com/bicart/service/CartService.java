@@ -5,7 +5,6 @@ import com.bicart.dto.OrderItemDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.CartMapper;
 import com.bicart.model.Cart;
-import com.bicart.model.OrderItem;
 import com.bicart.repository.CartRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,5 +44,4 @@ public class CartService {
             throw new CustomException("Error saving cart");
         }
     }
-
 }

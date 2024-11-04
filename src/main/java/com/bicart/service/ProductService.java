@@ -59,7 +59,7 @@ public class ProductService {
     }
 
     public Product getProductById(@NonNull String id) {
-        logger.debug("Getting product with id: " + id);
+        logger.debug("Getting product with id: {}", id);
         try {
             Product product = productRepository.findByIdAndIsDeletedFalse(id);
             if (product == null) {
@@ -96,7 +96,7 @@ public class ProductService {
             if (product == null) {
                 throw new NoSuchElementException("Product not found");
             }
-            product.setDeleted(true);
+            product.setIsDeleted(true);
             saveProduct(product);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
@@ -111,14 +111,10 @@ public class ProductService {
     public ProductDto updateProduct(@NonNull ProductDto productDto) {
         logger.debug("Updating product with id: " + productDto.getId());
         try {
-            Product product = productRepository.findByIdAndIsDeletedFalse(productDto.getId());
-            if (product == null) {
+            Product product = ProductMapper.dtoToModel(productDto);
+            if (!productRepository.existsByName(productDto.getName())) {
                 throw new NoSuchElementException("Product not found");
             }
-            product.setName(productDto.getName());
-            product.setPrice(productDto.getPrice());
-            product.setQuantity(productDto.getQuantity());
-            updateCategory(product.getId(), productDto.getSubCategory().getName());
             return ProductMapper.modelToDto(saveProduct(product));
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
@@ -130,7 +126,7 @@ public class ProductService {
         }
     }
 
-    public ProductDto updateCategory(@NonNull String productId, @NonNull String subCategoryName) {
+    public void updateCategory(@NonNull String productId, @NonNull String subCategoryName) {
         logger.debug("Updating category for product with id: " + productId);
         try {
             Product product = productRepository.findByIdAndIsDeletedFalse(productId);
@@ -138,7 +134,7 @@ public class ProductService {
                 throw new NoSuchElementException("Product not found");
             }
             product.setSubCategory(subCategoryService.getSubCategoryByName(subCategoryName));
-            return ProductMapper.modelToDto(saveProduct(product));
+            ProductMapper.modelToDto(saveProduct(product));
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
                 logger.warn(e);

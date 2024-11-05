@@ -75,12 +75,11 @@ public class RoleService {
      * @return {@link Set <RoleDto>} all the Role.
      * @throws CustomException, when any custom Exception is thrown.
      */
-    public Set<RoleDto> getAllRoles(int page, int size) throws CustomException {
+    public Set<RoleDto> getAllRoles() throws CustomException {
         try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<Role> rolePage = roleRepository.findAllByIsDeletedFalse(pageable);
-            logger.info("Displayed role details for page : {}", page);
-            return rolePage.getContent().stream()
+            Set<Role> roles = roleRepository.findAllByIsDeletedFalse();
+            logger.info("Displayed role details for page");
+            return roles.stream()
                     .map(RoleMapper::modelToDto)
                     .collect(Collectors.toSet());
         } catch (Exception e) {
@@ -106,11 +105,6 @@ public class RoleService {
             }
             logger.info("Retrieved role details for ID: {}", id);
             return role;
-        } catch (NoSuchElementException e) {
-            logger.error("Role not found", e);
-            throw e;
-        } catch (Exception e) {
-            return RoleMapper.modelToDto(role);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
                 logger.error("Role not found", e);
@@ -135,7 +129,7 @@ public class RoleService {
             if (role == null) {
                 throw new NoSuchElementException("Role not found for the given id: " + id);
             }
-            role.setDeleted(true);
+            role.setIsDeleted(true);
             roleRepository.save(role);
             logger.info("Role deleted successfully with ID: {}", id);
         } catch (NoSuchElementException e) {

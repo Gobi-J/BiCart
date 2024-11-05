@@ -19,12 +19,14 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 @Service
 public class ReviewService {
 
     @Autowired
     private ReviewRepository reviewRepository;
+
+    @Autowired
+    private ProductService productService;
 
 
     private static final Logger logger = LogManager.getLogger(ReviewService.class);
@@ -91,32 +93,6 @@ public class ReviewService {
                     .collect(Collectors.toSet());
         } catch (Exception e) {
             logger.error("Error getting all reviews by user with id {}", userId, e);
-            throw new CustomException("Server error!!", e);
-        }
-    }
-
-    /**
-     * <p>
-     * Fetch all reviews of a product
-     * </p>
-     *
-     * @param productId whose reviews are to be fetched
-     * @param page      entries from which page are to be fetched
-     * @param size      number of entries needed
-     * @return {@link Set<ReviewDto>} set of all reviews of a product
-     * @throws CustomException if any exception is thrown
-     */
-    public Set<ReviewDto> getAllReviewsByProductId(String productId, int page, int size) throws CustomException {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<Review> reviews = reviewRepository.findByProductIdAndIsDeletedFalse(productId, pageable);
-            logger.info("Displayed product's reviews for page : {}", page);
-            return reviews.getContent().stream()
-                    .map(ReviewMapper::modelToDto)
-                    .collect(Collectors.toSet());
-
-        } catch (Exception e) {
-            logger.error("Error getting all reviews by product with id {}", productId, e);
             throw new CustomException("Server error!!", e);
         }
     }

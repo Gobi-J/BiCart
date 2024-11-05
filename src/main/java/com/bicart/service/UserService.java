@@ -189,7 +189,7 @@ public class UserService {
         }
     }
 
-    public List<UserDto> getUsersByRole(String roleId) {
+    public Set<UserDto> getUsersByRole(String roleId) {
         try {
             Role role = roleService.getRoleById(roleId);
             if (role == null) {
@@ -197,7 +197,7 @@ public class UserService {
             }
             return userRepository.findByRole(role).stream()
                     .map(UserMapper::modelToDto)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
                 logger.warn(e);
@@ -282,7 +282,7 @@ public class UserService {
     }
 
     public Set<OrderDto> getOrdersByUserId(String userId, int page, int size) {
-        return productService.getOrdersByUserId(userId, page,size);
+        return orderService.getOrdersByUserId(userId, page,size);
     }
 }
 

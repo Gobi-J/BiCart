@@ -1,9 +1,12 @@
 package com.bicart.service;
 
 import com.bicart.dto.AddressDto;
+import com.bicart.dto.UserDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.AddressMapper;
+import com.bicart.mapper.UserMapper;
 import com.bicart.model.Address;
+import com.bicart.model.User;
 import com.bicart.repository.AddressRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -89,6 +92,26 @@ public class AddressService {
         }
     }
 
+    /**
+     * <p>
+     * Updates the address with new details.
+     * </p>
+     *
+     * @param addressDto to update the all the details of the address.
+     * @return the updated Address object.
+     * @throws CustomException when exception is thrown.
+     */
+    public AddressDto updateAddress(AddressDto addressDto) throws CustomException {
+        try {
+            Address address = AddressMapper.dtoToModel((addressDto));
+            addressRepository.save(address);
+            logger.info("Address updated successfully for ID: {}", addressDto.getId());
+            return AddressMapper.modelToDto((address));
+        } catch (Exception e) {
+            logger.error("Error updating address", e);
+            throw new CustomException("Server Error!!!!", e);
+        }
+    }
     /**
      * <p>
      * Retrieves and displays the details of an address.

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -76,13 +77,13 @@ public class ProductService {
         }
     }
 
-    public List<ProductDto> getAllProducts(int page, int size) {
+    public Set<ProductDto> getAllProducts(int page, int size) {
         logger.debug("Getting all products");
         try {
             Pageable pageable = PageRequest.of(page, size);
             return productRepository.findAllByIsDeletedFalse(pageable).stream()
                     .map(ProductMapper::modelToDto)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
         } catch (Exception e) {
             logger.error(e);
             throw new CustomException("Error while getting all products");

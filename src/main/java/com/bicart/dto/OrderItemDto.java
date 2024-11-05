@@ -16,7 +16,7 @@ public class OrderItemDto {
     @NotBlank(message = "Item must have its quantity")
     private int quantity;
     @NotBlank(message = "Item must have its price")
-    private double price;
+    private long price;
 
     private CartDto cart;
     private OrderDto order;

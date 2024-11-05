@@ -35,30 +35,35 @@ public class SubCategoryController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<SubCategoryDto> addCategory(@RequestBody SubCategoryDto subCategory) {
+    public ResponseEntity<SubCategoryDto> addSubCategory(@RequestBody SubCategoryDto subCategory) {
         return new ResponseEntity<>(subCategoryService.addSubCategory(subCategory), HttpStatus.CREATED);
     }
 
     @GetMapping("/{subCategoryName}")
-    public ResponseEntity<SubCategory> getCategory(@PathVariable String subCategoryName) {
+    public ResponseEntity<SubCategory> getSubCategory(@PathVariable String subCategoryName) {
         return new ResponseEntity<>(subCategoryService.getSubCategoryByName(subCategoryName), HttpStatus.OK);
     }
 
     @GetMapping
+<<<<<<< HEAD
     public ResponseEntity<Set<SubCategoryDto>> getCategories(@RequestParam(defaultValue = "0") int page,
+=======
+    public ResponseEntity<Set<SubCategoryDto>> getSubCategories(@RequestParam(defaultValue = "0") int page,
+>>>>>>> ae649a1 (FEAT: Added controllers)
                                                              @RequestParam(defaultValue = "10") int size) {
         return new ResponseEntity<>(subCategoryService.getSubCategories(page, size), HttpStatus.OK);
     }
 
     @PatchMapping
-    public ResponseEntity<CategoryDto> updateCategory(@RequestBody CategoryDto categoryDto) {
-        return new ResponseEntity<>(categoryService.updateCategory(categoryDto), HttpStatus.OK);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SubCategoryDto> updateSubCategory(@RequestBody SubCategoryDto categoryDto) {
+        return new ResponseEntity<>(subCategoryService.updateSubCategory(categoryDto), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{categoryName}")
-    public ResponseEntity<String> deleteCategory(@PathVariable String categoryName) {
-        categoryService.deleteCategory(categoryName);
+    @DeleteMapping("/{subCategoryName}")
+    public ResponseEntity<String> deleteSubCategory(@PathVariable String subCategoryName) {
+        subCategoryService.deleteSubCategory(subCategoryName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

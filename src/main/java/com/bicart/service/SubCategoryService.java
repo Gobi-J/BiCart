@@ -84,25 +84,27 @@ public class SubCategoryService {
         }
     }
 
-    public void updateCategory(@NonNull String subCategoryName, @NonNull String categoryName) {
+    public SubCategoryDto updateSubCategory(@NonNull SubCategoryDto subCategoryDto) {
         try {
-            SubCategory subCategory = subCategoryRepository.findByNameAndIsDeletedFalse(subCategoryName);
+            SubCategory subCategory = subCategoryRepository.findByNameAndIsDeletedFalse(subCategoryDto.getName());
             if (subCategory == null) {
-                throw new NoSuchElementException("Sub category " + subCategoryName + " not found");
+                throw new NoSuchElementException("Sub category " + subCategoryDto.getName() + " not found");
             }
-            Category category = categoryService.getCategoryByName(categoryName);
-            if (category == null) {
-                throw new NoSuchElementException("Category " + categoryName + " not found");
-            }
-            subCategory.setCategory(category);
-            saveSubCategory(subCategory);
+            subCategory.setDescription(subCategoryDto.getDescription());
+            subCategory.setCategory(categoryService.getCategoryByName(subCategoryDto.getCategory().getName()));
+            return SubCategoryMapper.modelToDto(saveSubCategory(subCategory));
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
                 logger.warn("Sub category or Category not found", e);
                 throw e;
             }
+<<<<<<< HEAD
             logger.error("Error in updating category: {} ", categoryName, e);
             throw new CustomException("Error while updating category");
+=======
+            logger.error(e);
+            throw new CustomException("Error while updating sub category");
+>>>>>>> ae649a1 (FEAT: Added controllers)
         }
     }
 

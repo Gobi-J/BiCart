@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Builder
 @Getter
 @NoArgsConstructor
@@ -19,4 +21,6 @@ public class CartDto {
     @NotBlank(message = "Cart must specify its price")
     private double price;
     private UserDto user;
+
+    private Set<OrderItemDto> orderItems;
 }

@@ -92,4 +92,18 @@ public class OrderItemService {
             logger.error("Error updating cart", e);
         }
     }
+
+    public Set<OrderItem> updateCartItems(Set<OrderItem> orderItems, Set<OrderItemDto> orderItemDtos, Cart cart) {
+        OrderItemDto orderItemDto = orderItemDtos.stream().findFirst().get();
+        Product product = productService.getProductById(orderItemDto.getProduct().getId());
+        OrderItem orderItem = new OrderItem();
+        orderItem.setProduct(product);
+        orderItem.setQuantity(orderItemDto.getQuantity());
+        orderItem.setPrice(product.getPrice() * orderItemDto.getQuantity());
+        orderItem.setCart(cart);
+        cart.setPrice(cart.getPrice() + orderItem.getPrice());
+        cart.setQuantity(cart.getQuantity() + orderItem.getQuantity());
+        orderItems.add(orderItem);
+        return orderItems;
+    }
 }

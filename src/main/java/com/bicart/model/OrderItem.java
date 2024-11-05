@@ -24,7 +24,7 @@ public class OrderItem extends BaseEntity{
     @Id
     private String id;
     private int quantity;
-    private double price;
+    private long price;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "product_id")
@@ -37,6 +37,4 @@ public class OrderItem extends BaseEntity{
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "cart_id")
     private Cart cart;
-
-
 }

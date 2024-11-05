@@ -84,6 +84,7 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             token = validateAndExtractToken(authHeader);
             username = JwtUtil.extractUserName(token);
+            request.setAttribute("id", username);
             if (SecurityContextHolder.getContext().getAuthentication() != null) {
                 filterChain.doFilter(request, response);
             }

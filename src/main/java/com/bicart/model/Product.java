@@ -25,7 +25,7 @@ public class Product extends BaseEntity {
     private String id;
     private String name;
     private String description;
-    private double price;
+    private long price;
     private int quantity;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})

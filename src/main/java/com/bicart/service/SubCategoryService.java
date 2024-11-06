@@ -3,7 +3,6 @@ package com.bicart.service;
 import com.bicart.dto.SubCategoryDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.SubCategoryMapper;
-import com.bicart.model.Category;
 import com.bicart.model.SubCategory;
 import com.bicart.repository.SubCategoryRepository;
 import lombok.NonNull;
@@ -16,10 +15,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * <p>
+ *   Service class that handles business logic related to sub categories.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class SubCategoryService {
@@ -29,6 +35,16 @@ public class SubCategoryService {
 
     private static final Logger logger = LogManager.getLogger(SubCategoryService.class);
 
+    /**
+     * <p>
+     *   Fetches a sub category by name.
+     * </p>
+     *
+     * @param subCategoryName the name of the sub category to fetch
+     * @return {@link SubCategory} the sub category with the given name
+     * @throws NoSuchElementException if the sub category is not found
+     * @throws CustomException if an error occurs while fetching the sub category
+     */
     public SubCategory getSubCategoryByName(@NonNull String subCategoryName) {
         try {
             SubCategory subCategory = subCategoryRepository.findByNameAndIsDeletedFalse(subCategoryName);
@@ -46,6 +62,16 @@ public class SubCategoryService {
         }
     }
 
+    /**
+     * <p>
+     *   Fetches all sub categories.
+     * </p>
+     *
+     * @param page the page number
+     * @param size the number of sub categories per page
+     * @return {@link Set<SubCategoryDto>} the set of sub categories on the given page
+     * @throws CustomException if an error occurs while fetching the sub categories
+     */
     public Set<SubCategoryDto> getSubCategories(int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
@@ -58,6 +84,15 @@ public class SubCategoryService {
         }
     }
 
+    /**
+     * <p>
+     *   Saves a sub category.
+     * </p>
+     *
+     * @param subCategory the sub category to save
+     * @return the saved sub category
+     * @throws CustomException if an error occurs while saving the sub category
+     */
     public SubCategory saveSubCategory(@NonNull SubCategory subCategory) {
         try {
             return subCategoryRepository.save(subCategory);
@@ -67,12 +102,25 @@ public class SubCategoryService {
         }
     }
 
+    /**
+     * <p>
+     *   Adds a sub category.
+     * </p>
+     *
+     * @param subCategoryDto the sub category to add
+     * @return {@link SubCategoryDto} added sub category details
+     * @throws CustomException if an error occurs while adding the sub category
+     */
     public SubCategoryDto addSubCategory(@NonNull SubCategoryDto subCategoryDto) {
         try {
             if (subCategoryRepository.existsByName(subCategoryDto.getName())) {
                 throw new DuplicateKeyException("Sub category with name " + subCategoryDto.getName() + " already exists");
             }
-            SubCategory subCategory = saveSubCategory(SubCategoryMapper.dtoToModel(subCategoryDto));
+            SubCategory subCategory = SubCategoryMapper.dtoToModel(subCategoryDto);
+            subCategory.setCategory(categoryService.getCategoryByName(subCategoryDto.getCategory().getName()));
+            subCategory.setId(UUID.randomUUID().toString());
+            subCategory.setCreatedAt(new Date());
+            subCategory = saveSubCategory(subCategory);
             return SubCategoryMapper.modelToDto(subCategory);
         } catch (Exception e) {
             if (e instanceof DuplicateKeyException) {
@@ -84,6 +132,16 @@ public class SubCategoryService {
         }
     }
 
+    /**
+     * <p>
+     *   Updates a sub category.
+     * </p>
+     *
+     * @param subCategoryDto the sub category to update
+     * @return {@link SubCategoryDto} updated sub category
+     * @throws NoSuchElementException if the sub category is not found
+     * @throws CustomException if an error occurs while updating the sub category
+     */
     public SubCategoryDto updateSubCategory(@NonNull SubCategoryDto subCategoryDto) {
         try {
             SubCategory subCategory = subCategoryRepository.findByNameAndIsDeletedFalse(subCategoryDto.getName());
@@ -108,6 +166,15 @@ public class SubCategoryService {
         }
     }
 
+    /**
+     * <p>
+     *   Deletes a sub category.
+     * </p>
+     *
+     * @param subCategoryName the name of the sub category to delete
+     * @throws NoSuchElementException if the sub category is not found
+     * @throws CustomException if an error occurs while deleting the sub category
+     */
     public void deleteSubCategory(@NonNull String subCategoryName) {
         try {
             SubCategory subCategory = subCategoryRepository.findByNameAndIsDeletedFalse(subCategoryName);

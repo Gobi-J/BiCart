@@ -14,11 +14,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * <p>
+ * Service class that handles business logic related to category
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
@@ -27,6 +34,15 @@ public class CategoryService {
 
     private static final Logger logger = LogManager.getLogger(CategoryService.class);
 
+    /**
+     * <p>
+     *     Fetches category by name
+     * </p>
+     * @param categoryName category to be fetched
+     * @return {@link Category} object which is requested
+     * @throws NoSuchElementException if category is not found
+     * @throws CustomException if any other error occurs
+     */
     public Category getCategoryByName(String categoryName) {
         try {
             Category category = categoryRepository.findByNameAndIsDeletedFalse(categoryName);
@@ -44,6 +60,15 @@ public class CategoryService {
         }
     }
 
+    /**
+     * <p>
+     *     Fetches all categories
+     * </p>
+     * @param page page number
+     * @param size number of categories to be fetched
+     * @return list of {@link CategoryDto} objects
+     * @throws CustomException if any error occurs
+     */
     public Set<CategoryDto> getAllCategories(int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
@@ -57,6 +82,14 @@ public class CategoryService {
         }
     }
 
+    /**
+     * <p>
+     *     Saves category
+     * </p>
+     * @param category category to be saved
+     * @return saved {@link Category} object
+     * @throws CustomException if any error occurs
+     */
     public Category saveCategory(Category category) {
         try {
             logger.info("Saving Category with the id : {}", category.getId());
@@ -67,12 +100,24 @@ public class CategoryService {
         }
     }
 
+    /**
+     * <p>
+     *     Adds category
+     * </p>
+     * @param categoryDto category to be added
+     * @return added {@link CategoryDto} object
+     * @throws CustomException if any error occurs
+     */
     public CategoryDto addCategory(CategoryDto categoryDto) {
         try {
             if (categoryRepository.existsByName(categoryDto.getName())) {
                 throw new DuplicateKeyException("Category with name " + categoryDto.getName() + " already exists");
             }
-            Category category = saveCategory(CategoryMapper.dtoToModel(categoryDto));
+
+            Category category = CategoryMapper.dtoToModel(categoryDto);
+            category.setId(UUID.randomUUID().toString());
+            category.setCreatedAt(new Date());
+            category = saveCategory(category);
             logger.info("Saving the Category with the id : {}", category.getId());
             return CategoryMapper.modelToDto(category);
         } catch (Exception e) {
@@ -85,6 +130,14 @@ public class CategoryService {
         }
     }
 
+    /**
+     * <p>
+     *     Updates category
+     * </p>
+     * @param newCategory category to be updated
+     * @return updated {@link CategoryDto} object
+     * @throws CustomException if any error occurs
+     */
     public CategoryDto updateCategory(CategoryDto newCategory) {
         try {
             Category category = CategoryMapper.dtoToModel(newCategory);
@@ -97,6 +150,14 @@ public class CategoryService {
         }
     }
 
+    /**
+     * <p>
+     *     Deletes category
+     * </p>
+     * @param categoryName category to be deleted
+     * @throws NoSuchElementException if category is not found
+     * @throws CustomException if any other error occurs
+     */
     public void deleteCategory(String categoryName) {
         try {
             Category category = getCategoryByName(categoryName);

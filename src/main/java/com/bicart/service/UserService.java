@@ -4,12 +4,15 @@ import com.bicart.dto.OrderDto;
 import com.bicart.dto.ReviewDto;
 import com.bicart.dto.UserDto;
 import com.bicart.helper.CustomException;
+import com.bicart.helper.UnAuthorizedException;
 import com.bicart.mapper.UserMapper;
 import com.bicart.model.Address;
 import com.bicart.model.Role;
 import com.bicart.model.User;
 import com.bicart.repository.UserRepository;
 import com.bicart.util.JwtUtil;
+import io.jsonwebtoken.Identifiable;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,29 +27,34 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final AddressService addressService;
+    @Autowired
+    private AddressService addressService;
 
-    private final ReviewService reviewService;
+    @Autowired
+    private ReviewService reviewService;
 
-    private final ProductService productService;
+    @Autowired
+    private ProductService productService;
 
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     private static final Logger logger = LogManager.getLogger(UserService.class);
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-
-    private final RoleService roleService;
+    @Autowired
+    private RoleService roleService;
 
     /**
      * <p>
@@ -55,9 +63,9 @@ public class UserService {
      *
      * @param user model.
      */
-    public void saveUser(User user) {
+    public User saveUser(User user) {
         try {
-            userRepository.save(user);
+            return userRepository.save(user);
         } catch (Exception e) {
             logger.error("Error in saving user");
             throw new CustomException("Server error!!", e);
@@ -73,23 +81,32 @@ public class UserService {
      * @return the created userDto object.
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
-    public UserDto addUser(UserDto userDTO) {
+    public UserDto addUser(UserDto userDTO) throws DuplicateKeyException, CustomException {
         try {
             User user = UserMapper.dtoToModel((userDTO));
             if (userRepository.existsByEmailAndIsDeletedFalse(userDTO.getEmail())) {
-                throw new DuplicateKeyException("User exists with same Email Id" + userDTO.getEmail());
+                throw new DuplicateKeyException("User exists with same Email Id");
             }
             user.setPassword(encoder.encode(userDTO.getPassword()));
-            saveUser(user);
+            user.setCreatedAt(new Date());
+            user.setCreatedBy(user.getId());
+            user.setIsDeleted(false);
+            if (userDTO.getRole() != null && !userDTO.getRole().isEmpty()) {
+                userDTO.getRole().forEach(roleDto -> {
+                    Role role = roleService.getRoleByName(roleDto.getRoleName());
+                    user.getRole().add(role);
+                });
+            }
+            userRepository.save(user);
             UserDto userDto = UserMapper.modelToDto((user));
             logger.info("User added successfully with ID: {}", userDto.getId());
             return userDto;
         } catch (Exception e) {
             if (e instanceof DuplicateKeyException) {
-                logger.error("User already exists with same Email Id" + userDTO.getEmail(), e);
+                logger.error("User already exists with same Email Id");
                 throw e;
             }
-            logger.error("Error adding an user with ID: {}", userDTO.getId(), e);
+            logger.error("Error adding an user", e);
             throw new CustomException("Server Error!!!!", e);
         }
     }
@@ -103,14 +120,14 @@ public class UserService {
      * @return the updated User object.
      * @throws CustomException when exception is thrown.
      */
-    public UserDto updateUser(UserDto userDto) {
+    public UserDto updateUser(UserDto userDto) throws CustomException {
         try {
             User user = UserMapper.dtoToModel((userDto));
             userRepository.save(user);
             logger.info("User updated successfully for ID: {}", userDto.getId());
             return UserMapper.modelToDto((user));
         } catch (Exception e) {
-            logger.error("Error updating user for ID: {}", userDto.getId(), e);
+            logger.error("Error updating user", e);
             throw new CustomException("Server Error!!!!", e);
         }
     }
@@ -123,7 +140,7 @@ public class UserService {
      * @return {@link Set <UserDto>} all the Users.
      * @throws CustomException, when any custom Exception is thrown.
      */
-    public Set<UserDto> getAllUsers(int page, int size) {
+    public Set<UserDto> getAllUsers(int page, int size) throws CustomException {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<User> userPage = userRepository.findAllByIsDeletedFalse(pageable);
@@ -146,7 +163,7 @@ public class UserService {
      * @return the User object.
      * @throws NoSuchElementException when occurred.
      */
-    public UserDto getUserById(String id) {
+    public UserDto getUserById(String id) throws NoSuchElementException, CustomException {
         try {
             User user = userRepository.findByIdAndIsDeletedFalse(id);
             if (user == null) {
@@ -156,10 +173,10 @@ public class UserService {
             return UserMapper.modelToDto(user);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.error("User not found for the given id: " + id, e);
+                logger.error("User not found", e);
                 throw e;
             }
-            logger.error("Error retrieving an user for the given id: " + id, e);
+            logger.error("Error retrieving an user", e);
             throw new CustomException("Server Error!!!!", e);
         }
     }
@@ -194,7 +211,7 @@ public class UserService {
                     .collect(Collectors.toSet());
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.warn("Role not found for the given id: " + roleId,e);
+                logger.warn(e);
                 throw e;
             }
             logger.error("Error in retrieving a role : {}", roleId, e);
@@ -210,7 +227,7 @@ public class UserService {
      * @param id of the user for deleting.
      * @throws NoSuchElementException and CustomException.
      */
-    public void deleteUser(String id) {
+    public void deleteUser(String id) throws NoSuchElementException, CustomException {
         try {
             User user = userRepository.findByIdAndIsDeletedFalse(id);
             if (user == null) {
@@ -225,10 +242,10 @@ public class UserService {
             logger.info("User removed successfully with ID: {}", id);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.error("User not found for the given id: {}", id, e);
+                logger.error("Error in removing a user : {}", id, e);
                 throw e;
             }
-            logger.error("Error removing an user with ID: {}", id, e);
+            logger.error("Error removing an user", e);
             throw new CustomException("Server Error!!!!", e);
         }
     }
@@ -242,7 +259,7 @@ public class UserService {
      * @return the created token as string.
      * @throws CustomException .
      */
-    public String authenticateUser(UserDto userDTO) {
+    public String authenticateUser(UserDto userDTO) throws CustomException {
         try {
             authenticationManager
                     .authenticate(
@@ -253,7 +270,7 @@ public class UserService {
             return JwtUtil.generateToken(userDTO.getEmail());
         } catch (BadCredentialsException e) {
             logger.error("Error in user login with id: {} ", userDTO.getId(), e);
-            throw new CustomException("Invalid Username or Password", e);
+            throw new UnAuthorizedException("Invalid Username or Password", e);
         }
     }
 
@@ -272,14 +289,16 @@ public class UserService {
     }
 
     public Set<ReviewDto> getReviewsByUserId(String userId, int page, int size) {
-        try {
-            return reviewService.getAllReviewsByUserId(userId, page, size);
-        } catch (Exception e) {
-            logger.error("Error in retrieving the reviews by user Id: {}", userId, e);
-            throw new CustomException("Server error!!", e);
-        }
+        return reviewService.getAllReviewsByUserId(userId, page, size);
     }
 
+    private User initializeUser(User user) {
+        user.setId(UUID.randomUUID().toString());
+        user.setPassword(encoder.encode(user.getPassword()));
+        user.setCreatedAt(new Date());
+        user.setCreatedBy(user.getId());
+        user.setIsDeleted(false);
+        return user;
     public Set<OrderDto> getOrdersByUserId(String userId, int page, int size) {
         try {
             return orderService.getOrdersByUserId(userId, page, size);

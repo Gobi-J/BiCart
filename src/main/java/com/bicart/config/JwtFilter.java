@@ -3,8 +3,10 @@ package com.bicart.config;
 import java.io.IOException;
 
 import com.bicart.helper.JwtAuthenticationException;
+import com.bicart.model.User;
 import com.bicart.service.MyUserDetailService;
 import com.bicart.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -72,8 +74,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws IOException,
             ServletException {
 
-        if ((request.getRequestURI().contains("/v1/employees/register")) ||
-                (request.getRequestURI().contains("/v1/employees/login"))) {
+        if (request.getRequestURI().contains("/v1/users/login")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -84,12 +85,12 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             token = validateAndExtractToken(authHeader);
             username = JwtUtil.extractUserName(token);
-            request.setAttribute("id", username);
             if (SecurityContextHolder.getContext().getAuthentication() != null) {
                 filterChain.doFilter(request, response);
             }
-            UserDetails userDetails = context.getBean(MyUserDetailService.class)
+            User userDetails = (User) context.getBean(MyUserDetailService.class)
                     .loadUserByUsername(username);
+            request.setAttribute("id", userDetails.getId());
             if (!JwtUtil.validateToken(token, userDetails)) {
                 throw new JwtAuthenticationException("Invalid token");
             }

@@ -19,7 +19,7 @@ public class CartDto {
     private int quantity;
 
     @NotBlank(message = "Cart must specify its price")
-    private double price;
+    private long price;
     private UserDto user;
 
     private Set<OrderItemDto> orderItems;

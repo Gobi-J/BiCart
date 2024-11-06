@@ -1,5 +1,7 @@
 package com.bicart.service;
 
+import com.bicart.constant.OrderStatus;
+import com.bicart.constant.PaymentStatus;
 import com.bicart.dto.PaymentDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.PaymentMapper;
@@ -10,16 +12,23 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * <p>
+ * Service class that handles business logic related to payments.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -115,6 +124,46 @@ public class PaymentService {
                 throw e;
             }
             logger.error("Error in retrieving a payment with the id : {}", id, e);
+            throw new CustomException("Server Error!!!!", e);
+        }
+    }
+
+    /**
+     * <p>
+     * Updates the payment details.
+     * </p>
+     *
+     * @param orderId the ID of the order for which payment is to be updated.
+     * @param paymentDto the updated payment details.
+     * @return {@link PaymentDto} updated Payment object.
+     * @throws CustomException if any custom exception is thrown.
+     */
+    public PaymentDto createPayment(String orderId, PaymentDto paymentDto) {
+        try {
+            Order order = orderService.getOrderById(orderId);
+            if (order == null) {
+                throw new NoSuchElementException("Order not found with id: " + orderId);
+            }
+            if (order.getStatus() != OrderStatus.PENDING) {
+                throw new DuplicateKeyException("Order is not in pending state");
+            }
+            Payment payment = PaymentMapper.dtoToModel(paymentDto);
+            payment.setCreatedAt(new Date());
+            payment.setStatus(PaymentStatus.PAID);
+            order.setStatus(OrderStatus.PAID);
+            order.setPayment(payment);
+            orderService.saveOrder(order);
+            return PaymentMapper.modelToDto(payment);
+        } catch (Exception e) {
+            if (e instanceof NoSuchElementException) {
+                logger.error("Order not found", e);
+                throw e;
+            }
+            if (e instanceof DuplicateKeyException) {
+                logger.error("Order is not in pending state", e);
+                throw e;
+            }
+            logger.error("Error in creating payment", e);
             throw new CustomException("Server Error!!!!", e);
         }
     }

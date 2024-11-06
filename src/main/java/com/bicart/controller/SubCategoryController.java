@@ -4,7 +4,6 @@ import com.bicart.dto.CategoryDto;
 import com.bicart.dto.SubCategoryDto;
 import com.bicart.model.Category;
 import com.bicart.model.SubCategory;
-import com.bicart.service.CategoryService;
 import com.bicart.service.SubCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -45,11 +44,7 @@ public class SubCategoryController {
     }
 
     @GetMapping
-<<<<<<< HEAD
-    public ResponseEntity<Set<SubCategoryDto>> getCategories(@RequestParam(defaultValue = "0") int page,
-=======
     public ResponseEntity<Set<SubCategoryDto>> getSubCategories(@RequestParam(defaultValue = "0") int page,
->>>>>>> ae649a1 (FEAT: Added controllers)
                                                              @RequestParam(defaultValue = "10") int size) {
         return new ResponseEntity<>(subCategoryService.getSubCategories(page, size), HttpStatus.OK);
     }

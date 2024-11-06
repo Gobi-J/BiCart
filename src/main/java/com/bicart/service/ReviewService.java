@@ -20,6 +20,11 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * <p>
+ * Service class that handles business logic related to reviews.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
@@ -36,7 +41,7 @@ public class ReviewService {
      * Saves a review.
      * </p>
      *
-     * @param review model.
+     * @param review model object to be saved.
      */
     public void saveReview(Review review) {
         try {
@@ -54,7 +59,7 @@ public class ReviewService {
      * </p>
      *
      * @param reviewDTO to create new review.
-     * @return the created reviewDto object.
+     * @return {@link ReviewDto} created reviewDto object.
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
     public ReviewDto addReview(ReviewDto reviewDTO, String productId) {
@@ -93,6 +98,31 @@ public class ReviewService {
                     .collect(Collectors.toSet());
         } catch (Exception e) {
             logger.error("Error getting all reviews by user with id {}", userId, e);
+            throw new CustomException("Server error!!", e);
+        }
+    }
+
+    /**
+     * <p>
+     * Fetch all reviews of the given product
+     * </p>
+     *
+     * @param productId whose reviews are to be fetched
+     * @param page   entries from which page are to be fetched
+     * @param size   number of entries needed
+     * @return {@link Set<ReviewDto>} set of all reviews of the given product
+     * @throws CustomException if any exception is thrown
+     */
+    public Set<ReviewDto> getReviewsByProductId(String productId, int page, int size) throws CustomException {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Review> reviews = reviewRepository.findByProductIdAndIsDeletedFalse(productId, pageable);
+            logger.info("Displayed product's reviews for page : {}", page);
+            return reviews.getContent().stream()
+                    .map(ReviewMapper::modelToDto)
+                    .collect(Collectors.toSet());
+        } catch (Exception e) {
+            logger.error("Error getting all reviews of product with id {}", productId, e);
             throw new CustomException("Server error!!", e);
         }
     }

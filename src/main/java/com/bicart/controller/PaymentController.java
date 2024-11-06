@@ -2,32 +2,35 @@ package com.bicart.controller;
 
 import com.bicart.dto.PaymentDto;
 import com.bicart.service.PaymentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
+
+/**
+ * <p>
+ *     PaymentController class is a REST controller class that handles all the payment related requests.
+ * </p>
+ */
 @RestController
-@RequestMapping("v1/payments")
+@RequestMapping("v1/orders/{orderId}/payments")
+@RequiredArgsConstructor
 public class PaymentController {
-    @Autowired
-    private PaymentService paymentService;
 
-    @PostMapping("/{orderId}/payments")
-    public ResponseEntity<PaymentDto> addPayment(@PathVariable String orderId, @RequestBody PaymentDto paymentDto) {
-        return new ResponseEntity<>(paymentService.addPayment(paymentDto, orderId), HttpStatus.CREATED);
+    private final PaymentService paymentService;
+
+    /**
+     * <p>
+     *     Creates a new payment for an order.
+     * </p>
+     * @param orderId The order id for which the payment is to be created.
+     * @param paymentDto The payment details to be added.
+     * @return {@link ResponseEntity<PaymentDto>} payment details that were added with {@link HttpStatus} CREATED
+     */
+    @PostMapping
+    public ResponseEntity<PaymentDto> createPayment(@PathVariable String orderId, @RequestBody PaymentDto paymentDto) {
+        return new ResponseEntity<>(paymentService.createPayment(orderId, paymentDto), HttpStatus.CREATED);
     }
-
-    @GetMapping
-    public ResponseEntity<Set<PaymentDto>> getAllPayments(@RequestParam(defaultValue = "0") int page,
-                                                           @RequestParam(defaultValue = "10") int size) {
-        return new ResponseEntity<>(paymentService.getAllPayments(page, size), HttpStatus.OK);
-    }
-
-    @GetMapping("/{paymentId}")
-    public ResponseEntity<PaymentDto> getPaymentById(@PathVariable String paymentId){
-        return new ResponseEntity<>(paymentService.getPaymentById(paymentId), HttpStatus.OK);
-    }
-
 }

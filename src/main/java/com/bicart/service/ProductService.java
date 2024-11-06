@@ -15,12 +15,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-
+/**
+ * <p>
+ * Service class that handles business logic related to products.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -30,6 +36,15 @@ public class ProductService {
 
     private final static Logger logger = LogManager.getLogger(ProductService.class);
 
+    /**
+     * <p>
+     *     Save product in database
+     * </p>
+     *
+     * @param product object to be saved
+     * @return {@link Product} saved object
+     * @throws CustomException if error occurs while saving product
+     */
     public Product saveProduct(Product product) {
         try {
             return productRepository.save(product);
@@ -39,6 +54,15 @@ public class ProductService {
         }
     }
 
+    /**
+     * <p>
+     *     Add product to database
+     * </p>
+     *
+     * @param productDto object to be added
+     * @return {@link ProductDto} added object
+     * @throws CustomException if error occurs while adding product
+     */
     public ProductDto addProduct(@NonNull ProductDto productDto) {
         logger.debug("Adding product with name: {} ", productDto.getName());
         try {
@@ -46,6 +70,8 @@ public class ProductService {
                 throw new DuplicateKeyException("Product with name " + productDto.getName() + " already exists");
             }
             Product product = ProductMapper.dtoToModel(productDto);
+            product.setId(UUID.randomUUID().toString());
+            product.setCreatedAt(new Date());
             updateCategory(product.getId(), productDto.getSubCategory().getName());
             return ProductMapper.modelToDto(saveProduct(product));
         } catch (Exception e) {
@@ -58,6 +84,15 @@ public class ProductService {
         }
     }
 
+    /**
+     * <p>
+     *     Get product by id
+     * </p>
+     *
+     * @param id of product to be fetched
+     * @return {@link Product} fetched object
+     * @throws CustomException if error occurs while getting product
+     */
     public Product getProductById(@NonNull String id) {
         logger.debug("Getting product with id: {}", id);
         try {
@@ -76,6 +111,16 @@ public class ProductService {
         }
     }
 
+    /**
+     * <p>
+     *     Get all products
+     * </p>
+     *
+     * @param page number of page
+     * @param size number of products per page
+     * @return {@link Set<ProductDto>} of all products
+     * @throws CustomException if error occurs while getting all products
+     */
     public Set<ProductDto> getAllProducts(int page, int size) {
         logger.debug("Getting all products");
         try {
@@ -89,6 +134,14 @@ public class ProductService {
         }
     }
 
+    /**
+     * <p>
+     *     Delete product by id
+     * </p>
+     *
+     * @param id of product to be deleted
+     * @throws CustomException if error occurs while deleting product
+     */
     public void deleteProduct(@NonNull String id) {
         logger.debug("Deleting product with id: " + id);
         try {
@@ -108,6 +161,15 @@ public class ProductService {
         }
     }
 
+    /**
+     * <p>
+     *     Update product
+     * </p>
+     *
+     * @param productDto object to be updated
+     * @return {@link ProductDto} updated object
+     * @throws CustomException if error occurs while updating product
+     */
     public ProductDto updateProduct(@NonNull ProductDto productDto) {
         logger.debug("Updating product with id: {} ", productDto.getId());
         try {
@@ -126,6 +188,15 @@ public class ProductService {
         }
     }
 
+    /**
+     * <p>
+     *     Update category of product
+     * </p>
+     *
+     * @param productId of product to be updated
+     * @param subCategoryName of product to be updated
+     * @throws CustomException if error occurs while updating category of product
+     */
     public void updateCategory(@NonNull String productId, @NonNull String subCategoryName) {
         logger.debug("Updating category for product with id: " + productId);
         try {
@@ -145,6 +216,17 @@ public class ProductService {
         }
     }
 
+    /**
+     * <p>
+     *     Get products by sub category name
+     * </p>
+     *
+     * @param subCategoryName of products to be fetched
+     * @param page number of page
+     * @param size number of products per page
+     * @return {@link Set<ProductDto>} of products
+     * @throws CustomException if error occurs while getting products by sub category name
+     */
     public Set<ProductDto> getProductsBySubCategoryName(@NonNull String subCategoryName, int page, int size) {
         logger.debug("Getting products by subCategoryName: " + subCategoryName);
         try {

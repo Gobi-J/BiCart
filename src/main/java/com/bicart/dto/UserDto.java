@@ -31,5 +31,5 @@ public class UserDto {
     @NotBlank(message = "Password is mandatory")
     private String password;
 
-    private Set<RoleDto> roles;
+    private Set<RoleDto> role;
 }

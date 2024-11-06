@@ -41,13 +41,13 @@ public class User extends BaseEntity implements UserDetails {
            joinColumns = @JoinColumn(name = "user_id"),
            inverseJoinColumns = @JoinColumn(name = "role_id")
    )
-   private Set<Role> roles;
+   private Set<Role> role;
 
    @Override
    public Collection<? extends GrantedAuthority> getAuthorities() {
         ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        for (Role role : roles) {
-             authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
+        for (Role r : role) {
+             authorities.add(new SimpleGrantedAuthority(r.getRoleName()));
         }
         return Collections.unmodifiableList(authorities);
    }

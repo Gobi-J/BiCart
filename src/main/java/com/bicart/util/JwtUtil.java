@@ -10,16 +10,20 @@ import java.util.function.Function;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import com.bicart.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.bicart.helper.JwtAuthenticationException;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 public class JwtUtil {
@@ -47,8 +51,8 @@ public class JwtUtil {
      * Generates Token for every Login.
      * </p>
      *
-     * @return the generated Token as a String
-     * @Param username to generate token.
+     * @param username to generate token.
+     * @return {@link String} generated Token as a String
      */
     public static String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
@@ -68,8 +72,9 @@ public class JwtUtil {
      * Validates the Token with username and checks Expiration.
      * </p>
      *
-     * @return the boolean value true if the token is valid else returns false.
-     * @Param token and UserDetails.
+     * @param token to validate the token.
+     * @param userDetails to validate the token.
+     * @return {@link Boolean} value true if the token is valid else returns false.
      */
     public static boolean validateToken(String token, UserDetails userDetails)
             throws JwtAuthenticationException {
@@ -86,8 +91,8 @@ public class JwtUtil {
      * Extracts the username from the token.
      * </p>
      *
-     * @return the extracted username.
-     * @Param token to extract the username.
+     * @param token to extract the username.
+     * @return {@link String} extracted username.
      */
     public static String extractUserName(String token) throws JwtAuthenticationException {
         return extractClaim(token, Claims::getSubject);
@@ -98,7 +103,7 @@ public class JwtUtil {
      * Extracts the claims from the token.
      * </p>
      *
-     * @Param token to extract the claim.
+     * @param token to extract the claim.
      */
     public static <T> T extractClaim(String token, Function<Claims, T> claimsResolver)
             throws JwtAuthenticationException {
@@ -111,8 +116,8 @@ public class JwtUtil {
      * Checks the expiration of token.
      * </p>
      *
-     * @return the boolean value true if the token is not expired else returns false.
-     * @Param token to check expiration.
+     * @param token to check expiration.
+     * @return {@link Boolean} true if the token is not expired else returns false.
      */
     private static boolean isTokenExpired(String token) throws JwtAuthenticationException {
         return extractExpiration(token).before(new Date());
@@ -123,8 +128,8 @@ public class JwtUtil {
      * Extracts the  date of Expiration from the token.
      * </p>
      *
-     * @return date of Expiration.
-     * @Param token to extract the date of Expiration.
+     * @param token to extract the date of Expiration.
+     * @return {@link Date} of Expiration.
      */
     private static Date extractExpiration(String token) throws JwtAuthenticationException {
         try {
@@ -139,8 +144,8 @@ public class JwtUtil {
      * Extracts all the claims of the token
      * </p>
      *
-     * @return the extracted claims.
-     * @Param token to extract all claims.
+     * @param token to extract all claims.
+     * @return {@link Claims} all the claims of the token.
      */
     public static Claims extractAllClaims(String token) throws JwtAuthenticationException {
         try {

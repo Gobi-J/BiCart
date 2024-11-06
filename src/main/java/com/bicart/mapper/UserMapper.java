@@ -14,7 +14,7 @@ public class UserMapper {
                 .name(user.getName())
                 .mobileNumber(user.getMobileNumber())
                 .email(user.getEmail())
-                .roles((user.getRoles() == null) ? null : user.getRoles().stream()
+                .role((user.getRole() == null) ? null : user.getRole().stream()
                         .map(RoleMapper::modelToDto)
                         .collect(Collectors.toSet()))
                 .build();
@@ -26,7 +26,7 @@ public class UserMapper {
                 .name(userDto.getName())
                 .email(userDto.getEmail())
                 .mobileNumber(userDto.getMobileNumber())
-                .roles((userDto.getRoles() == null) ? null : userDto.getRoles().stream()
+                .role((userDto.getRole() == null) ? null : userDto.getRole().stream()
                         .map(RoleMapper::dtoToModel)
                         .collect(Collectors.toSet()))
                 .build();

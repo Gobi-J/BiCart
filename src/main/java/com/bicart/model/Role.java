@@ -7,12 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name="role")
 @Getter
+@Setter
 @Builder
 public class Role extends BaseEntity {
     @Id

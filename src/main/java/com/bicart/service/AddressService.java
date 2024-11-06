@@ -18,6 +18,11 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * <p>
+ *   Service class that handles business logic related to address.
+ * </p>
+ */
 @Service
 public class AddressService {
 

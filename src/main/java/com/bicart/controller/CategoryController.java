@@ -3,7 +3,7 @@ package com.bicart.controller;
 import com.bicart.dto.CategoryDto;
 import com.bicart.model.Category;
 import com.bicart.service.CategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,37 +22,73 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/v1/categories")
+@RequiredArgsConstructor
 public class CategoryController {
 
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
+    /**
+     * <p>
+     *     Add a new category
+     * </p>
+     * @param category Category to be added
+     * @return {@link ResponseEntity} with the added category and {@link HttpStatus} CREATED
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CategoryDto> addCategory(@RequestBody CategoryDto category) {
         return new ResponseEntity<>(categoryService.addCategory(category), HttpStatus.CREATED);
     }
 
+    /**
+     * <p>
+     *     Get the category by name
+     * </p>
+     * @param categoryName Name of the category
+     * @return {@link ResponseEntity} with the category and {@link HttpStatus} OK
+     */
     @GetMapping("/{categoryName}")
     public ResponseEntity<Category> getCategory(@PathVariable String categoryName) {
         return new ResponseEntity<>(categoryService.getCategoryByName(categoryName), HttpStatus.OK);
     }
 
+    /**
+     * <p>
+     *     Get all the categories
+     * </p>
+     * @param page Page number
+     * @param size Number of categories per page
+     * @return {@link ResponseEntity} with the list of categories and {@link HttpStatus} OK
+     */
     @GetMapping
     public ResponseEntity<Set<CategoryDto>> getCategories(@RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "10") int size) {
         return new ResponseEntity<>(categoryService.getAllCategories(page, size), HttpStatus.OK);
     }
 
+    /**
+     * <p>
+     *   Update the category
+     * </p>
+     * @param categoryDto Category to be updated
+     * @return {@link ResponseEntity} with the updated category and {@link HttpStatus} OK
+     */
     @PatchMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryDto> updateCategory(@RequestBody CategoryDto categoryDto) {
         return new ResponseEntity<>(categoryService.updateCategory(categoryDto), HttpStatus.OK);
     }
 
+    /**
+     * <p>
+     *     Delete the category by name
+     * </p>
+     * @param categoryName Name of the category
+     * @return {@link ResponseEntity} with {@link HttpStatus} NO_CONTENT
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{categoryName}")
-    public ResponseEntity<String> deleteCategory(@PathVariable String categoryName) {
+    public ResponseEntity<HttpStatus> deleteCategory(@PathVariable String categoryName) {
         categoryService.deleteCategory(categoryName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

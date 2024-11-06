@@ -18,7 +18,7 @@ public class ProductDto {
     private String description;
 
     @NotBlank(message = "Product must have price")
-    private double price;
+    private long price;
 
     @NotBlank(message = "Product must have remaining stock")
     private int quantity;

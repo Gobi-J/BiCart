@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * </p>
  */
 @RestController
-@RequestMapping("/v1/users/me/carts")
+@RequestMapping("/v1/carts")
 @RequiredArgsConstructor
 public class CartController {
 

@@ -57,30 +57,6 @@ public class PaymentService {
 
     /**
      * <p>
-     * Creates a new Payment object and saves it in the repository.
-     * </p>
-     *
-     * @param paymentDTO to create new payment.
-     * @return the created paymentDto object.
-     * @throws CustomException, DuplicateKeyException if exception is thrown.
-     */
-    public PaymentDto addPayment(PaymentDto paymentDTO, String orderId) {
-        try {
-            Payment payment = PaymentMapper.dtoToModel((paymentDTO));
-            Order order = orderService.getOrderById(orderId);
-            payment.setOrder(order);
-            paymentRepository.save(payment);
-            PaymentDto paymentDto = PaymentMapper.modelToDto((payment));
-            logger.info("Payment added successfully with ID: {}", paymentDto.getId());
-            return paymentDto;
-        } catch (Exception e) {
-            logger.error("Error adding a payment with order ID: {}", orderId);
-            throw new CustomException("Server Error!!!!", e);
-        }
-    }
-
-    /**
-     * <p>
      * Retrieves and displays all payments.
      * </p>
      *

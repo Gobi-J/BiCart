@@ -66,19 +66,13 @@ public class ProductService {
     public ProductDto addProduct(@NonNull ProductDto productDto) {
         logger.debug("Adding product with name: {} ", productDto.getName());
         try {
-            if (productRepository.existsByName(productDto.getName())) {
-                throw new DuplicateKeyException("Product with name " + productDto.getName() + " already exists");
-            }
             Product product = ProductMapper.dtoToModel(productDto);
             product.setId(UUID.randomUUID().toString());
             product.setCreatedAt(new Date());
-            updateCategory(product.getId(), productDto.getSubCategory().getName());
+            product.setIsDeleted(false);
+            product.setSubCategory(subCategoryService.getSubCategoryByName(productDto.getSubCategory().getName()));
             return ProductMapper.modelToDto(saveProduct(product));
         } catch (Exception e) {
-            if (e instanceof DuplicateKeyException) {
-                logger.warn("Product with name " + productDto.getName() + " already exists", e);
-                throw e;
-            }
             logger.error("Error in adding the product with the Id: {}", productDto.getId(), e);
             throw new CustomException("Error while adding product");
         }
@@ -177,6 +171,8 @@ public class ProductService {
             if (!productRepository.existsByName(productDto.getName())) {
                 throw new NoSuchElementException("Product not found for the Id: {}" + productDto.getId());
             }
+            product.setUpdatedAt(new Date());
+            product.setSubCategory(subCategoryService.getSubCategoryByName(productDto.getSubCategory().getName()));
             return ProductMapper.modelToDto(saveProduct(product));
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {

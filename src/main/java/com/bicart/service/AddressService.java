@@ -14,9 +14,13 @@ import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * <p>
@@ -24,10 +28,11 @@ import java.util.stream.Collectors;
  * </p>
  */
 @Service
+@RequiredArgsConstructor
 public class AddressService {
 
-    @Autowired
-    private AddressRepository addressRepository;
+    private final AddressRepository addressRepository;
+    private final UserService userService;
 
     private static final Logger logger = LogManager.getLogger(AddressService.class);
 
@@ -57,10 +62,11 @@ public class AddressService {
      * @return the created addressDto object.
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
-    public AddressDto addAddress(AddressDto addressDTO) {
+    public AddressDto addAddress(AddressDto addressDTO, String userId) {
         try {
-            Address address = AddressMapper.dtoToModel((addressDTO));
-            addressRepository.save(address);
+            Address address = AddressMapper.dtoToModel(addressDTO);
+            address.setUser(userService.getUserModelById(userId));
+            saveAddress(address);
             AddressDto addressDto = AddressMapper.modelToDto((address));
             logger.info("Address added successfully with Id {}", addressDto.getId());
             return addressDto;
@@ -106,7 +112,7 @@ public class AddressService {
     public AddressDto updateAddress(AddressDto addressDto) {
         try {
             Address address = AddressMapper.dtoToModel((addressDto));
-            addressRepository.save(address);
+            saveAddress(address);
             logger.info("Address updated successfully for ID: {}", addressDto.getId());
             return AddressMapper.modelToDto((address));
         } catch (Exception e) {
@@ -142,6 +148,14 @@ public class AddressService {
         }
     }
 
+    /**
+     * <p>
+     * Deletes the address with the given ID.
+     * </p>
+     *
+     * @param id the ID of the address to be deleted.
+     * @throws NoSuchElementException when occurred.
+     */
     public void deleteAddressById(String id) {
         try {
             Address address = addressRepository.findByIdAndIsDeletedFalse(id);
@@ -149,7 +163,7 @@ public class AddressService {
                 throw new NoSuchElementException("Address not found for the given id: " + id);
             }
             address.setIsDeleted(true);
-            addressRepository.save(address);
+            saveAddress(address);
             logger.info("Address removed successfully with ID: {}", id);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
@@ -161,6 +175,15 @@ public class AddressService {
         }
     }
 
+    /**
+     * <p>
+     * Retrieves and displays the details of an address.
+     * </p>
+     *
+     * @param id the ID of the user whose address details are to be viewed
+     * @return {@link Address} which to be fetched.
+     * @throws NoSuchElementException when occurred.
+     */
     public Address getAddressModelById(String id) {
         try {
             Address address = addressRepository.findByIdAndIsDeletedFalse(id);
@@ -168,7 +191,27 @@ public class AddressService {
             return address;
         } catch (Exception e) {
             logger.error("Error in retrieving address for the given id: {}", id);
-            throw new CustomException("Server error!!", e);
+            throw new CustomException("Error in retrieving address for the given id: " + id, e);
+        }
+    }
+
+    /**
+     * <p>
+     * Deletes the address with the given user ID.
+     * </p>
+     *
+     * @param userId the ID of the user whose address to be deleted.
+     */
+    public void deleteAddressWithUserId(String userId) {
+        try {
+            List<Address> addresses = addressRepository.findByUserIdAndIsDeletedFalse(userId);
+            addresses.forEach(address -> {
+                address.setIsDeleted(true);
+                saveAddress(address);
+            });
+        } catch (Exception e) {
+            logger.error("Error in address retrieving", e);
+            throw new CustomException("Address not found for the given user");
         }
     }
 }

@@ -30,9 +30,6 @@ public class OrderItemService {
 
     private final static Logger logger = LogManager.getLogger(OrderItemService.class);
 
-    @Autowired
-    private ProductService productService;
-
     /**
      * <p>
      * Fetches order items by order id.
@@ -41,7 +38,7 @@ public class OrderItemService {
      * @param orderId the id of the order to fetch order items for
      * @return {@link List<OrderItemDto>} of order items
      */
-    public Set<OrderItemDto> getOrderItemsByOrderId(String orderId) {
+    public List<OrderItemDto> getOrderItemsByOrderId(String orderId) {
         try {
             return orderItemRepository.findByOrderId(orderId);
         } catch (Exception e) {
@@ -58,7 +55,7 @@ public class OrderItemService {
      * @param cartId the id of the cart to fetch order items for
      * @return {@link Set<OrderItemDto>} of order items
      */
-    public Set<OrderItemDto> getOrderItemsByCartId(String cartId) {
+    public List<OrderItemDto> getOrderItemsByCartId(String cartId) {
         try {
             return orderItemRepository.findByCartId(cartId);
         } catch (Exception e) {
@@ -116,7 +113,7 @@ public class OrderItemService {
      */
     public void removeFromCart(String cartId, String productId) {
         try {
-            Set<OrderItemDto> orderItems = getOrderItemsByCartId(cartId);
+            List<OrderItemDto> orderItems = getOrderItemsByCartId(cartId);
             for (OrderItemDto orderItem : orderItems) {
                 if (orderItem.getProduct().getId().equals(productId)) {
                     OrderItem item = orderItemRepository.findById(orderItem.getId()).get();

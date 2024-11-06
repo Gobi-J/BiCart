@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
-    Set<OrderItemDto> findByOrderId(String orderId);
+    List<OrderItemDto> findByOrderId(String orderId);
 
-    Set<OrderItemDto> findByCartId(String cartId);
+    List<OrderItemDto> findByCartId(String cartId);
 }

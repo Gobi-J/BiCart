@@ -8,6 +8,7 @@ public class ProductMapper {
         return Product.builder()
                 .id(product.getId())
                 .name(product.getName())
+                .description(product.getDescription())
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
                 .build();
@@ -16,6 +17,7 @@ public class ProductMapper {
     public static ProductDto modelToDto(Product product) {
         return ProductDto.builder()
                 .name(product.getName())
+                .description(product.getDescription())
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
                 .build();

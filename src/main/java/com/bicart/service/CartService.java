@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * <p>
@@ -79,12 +80,15 @@ public class CartService {
      */
     public CartDto addToCart(String userId, CartDto cartDto) {
         try {
+            System.out.println("Adding to cart");
             Cart cart = getCart(userId);
             if (cart == null) {
                 cart = new Cart();
-                cart.setUser(userService.getUserModelById(cartDto.getUser().getId()));
+                cart.setId(UUID.randomUUID().toString());
+                cart.setUser(userService.getUserModelById(userId));
             }
             Set<OrderItem> orderItems = cart.getOrderItems();
+            System.out.println(cartDto.getOrderItems());
             if (orderItems == null) {
                 orderItems = new HashSet<>();
             }

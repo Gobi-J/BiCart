@@ -10,6 +10,7 @@ import java.util.function.Function;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import com.bicart.helper.UnAuthorizedException;
 import com.bicart.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -17,13 +18,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import com.bicart.helper.JwtAuthenticationException;
-
-import lombok.RequiredArgsConstructor;
 
 @Component
 public class JwtUtil {
@@ -76,13 +72,12 @@ public class JwtUtil {
      * @param userDetails to validate the token.
      * @return {@link Boolean} value true if the token is valid else returns false.
      */
-    public static boolean validateToken(String token, UserDetails userDetails)
-            throws JwtAuthenticationException {
+    public static boolean validateToken(String token, UserDetails userDetails) {
         try {
             final String username = extractUserName(token);
             return ((username.equals(userDetails.getUsername())) && !isTokenExpired(token));
         } catch (Exception e) {
-            throw new JwtAuthenticationException("Error in validating the token, invalid token");
+            throw new UnAuthorizedException("Error in validating the token, invalid token");
         }
     }
 
@@ -94,7 +89,7 @@ public class JwtUtil {
      * @param token to extract the username.
      * @return {@link String} extracted username.
      */
-    public static String extractUserName(String token) throws JwtAuthenticationException {
+    public static String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -105,8 +100,7 @@ public class JwtUtil {
      *
      * @param token to extract the claim.
      */
-    public static <T> T extractClaim(String token, Function<Claims, T> claimsResolver)
-            throws JwtAuthenticationException {
+    public static <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
@@ -119,7 +113,7 @@ public class JwtUtil {
      * @param token to check expiration.
      * @return {@link Boolean} true if the token is not expired else returns false.
      */
-    private static boolean isTokenExpired(String token) throws JwtAuthenticationException {
+    private static boolean isTokenExpired(String token){
         return extractExpiration(token).before(new Date());
     }
 
@@ -131,11 +125,11 @@ public class JwtUtil {
      * @param token to extract the date of Expiration.
      * @return {@link Date} of Expiration.
      */
-    private static Date extractExpiration(String token) throws JwtAuthenticationException {
+    private static Date extractExpiration(String token) {
         try {
             return extractClaim(token, Claims::getExpiration);
         } catch (Exception e) {
-            throw new JwtAuthenticationException("Error in extracting expiration from token");
+            throw new UnAuthorizedException("Error in extracting expiration from token");
         }
     }
 
@@ -147,7 +141,7 @@ public class JwtUtil {
      * @param token to extract all claims.
      * @return {@link Claims} all the claims of the token.
      */
-    public static Claims extractAllClaims(String token) throws JwtAuthenticationException {
+    public static Claims extractAllClaims(String token) {
         try {
             return Jwts.parser()
                     .verifyWith(key)
@@ -155,7 +149,7 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (Exception e) {
-            throw new JwtAuthenticationException("Invalid token or Token Expired");
+            throw new UnAuthorizedException("Invalid token or Token Expired");
         }
     }
 }

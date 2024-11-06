@@ -29,8 +29,8 @@ public class AddressController {
      * @return {@link ResponseEntity<AddressDto>} address details that were added with {@link HttpStatus} CREATED
      */
     @PostMapping
-    public ResponseEntity<AddressDto> addAddress(@RequestBody AddressDto addressDto) {
-        return new ResponseEntity<>(addressService.addAddress(addressDto), HttpStatus.CREATED);
+    public ResponseEntity<AddressDto> addAddress(@RequestAttribute("id") String userId, @RequestBody AddressDto addressDto) {
+        return new ResponseEntity<>(addressService.addAddress(addressDto, userId), HttpStatus.CREATED);
     }
 
     /**

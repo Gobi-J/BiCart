@@ -20,8 +20,6 @@ import org.hibernate.validator.constraints.UniqueElements;
 public class Category extends BaseEntity{
     @Id
     private String id;
-
-    @UniqueElements
     private String name;
     private String description;
 }

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -118,6 +119,7 @@ public class OrderService {
         try {
             Cart cart = cartService.getCart(userId);
             Order order = new Order();
+            order.setId(UUID.randomUUID().toString());
             order.setQuantity(cart.getQuantity());
             order.setPrice(cart.getPrice());
             order.setUser(cart.getUser());

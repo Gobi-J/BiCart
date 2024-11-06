@@ -73,23 +73,20 @@ public class UserController {
      * @param userId for which user is fetched
      * @return {@link ResponseEntity<UserDto>} user with {@link HttpStatus} OK
      */
-//    @GetMapping("/{userId}")
-//    public ResponseEntity<UserDto> getUserById(@PathVariable String userId) {
-//        return new ResponseEntity<>(userService.getUserById(userId), HttpStatus.OK);
-//    }
-
-    /**
-     * <p>
-     *     Gets a user by its id.
-     * </p>
-     * @param userId for which user is fetched
-     * @return {@link ResponseEntity<UserDto>} user with {@link HttpStatus} OK
-     */
-    @GetMapping("/me")
-    public ResponseEntity<UserDto> getUser(@RequestAttribute("id") String userId) {
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable String userId) {
         return new ResponseEntity<>(userService.getUserById(userId), HttpStatus.OK);
     }
 
+    /**
+     * <p>
+     *     Gets all the reviews by a user.
+     * </p>
+     * @param userId for which reviews are fetched
+     * @param page page number
+     * @param size number of reviews per page
+     * @return {@link ResponseEntity<Set<ReviewDto>} reviews with {@link HttpStatus} OK
+     */
     @GetMapping("/{userId}/reviews")
     public ResponseEntity<Set<ReviewDto>> getAllReviewsByUserId(@RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "10") int size,

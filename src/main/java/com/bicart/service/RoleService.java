@@ -17,16 +17,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class RoleService {
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
     private static final Logger logger = LogManager.getLogger(RoleService.class);
 
@@ -82,7 +85,7 @@ public class RoleService {
      */
     public Set<RoleDto> getAllRoles() throws CustomException {
         try {
-            Set<Role> roles = roleRepository.findAllByIsDeletedFalse();
+            List<Role> roles = roleRepository.findAllByIsDeletedFalse();
             logger.info("Displayed role details for page");
             return roles.stream()
                     .map(RoleMapper::modelToDto)
@@ -98,7 +101,7 @@ public class RoleService {
      * Retrieves and displays the details of an roles.
      * </p>
      *
-     * @param id the ID of the role whose details are to be viewed
+     * @param name the name of the role whose details are to be viewed
      * @return the Role object.
      * @throws NoSuchElementException when occurred.
      */
@@ -106,16 +109,16 @@ public class RoleService {
         try {
             Role role = roleRepository.findByRoleNameAndIsDeletedFalse(name);
             if (role == null) {
-                throw new NoSuchElementException("Role not found for the given id: " + id);
+                throw new NoSuchElementException("Role not found for the given name: " + name);
             }
-            logger.info("Retrieved role details for ID: {}", id);
+            logger.info("Retrieved role details for name: {}", name);
             return role;
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
                 logger.error("Role not found", e);
                 throw e;
             }
-            logger.error("Error in retrieving a role : {}", id, e);
+            logger.error("Error in retrieving a role : {}", name, e);
             throw new CustomException("Server Error!!!!", e);
         }
     }
@@ -125,7 +128,7 @@ public class RoleService {
      * Deletes the role with the given ID.
      * </p>
      *
-     * @param id the ID of the role to be deleted.
+     * @param name the name of the role to be deleted.
      * @throws CustomException if exception is thrown.
      */
     public void deleteRole(String name) throws CustomException {
@@ -138,10 +141,10 @@ public class RoleService {
             saveRole(role);
             logger.info("Role deleted successfully with ID: {}", name);
         } catch (NoSuchElementException e) {
-            logger.error("Role not found for the given id: {} ", id, e);
+            logger.error("Role not found for the given name: {} ", name, e);
             throw e;
         } catch (Exception e) {
-            logger.error("Error in deleting a role : {}", id, e);
+            logger.error("Error in deleting a role : {}", name, e);
             throw new CustomException("Server error!!", e);
         }
     }

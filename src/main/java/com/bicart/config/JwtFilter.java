@@ -2,7 +2,7 @@ package com.bicart.config;
 
 import java.io.IOException;
 
-import com.bicart.helper.JwtAuthenticationException;
+import com.bicart.helper.UnAuthorizedException;
 import com.bicart.model.User;
 import com.bicart.service.MyUserDetailService;
 import com.bicart.util.JwtUtil;
@@ -50,11 +50,11 @@ public class JwtFilter extends OncePerRequestFilter {
      *
      * @param authHeader the authorization header containing the token
      * @return the extracted token.
-     * @throws JwtAuthenticationException if the token is invalid or missing
+     * @throws UnAuthorizedException if the token is invalid or missing
      */
-    private String validateAndExtractToken(String authHeader) throws JwtAuthenticationException {
+    private String validateAndExtractToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new JwtAuthenticationException("Invalid token");
+            throw new UnAuthorizedException("Invalid token");
         }
         return authHeader.substring(7);
     }
@@ -74,7 +74,8 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws IOException,
             ServletException {
 
-        if (request.getRequestURI().contains("/v1/users/login")) {
+        if (request.getRequestURI().contains("/v1/users/login") || request.getRequestURI()
+                .contains("/v1/users")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -92,7 +93,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     .loadUserByUsername(username);
             request.setAttribute("id", userDetails.getId());
             if (!JwtUtil.validateToken(token, userDetails)) {
-                throw new JwtAuthenticationException("Invalid token");
+                throw new UnAuthorizedException("Invalid token");
             }
             UsernamePasswordAuthenticationToken authtoken =
                     new UsernamePasswordAuthenticationToken(

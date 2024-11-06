@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -66,6 +67,7 @@ public class ReviewService {
         try {
             Review review = ReviewMapper.dtoToModel((reviewDTO));
             Product product = productService.getProductById(productId);
+            review.setId(UUID.randomUUID().toString());
             review.setProduct(product);
             saveReview(review);
             ReviewDto reviewDto = ReviewMapper.modelToDto((review));

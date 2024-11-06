@@ -23,7 +23,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     boolean existsByEmailAndIsDeletedFalse(@Email String email);
 
-    List<User> findByRole(Role role);
+    List<User> findByRoleId(String roleId);
 
     User findByEmailAndIsDeletedFalse(String username);
 }

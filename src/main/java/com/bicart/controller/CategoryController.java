@@ -20,6 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * <p>
+ *     CategoryController class is a REST controller class that handles all the category related requests.
+ * </p>
+ */
 @RestController
 @RequestMapping("/v1/categories")
 @RequiredArgsConstructor

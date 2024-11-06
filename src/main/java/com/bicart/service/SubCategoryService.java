@@ -120,6 +120,7 @@ public class SubCategoryService {
             subCategory.setCategory(categoryService.getCategoryByName(subCategoryDto.getCategory().getName()));
             subCategory.setId(UUID.randomUUID().toString());
             subCategory.setCreatedAt(new Date());
+            subCategory.setIsDeleted(false);
             subCategory = saveSubCategory(subCategory);
             return SubCategoryMapper.modelToDto(subCategory);
         } catch (Exception e) {
@@ -156,13 +157,8 @@ public class SubCategoryService {
                 logger.warn("Sub category or Category not found", e);
                 throw e;
             }
-<<<<<<< HEAD
-            logger.error("Error in updating category: {} ", categoryName, e);
+            logger.error("Error in updating category: {} ", subCategoryDto.getName(), e);
             throw new CustomException("Error while updating category");
-=======
-            logger.error(e);
-            throw new CustomException("Error while updating sub category");
->>>>>>> ae649a1 (FEAT: Added controllers)
         }
     }
 

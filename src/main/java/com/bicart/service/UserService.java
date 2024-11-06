@@ -1,6 +1,5 @@
 package com.bicart.service;
 
-import com.bicart.dto.OrderDto;
 import com.bicart.dto.ReviewDto;
 import com.bicart.dto.UserDto;
 import com.bicart.helper.CustomException;
@@ -11,7 +10,6 @@ import com.bicart.model.Role;
 import com.bicart.model.User;
 import com.bicart.repository.UserRepository;
 import com.bicart.util.JwtUtil;
-import io.jsonwebtoken.Identifiable;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -28,33 +26,25 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private AddressService addressService;
-
-    @Autowired
-    private ReviewService reviewService;
-
-    @Autowired
-    private ProductService productService;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final ReviewService reviewService;
+    private final ProductService productService;
+    private final AuthenticationManager authenticationManager;
+    private final RoleService roleService;
 
     private static final Logger logger = LogManager.getLogger(UserService.class);
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-    @Autowired
-    private RoleService roleService;
 
     /**
      * <p>
@@ -87,15 +77,19 @@ public class UserService {
             if (userRepository.existsByEmailAndIsDeletedFalse(userDTO.getEmail())) {
                 throw new DuplicateKeyException("User exists with same Email Id");
             }
+            user.setId(UUID.randomUUID().toString());
             user.setPassword(encoder.encode(userDTO.getPassword()));
             user.setCreatedAt(new Date());
             user.setCreatedBy(user.getId());
             user.setIsDeleted(false);
-            if (userDTO.getRole() != null && !userDTO.getRole().isEmpty()) {
+            if (userDTO.getRole() != null) {
+                System.out.println(userDTO.getRole());
+                Set<Role> roles = new HashSet<>();
                 userDTO.getRole().forEach(roleDto -> {
                     Role role = roleService.getRoleByName(roleDto.getRoleName());
-                    user.getRole().add(role);
+                    roles.add(role);
                 });
+                user.setRole(roles);
             }
             userRepository.save(user);
             UserDto userDto = UserMapper.modelToDto((user));
@@ -200,13 +194,13 @@ public class UserService {
         }
     }
 
-    public Set<UserDto> getUsersByRole(String roleId) {
+    public Set<UserDto> getUsersByRole(String name) {
         try {
-            Role role = roleService.getRoleById(roleId);
+            Role role = roleService.getRoleByName(name);
             if (role == null) {
-                throw new NoSuchElementException("Role not found for the given id: " + roleId);
+                throw new NoSuchElementException("Role not found for the given name: " + name);
             }
-            return userRepository.findByRole(role).stream()
+            return userRepository.findByRoleId(role.getId()).stream()
                     .map(UserMapper::modelToDto)
                     .collect(Collectors.toSet());
         } catch (Exception e) {
@@ -214,7 +208,7 @@ public class UserService {
                 logger.warn(e);
                 throw e;
             }
-            logger.error("Error in retrieving a role : {}", roleId, e);
+            logger.error("Error in retrieving a role : {}", name, e);
             throw new CustomException("Server error!!", e);
         }
     }
@@ -233,9 +227,9 @@ public class UserService {
             if (user == null) {
                 throw new NoSuchElementException("User not found for the given id: " + id);
             }
-            Set<Role> roles = user.getRoles();
+            Set<Role> roles = user.getRole();
             if (roles != null && !roles.isEmpty()) {
-                user.setRoles(null);
+                user.setRole(null);
             }
             user.setIsDeleted(true);
             userRepository.save(user);
@@ -270,21 +264,7 @@ public class UserService {
             return JwtUtil.generateToken(userDTO.getEmail());
         } catch (BadCredentialsException e) {
             logger.error("Error in user login with id: {} ", userDTO.getId(), e);
-            throw new UnAuthorizedException("Invalid Username or Password", e);
-        }
-    }
-
-    public void deleteAddressWithUserId(String userId, String addressId) {
-        try {
-            Address address = addressService.getAddressModelById(addressId);
-            if (Objects.equals(address.getUser().getId(), userId)) {
-                addressService.deleteAddressById(addressId);
-            } else {
-                throw new CustomException("Address not found for the given user");
-            }
-        } catch (Exception e) {
-            logger.error("Error in address retrieving", e);
-            throw e;
+            throw new UnAuthorizedException("Invalid Username or Password");
         }
     }
 
@@ -299,13 +279,6 @@ public class UserService {
         user.setCreatedBy(user.getId());
         user.setIsDeleted(false);
         return user;
-    public Set<OrderDto> getOrdersByUserId(String userId, int page, int size) {
-        try {
-            return orderService.getOrdersByUserId(userId, page, size);
-        } catch (Exception e) {
-            logger.error("Error in retrieving the orders by user Id: {}", userId, e);
-            throw new CustomException("Server error!!", e);
-        }
     }
 }
 

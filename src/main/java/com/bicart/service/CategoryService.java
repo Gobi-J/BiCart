@@ -66,7 +66,7 @@ public class CategoryService {
      * </p>
      * @param page page number
      * @param size number of categories to be fetched
-     * @return list of {@link CategoryDto} objects
+     * @return {@link CategoryDto} objects
      * @throws CustomException if any error occurs
      */
     public Set<CategoryDto> getAllCategories(int page, int size) {
@@ -91,8 +91,8 @@ public class CategoryService {
      * @throws CustomException if any error occurs
      */
     public Category saveCategory(Category category) {
+        logger.debug("Saving Category with the id : {}", category.getId());
         try {
-            logger.info("Saving Category with the id : {}", category.getId());
             return categoryRepository.save(category);
         } catch (Exception e) {
             logger.error("Error in saving the category with the id : {}", category.getId(), e);
@@ -117,6 +117,7 @@ public class CategoryService {
             Category category = CategoryMapper.dtoToModel(categoryDto);
             category.setId(UUID.randomUUID().toString());
             category.setCreatedAt(new Date());
+            category.setIsDeleted(false);
             category = saveCategory(category);
             logger.info("Saving the Category with the id : {}", category.getId());
             return CategoryMapper.modelToDto(category);

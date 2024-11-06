@@ -6,6 +6,7 @@ import com.bicart.mapper.PaymentMapper;
 import com.bicart.model.Order;
 import com.bicart.model.Payment;
 import com.bicart.repository.PaymentRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +21,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentService {
 
-    @Autowired
-    private PaymentRepository paymentRepository;
-
-    @Autowired
-    private OrderService orderService;
+    private final PaymentRepository paymentRepository;
+    private final OrderService orderService;
 
     private static final Logger logger = LogManager.getLogger(PaymentService.class);
+
     /**
      * <p>
      * Saves a payment.
@@ -39,9 +39,9 @@ public class PaymentService {
     public void savePayment(Payment payment) {
         try {
             paymentRepository.save(payment);
-            logger.info("Payment saved successfully");
+            logger.info("Payment saved successfully with the Id : {} ", payment.getId());
         } catch (Exception e) {
-            logger.error("Error in saving payment");
+            logger.error("Error in saving payment with the Id : {} ", payment.getId());
             throw new CustomException("Server error!!", e);
         }
     }
@@ -55,7 +55,7 @@ public class PaymentService {
      * @return the created paymentDto object.
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
-    public PaymentDto addPayment(PaymentDto paymentDTO, String orderId) throws CustomException {
+    public PaymentDto addPayment(PaymentDto paymentDTO, String orderId) {
         try {
             Payment payment = PaymentMapper.dtoToModel((paymentDTO));
             Order order = orderService.getOrderById(orderId);
@@ -65,7 +65,7 @@ public class PaymentService {
             logger.info("Payment added successfully with ID: {}", paymentDto.getId());
             return paymentDto;
         } catch (Exception e) {
-            logger.error("Error adding a payment", e);
+            logger.error("Error adding a payment with order ID: {}", orderId);
             throw new CustomException("Server Error!!!!", e);
         }
     }
@@ -78,7 +78,7 @@ public class PaymentService {
      * @return {@link Set <PaymentDto>} all the Payments.
      * @throws CustomException, when any custom Exception is thrown.
      */
-    public Set<PaymentDto> getAllPayments(int page, int size) throws CustomException {
+    public Set<PaymentDto> getAllPayments(int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<Payment> paymentPage = paymentRepository.findAllByIsDeletedFalse(pageable);
@@ -101,7 +101,7 @@ public class PaymentService {
      * @return the Payment object.
      * @throws NoSuchElementException when occurred.
      */
-    public PaymentDto getPaymentById(String id) throws NoSuchElementException, CustomException {
+    public PaymentDto getPaymentById(String id) {
         try {
             Payment payment = paymentRepository.findByIdAndIsDeletedFalse(id);
             if (payment == null) {
@@ -111,10 +111,10 @@ public class PaymentService {
             return PaymentMapper.modelToDto(payment);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.error("Payment not found", e);
+                logger.error("Payment not found for the Id: {}", id, e);
                 throw e;
             }
-            logger.error("Error in retrieving a payment : {}", id, e);
+            logger.error("Error in retrieving a payment with the id : {}", id, e);
             throw new CustomException("Server Error!!!!", e);
         }
     }

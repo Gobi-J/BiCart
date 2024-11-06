@@ -4,7 +4,9 @@ import com.bicart.dto.CategoryDto;
 import com.bicart.dto.SubCategoryDto;
 import com.bicart.model.Category;
 import com.bicart.model.SubCategory;
+import com.bicart.service.CategoryService;
 import com.bicart.service.SubCategoryService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/v1/sub-categories")
@@ -42,8 +45,8 @@ public class SubCategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SubCategoryDto>> getCategories(@RequestParam(defaultValue = "0") int page,
-                                                           @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Set<SubCategoryDto>> getCategories(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size) {
         return new ResponseEntity<>(subCategoryService.getSubCategories(page, size), HttpStatus.OK);
     }
 

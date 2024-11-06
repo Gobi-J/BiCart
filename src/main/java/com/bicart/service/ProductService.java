@@ -6,6 +6,7 @@ import com.bicart.mapper.ProductMapper;
 import com.bicart.model.Product;
 import com.bicart.repository.ProductRepository;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +22,11 @@ import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private SubCategoryService subCategoryService;
+    private final ProductRepository productRepository;
+    private final SubCategoryService subCategoryService;
 
     private final static Logger logger = LogManager.getLogger(ProductService.class);
 
@@ -35,13 +34,13 @@ public class ProductService {
         try {
             return productRepository.save(product);
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Error in saving the product with the id : {} ", product.getId(), e);
             throw new CustomException("Error while saving product");
         }
     }
 
     public ProductDto addProduct(@NonNull ProductDto productDto) {
-        logger.debug("Adding product with name: " + productDto.getName());
+        logger.debug("Adding product with name: {} ", productDto.getName());
         try {
             if (productRepository.existsByName(productDto.getName())) {
                 throw new DuplicateKeyException("Product with name " + productDto.getName() + " already exists");
@@ -51,10 +50,10 @@ public class ProductService {
             return ProductMapper.modelToDto(saveProduct(product));
         } catch (Exception e) {
             if (e instanceof DuplicateKeyException) {
-                logger.warn(e);
+                logger.warn("Product with name " + productDto.getName() + " already exists", e);
                 throw e;
             }
-            logger.error(e);
+            logger.error("Error in adding the product with the Id: {}", productDto.getId(), e);
             throw new CustomException("Error while adding product");
         }
     }
@@ -64,12 +63,12 @@ public class ProductService {
         try {
             Product product = productRepository.findByIdAndIsDeletedFalse(id);
             if (product == null) {
-                throw new NoSuchElementException("Product not found");
+                throw new NoSuchElementException("Product not found for the Id: " + id);
             }
             return product;
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.warn(e);
+                logger.warn("Product not found for the Id: {} ", id, e);
                 throw e;
             }
             logger.error(e);
@@ -85,7 +84,7 @@ public class ProductService {
                     .map(ProductMapper::modelToDto)
                     .collect(Collectors.toSet());
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Error in retrieving the products for the page : {}", page, e);
             throw new CustomException("Error while getting all products");
         }
     }
@@ -95,34 +94,34 @@ public class ProductService {
         try {
             Product product = productRepository.findByIdAndIsDeletedFalse(id);
             if (product == null) {
-                throw new NoSuchElementException("Product not found");
+                throw new NoSuchElementException("Product not found for the Id: " + id);
             }
             product.setIsDeleted(true);
             saveProduct(product);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.warn(e);
+                logger.warn("Product not found for the Id:{} ", id, e);
                 throw e;
             }
-            logger.error(e);
+            logger.error("Error in deleting the product for the Id:{} ", id, e);
             throw new CustomException("Error while deleting product");
         }
     }
 
     public ProductDto updateProduct(@NonNull ProductDto productDto) {
-        logger.debug("Updating product with id: " + productDto.getId());
+        logger.debug("Updating product with id: {} ", productDto.getId());
         try {
             Product product = ProductMapper.dtoToModel(productDto);
             if (!productRepository.existsByName(productDto.getName())) {
-                throw new NoSuchElementException("Product not found");
+                throw new NoSuchElementException("Product not found for the Id: {}" + productDto.getId());
             }
             return ProductMapper.modelToDto(saveProduct(product));
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.warn(e);
+                logger.warn("Product not found for the Id: {}", productDto.getId(), e);
                 throw e;
             }
-            logger.error(e);
+            logger.error("Error in updating the product with the Id:{}", productDto.getId(), e);
             throw new CustomException("Error while updating product");
         }
     }
@@ -132,29 +131,29 @@ public class ProductService {
         try {
             Product product = productRepository.findByIdAndIsDeletedFalse(productId);
             if (product == null) {
-                throw new NoSuchElementException("Product not found");
+                throw new NoSuchElementException("Product not found for the Id: {}" + productId);
             }
             product.setSubCategory(subCategoryService.getSubCategoryByName(subCategoryName));
             ProductMapper.modelToDto(saveProduct(product));
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.warn(e);
+                logger.warn("Product not found for the Id: {}", productId, e);
                 throw e;
             }
-            logger.error(e);
+            logger.error("Error in updating the product's category with the Id:{}", productId, e);
             throw new CustomException("Error while updating category for product");
         }
     }
 
-    public List<ProductDto> getProductsBySubCategoryName(@NonNull String subCategoryName, int page, int size) {
+    public Set<ProductDto> getProductsBySubCategoryName(@NonNull String subCategoryName, int page, int size) {
         logger.debug("Getting products by subCategoryName: " + subCategoryName);
         try {
             Pageable pageable = PageRequest.of(page, size);
             return productRepository.findAllBySubCategoryNameAndIsDeletedFalse(subCategoryName, pageable).stream()
                     .map(ProductMapper::modelToDto)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Error in retrieving the products", e);
             throw new CustomException("Error while getting products by subCategoryName");
         }
     }

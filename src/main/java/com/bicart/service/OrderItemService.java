@@ -6,24 +6,25 @@ import com.bicart.model.Cart;
 import com.bicart.model.OrderItem;
 import com.bicart.model.Product;
 import com.bicart.repository.OrderItemRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class OrderItemService {
 
-    @Autowired
-    private OrderItemRepository orderItemRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final ProductService productService;
 
     private final static Logger logger = LogManager.getLogger(OrderItemService.class);
-    @Autowired
-    private ProductService productService;
 
-    public List<OrderItemDto> getOrderItemsByOrderId(String orderId) {
+    public Set<OrderItemDto> getOrderItemsByOrderId(String orderId) {
         try {
             return orderItemRepository.findByOrderId(orderId);
         } catch (Exception e) {
@@ -32,7 +33,7 @@ public class OrderItemService {
         return null;
     }
 
-    public List<OrderItemDto> getOrderItemsByCartId(String cartId) {
+    public Set<OrderItemDto> getOrderItemsByCartId(String cartId) {
         try {
             return orderItemRepository.findByCartId(cartId);
         } catch (Exception e) {
@@ -65,7 +66,7 @@ public class OrderItemService {
 
     public void removeFromCart(String cartId, String productId) {
         try {
-            List<OrderItemDto> orderItems = getOrderItemsByCartId(cartId);
+            Set<OrderItemDto> orderItems = getOrderItemsByCartId(cartId);
             for (OrderItemDto orderItem : orderItems) {
                 if (orderItem.getProduct().getId().equals(productId)) {
                     OrderItem item = orderItemRepository.findById(orderItem.getId()).get();

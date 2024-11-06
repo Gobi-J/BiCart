@@ -5,6 +5,7 @@ import com.bicart.helper.CustomException;
 import com.bicart.mapper.OrderMapper;
 import com.bicart.model.Order;
 import com.bicart.repository.OrderRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
 
     private final static Logger logger = LogManager.getLogger(OrderService.class);
 
@@ -29,8 +30,8 @@ public class OrderService {
      * </p>
      *
      * @param userId user id
-     * @param page page number
-     * @param size number of orders per page
+     * @param page   page number
+     * @param size   number of orders per page
      * @return {@link Set<OrderDto>} set of orders
      * @throws CustomException if error while fetching orders
      */
@@ -42,8 +43,9 @@ public class OrderService {
                     .map(OrderMapper::modelToDto)
                     .collect(Collectors.toSet());
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Error in retrieving the orders with the user id: {}", userId, e);
             throw new CustomException("Error while fetching orders");
         }
     }
+
 }

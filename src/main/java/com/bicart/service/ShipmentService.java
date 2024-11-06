@@ -6,6 +6,7 @@ import com.bicart.helper.CustomException;
 import com.bicart.mapper.ShipmentMapper;
 import com.bicart.model.Shipment;
 import com.bicart.repository.ShipmentRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ShipmentService {
 
-    @Autowired
-    private ShipmentRepository shipmentRepository;
+    private final ShipmentRepository shipmentRepository;
 
     private static final Logger logger = LogManager.getLogger(ShipmentService.class);
 
@@ -53,13 +54,13 @@ public class ShipmentService {
      * @return the created shipmentDto object.
      * @throws CustomException if exception is thrown.
      */
-    public ShipmentDto addShipment(ShipmentDto shipmentDto) throws CustomException {
+    public ShipmentDto addShipment(ShipmentDto shipmentDto) {
         try {
             Shipment shipment = ShipmentMapper.dtoToModel((shipmentDto));
-            shipmentRepository.save(shipment);
-            ShipmentDto shipmentDto1 = ShipmentMapper.modelToDto((shipment));
-            logger.info("Shipment added successfully with ID: {}", shipmentDto1.getId());
-            return shipmentDto1;
+            saveShipment(shipment);
+            shipmentDto = ShipmentMapper.modelToDto((shipment));
+            logger.info("Shipment added successfully with ID: {}", shipmentDto.getId());
+            return shipmentDto;
         } catch (Exception e) {
             logger.error("Error adding a shipment", e);
             throw new CustomException("Server Error!!!!", e);
@@ -74,7 +75,7 @@ public class ShipmentService {
      * @return {@link Set <ShipmentDto>} all the Shipment.
      * @throws CustomException, when any custom Exception is thrown.
      */
-    public Set<ShipmentDto> getAllShipments(int page, int size) throws CustomException {
+    public Set<ShipmentDto> getAllShipments(int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<Shipment> shipmentPage = shipmentRepository.findAllByIsDeletedFalse(pageable);
@@ -97,7 +98,7 @@ public class ShipmentService {
      * @return the Shipment object.
      * @throws NoSuchElementException when occurred.
      */
-    public ShipmentDto getShipmentById(String id) throws NoSuchElementException, CustomException {
+    public ShipmentDto getShipmentById(String id) {
         try {
             Shipment shipment = shipmentRepository.findByIdAndIsDeletedFalse(id);
             if (shipment == null) {
@@ -107,7 +108,7 @@ public class ShipmentService {
             return ShipmentMapper.modelToDto(shipment);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.error("Shipment not found", e);
+                logger.error("Shipment not found for ID: {}", id, e);
                 throw e;
             }
             logger.error("Error in retrieving a shipment : {}", id, e);

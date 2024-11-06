@@ -6,6 +6,7 @@ import com.bicart.mapper.ReviewMapper;
 import com.bicart.model.Product;
 import com.bicart.model.Review;
 import com.bicart.repository.ReviewRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +21,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ReviewService {
 
-    @Autowired
-    private ReviewRepository reviewRepository;
+    private final ReviewRepository reviewRepository;
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
 
     private static final Logger logger = LogManager.getLogger(ReviewService.class);
@@ -57,17 +57,17 @@ public class ReviewService {
      * @return the created reviewDto object.
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
-    public ReviewDto addReview(ReviewDto reviewDTO, String productId) throws CustomException {
+    public ReviewDto addReview(ReviewDto reviewDTO, String productId) {
         try {
             Review review = ReviewMapper.dtoToModel((reviewDTO));
             Product product = productService.getProductById(productId);
             review.setProduct(product);
-            reviewRepository.save(review);
+            saveReview(review);
             ReviewDto reviewDto = ReviewMapper.modelToDto((review));
             logger.info("Review added successfully with ID: {}", reviewDto.getId());
             return reviewDto;
         } catch (Exception e) {
-            logger.error("Error adding a review", e);
+            logger.error("Error adding a review with Product ID: {}", productId, e);
             throw new CustomException("Server Error!!!!", e);
         }
     }
@@ -83,7 +83,7 @@ public class ReviewService {
      * @return {@link Set<ReviewDto>} set of all reviews given by the user
      * @throws CustomException if any exception is thrown
      */
-    public Set<ReviewDto> getAllReviewsByUserId(String userId, int page, int size) throws CustomException {
+    public Set<ReviewDto> getAllReviewsByUserId(String userId, int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<Review> reviews = reviewRepository.findByUserIdAndIsDeletedFalse(userId, pageable);
@@ -106,7 +106,7 @@ public class ReviewService {
      * @return the Review object.
      * @throws NoSuchElementException when occurred.
      */
-    public ReviewDto getReviewById(String id) throws NoSuchElementException, CustomException {
+    public ReviewDto getReviewById(String id) {
         try {
             Review review = reviewRepository.findByIdAndIsDeletedFalse(id);
             if (review == null) {
@@ -116,7 +116,7 @@ public class ReviewService {
             return ReviewMapper.modelToDto(review);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.error("Review not found", e);
+                logger.error("Review not found for ID: {}", id, e);
                 throw e;
             }
             logger.error("Error in retrieving a review : {}", id, e);

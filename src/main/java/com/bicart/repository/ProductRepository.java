@@ -8,13 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public interface ProductRepository extends JpaRepository<Product, String> {
     Product findByIdAndIsDeletedFalse(@NonNull String id);
 
     boolean existsByName(@NotBlank(message = "Product name should not be blank") String name);
 
-    List<Product> findAllByIsDeletedFalse(Pageable pageable);
+    Set<Product> findAllByIsDeletedFalse(Pageable pageable);
 
-    List<Product> findAllBySubCategoryNameAndIsDeletedFalse(@NonNull String subCategoryName, Pageable pageable);
+    Set<Product> findAllBySubCategoryNameAndIsDeletedFalse(@NonNull String subCategoryName, Pageable pageable);
 }

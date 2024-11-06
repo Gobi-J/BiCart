@@ -5,6 +5,7 @@ import com.bicart.helper.CustomException;
 import com.bicart.mapper.ShipmentTrackingMapper;
 import com.bicart.model.ShipmentTracking;
 import com.bicart.repository.ShipmentTrackingRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ShipmentTrackingService {
 
-    @Autowired
-    private ShipmentTrackingRepository shipmentTrackingRepository;
+    private final ShipmentTrackingRepository shipmentTrackingRepository;
 
     private static final Logger logger = LogManager.getLogger(ShipmentTrackingService.class);
 
@@ -36,9 +37,9 @@ public class ShipmentTrackingService {
     public void saveShipmentTracking(ShipmentTracking shipmentTracking) {
         try {
             shipmentTrackingRepository.save(shipmentTracking);
-            logger.info("ShipmentTracking saved successfully");
+            logger.info("ShipmentTracking saved successfully with the id: {} ", shipmentTracking.getId());
         } catch (Exception e) {
-            logger.error("Error in saving shipmentTracking");
+            logger.error("Error in saving shipmentTracking with the id: {} ", shipmentTracking.getId());
             throw new CustomException("Server error!!", e);
         }
     }
@@ -52,15 +53,15 @@ public class ShipmentTrackingService {
      * @return the created shipmentTrackingDto object.
      * @throws CustomException if exception is thrown.
      */
-    public ShipmentTrackingDto addShipmentTracking(ShipmentTrackingDto shipmentTrackingDto) throws CustomException {
+    public ShipmentTrackingDto addShipmentTracking(ShipmentTrackingDto shipmentTrackingDto) {
         try {
             ShipmentTracking shipmentTracking = ShipmentTrackingMapper.dtoToModel((shipmentTrackingDto));
-            shipmentTrackingRepository.save(shipmentTracking);
-            ShipmentTrackingDto shipmentTrackingDto1 = ShipmentTrackingMapper.modelToDto((shipmentTracking));
-            logger.info("ShipmentTracking added successfully with ID: {}", shipmentTrackingDto1.getId());
-            return shipmentTrackingDto1;
+            saveShipmentTracking(shipmentTracking);
+            shipmentTrackingDto = ShipmentTrackingMapper.modelToDto((shipmentTracking));
+            logger.info("ShipmentTracking added successfully with ID: {}", shipmentTrackingDto.getId());
+            return shipmentTrackingDto;
         } catch (Exception e) {
-            logger.error("Error adding a shipment", e);
+            logger.error("Error adding a shipment with ID: {}", shipmentTrackingDto.getId(), e);
             throw new CustomException("Server Error!!!!", e);
         }
     }
@@ -73,7 +74,7 @@ public class ShipmentTrackingService {
      * @return {@link Set <ShipmentDto>} all the Shipment.
      * @throws CustomException, when any custom Exception is thrown.
      */
-    public Set<ShipmentTrackingDto> getAllShipmentTrackings(int page, int size) throws CustomException {
+    public Set<ShipmentTrackingDto> getAllShipmentTracking(int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<ShipmentTracking> shipmentTrackingPage = shipmentTrackingRepository.findAllByIsDeletedFalse(pageable);
@@ -89,14 +90,14 @@ public class ShipmentTrackingService {
 
     /**
      * <p>
-     * Retrieves and displays the details of an shipmentTrackings.
+     * Retrieves and displays the details of an shipmentTracking.
      * </p>
      *
      * @param id the ID of the ShipmentTracking whose details are to be viewed
      * @return the ShipmentTracking object.
      * @throws NoSuchElementException when occurred.
      */
-    public ShipmentTrackingDto getShipmentTrackingById(String id) throws NoSuchElementException, CustomException {
+    public ShipmentTrackingDto getShipmentTrackingById(String id) {
         try {
             ShipmentTracking shipmentTracking = shipmentTrackingRepository.findByIdAndIsDeletedFalse(id);
             if (shipmentTracking == null) {

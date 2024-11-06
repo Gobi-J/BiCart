@@ -7,6 +7,7 @@ import com.bicart.mapper.RoleMapper;
 import com.bicart.mapper.UserMapper;
 import com.bicart.model.Role;
 import com.bicart.repository.RoleRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RoleService {
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
     private static final Logger logger = LogManager.getLogger(RoleService.class);
 
@@ -54,10 +55,10 @@ public class RoleService {
      * @return the created roleDto object.
      * @throws CustomException if exception is thrown.
      */
-    public RoleDto addRole(RoleDto roleDTO) throws CustomException {
+    public RoleDto addRole(RoleDto roleDTO) {
         try {
             Role role = RoleMapper.dtoToModel((roleDTO));
-            roleRepository.save(role);
+            saveRole(role);
             RoleDto roleDto = RoleMapper.modelToDto((role));
             logger.info("Role added successfully with ID: {}", roleDto.getId());
             return roleDto;
@@ -75,7 +76,7 @@ public class RoleService {
      * @return {@link Set <RoleDto>} all the Role.
      * @throws CustomException, when any custom Exception is thrown.
      */
-    public Set<RoleDto> getAllRoles() throws CustomException {
+    public Set<RoleDto> getAllRoles() {
         try {
             Set<Role> roles = roleRepository.findAllByIsDeletedFalse();
             logger.info("Displayed role details for page");
@@ -97,7 +98,7 @@ public class RoleService {
      * @return the Role object.
      * @throws NoSuchElementException when occurred.
      */
-    public Role getRoleById(String id) throws NoSuchElementException, CustomException {
+    public Role getRoleById(String id) {
         try {
             Role role = roleRepository.findByIdAndIsDeletedFalse(id);
             if (role == null) {
@@ -107,7 +108,7 @@ public class RoleService {
             return role;
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.error("Role not found", e);
+                logger.error("Role not found for the given id: {} ", id, e);
                 throw e;
             }
             logger.error("Error in retrieving a role : {}", id, e);
@@ -123,17 +124,17 @@ public class RoleService {
      * @param id the ID of the role to be deleted.
      * @throws CustomException if exception is thrown.
      */
-    public void deleteRole(String id) throws CustomException {
+    public void deleteRole(String id) {
         try {
             Role role = roleRepository.findByIdAndIsDeletedFalse(id);
             if (role == null) {
                 throw new NoSuchElementException("Role not found for the given id: " + id);
             }
             role.setIsDeleted(true);
-            roleRepository.save(role);
+            saveRole(role);
             logger.info("Role deleted successfully with ID: {}", id);
         } catch (NoSuchElementException e) {
-            logger.error("Role not found", e);
+            logger.error("Role not found for the given id: {} ", id, e);
             throw e;
         } catch (Exception e) {
             logger.error("Error in deleting a role : {}", id, e);

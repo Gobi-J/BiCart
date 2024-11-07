@@ -6,12 +6,15 @@ import com.bicart.helper.CustomException;
 import com.bicart.mapper.OrderMapper;
 import com.bicart.model.Cart;
 import com.bicart.model.Order;
+import com.bicart.repository.OrderItemRepository;
 import com.bicart.repository.OrderRepository;
+
 import lombok.RequiredArgsConstructor;
+
 import com.bicart.util.DateUtil;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,10 +36,10 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final CartService cartService;
 
     private final static Logger logger = LogManager.getLogger(OrderService.class);
-    @Autowired
-    private CartService cartService;
+    private final OrderItemRepository orderItemRepository;
 
     /**
      * <p>
@@ -44,15 +47,14 @@ public class OrderService {
      * </p>
      *
      * @param order order to save
-     * @return {@link Order} saved order
      * @throws CustomException if error while saving order
      */
-    public Order saveOrder(Order order) {
+    public void saveOrder(Order order) {
         try {
-            return orderRepository.save(order);
+            orderRepository.save(order);
         } catch (Exception e) {
             logger.error("Error saving order", e);
-            throw new CustomException("Error saving order");
+            throw new CustomException("Could not save order with id: " + order.getId(), e);
         }
     }
 
@@ -71,13 +73,13 @@ public class OrderService {
     public Set<OrderDto> getOrdersByUserId(String userId, int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<Order> orders = orderRepository.findByUserIdAndIsDeletedFalse(userId, pageable);
+            Page<Order> orders = orderRepository.findByUserId(userId, pageable);
             return orders.getContent().stream()
                     .map(OrderMapper::modelToDto)
                     .collect(Collectors.toSet());
         } catch (Exception e) {
             logger.error("Error in retrieving the orders with the user id: {}", userId, e);
-            throw new CustomException("Error while fetching orders");
+            throw new CustomException("Could not retrieve the orders with the user id: " + userId);
         }
     }
 
@@ -99,10 +101,11 @@ public class OrderService {
             return order;
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
+                logger.warn("Order not found with id: {}", orderId);
                 throw e;
             }
             logger.error(e);
-            throw new CustomException("Error while fetching order");
+            throw new CustomException("Could not fetch order with id: " + orderId);
         }
     }
 
@@ -118,20 +121,22 @@ public class OrderService {
     public OrderDto createOrder(String userId) {
         try {
             Cart cart = cartService.getCart(userId);
-            Order order = new Order();
+            final Order order = new Order();
             order.setId(UUID.randomUUID().toString());
             order.setQuantity(cart.getQuantity());
             order.setPrice(cart.getPrice());
             order.setUser(cart.getUser());
-            order.setOrderItems(cart.getOrderItems());
+            // TODO
+//            order.setOrderItems(cart.getOrderItems());
             order.setStatus(OrderStatus.PENDING);
             order.setDeliveryDate(DateUtil.getUpdatedDate(new Date(), 3));
             order.setCreatedAt(new Date());
-            order = saveOrder(order);
+            order.setIsDeleted(false);
+            saveOrder(order);
             return OrderMapper.modelToDto(order);
         } catch (Exception e) {
-            logger.error(e);
-            throw new CustomException("Error while creating order");
+            logger.error("Could not create order for user id: {}", userId, e);
+            throw new CustomException("Could not create order for user id: " + userId);
         }
     }
 
@@ -154,11 +159,11 @@ public class OrderService {
             orderRepository.save(order);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
+                logger.warn("Order not found with id: {}", orderId);
                 throw e;
             }
-            logger.error(e);
-            throw new CustomException("Error while deleting order");
+            logger.error("Could not cancel order with id: {}", orderId);
+            throw new CustomException("Could not cancel order with id: " + orderId);
         }
     }
-
 }

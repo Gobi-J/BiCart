@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,8 +35,8 @@ public class CartController {
      * @return {@link ResponseEntity<Cart>} containing the cart of the user, with HTTP status OK
      */
     @GetMapping
-    public ResponseEntity<Cart> getCart(@RequestAttribute("id") String userId) {
-        return new ResponseEntity<>(cartService.getCart(userId), HttpStatus.OK);
+    public ResponseEntity<CartDto> getCart(@RequestAttribute("id") String userId) {
+        return new ResponseEntity<>(cartService.getCartByUserId(userId), HttpStatus.OK);
     }
 
     /**
@@ -48,7 +49,7 @@ public class CartController {
      * @return {@link ResponseEntity<CartDto>} containing the updated cart of the user, with HTTP status OK
      */
     @PutMapping
-    public ResponseEntity<CartDto> addToCart(@RequestAttribute("id") String userId, CartDto cartDto) {
+    public ResponseEntity<CartDto> addToCart(@RequestAttribute("id") String userId, @RequestBody CartDto cartDto) {
         return new ResponseEntity<>(cartService.addToCart(userId, cartDto), HttpStatus.OK);
     }
 

@@ -1,11 +1,9 @@
 package com.bicart.service;
 
-import com.bicart.dto.ReviewDto;
 import com.bicart.dto.UserDto;
 import com.bicart.helper.CustomException;
 import com.bicart.helper.UnAuthorizedException;
 import com.bicart.mapper.UserMapper;
-import com.bicart.model.Address;
 import com.bicart.model.Role;
 import com.bicart.model.User;
 import com.bicart.repository.UserRepository;
@@ -28,7 +26,6 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,8 +35,6 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final ReviewService reviewService;
-    private final ProductService productService;
     private final AuthenticationManager authenticationManager;
     private final RoleService roleService;
 
@@ -266,10 +261,6 @@ public class UserService {
             logger.error("Error in user login with id: {} ", userDTO.getId(), e);
             throw new UnAuthorizedException("Invalid Username or Password");
         }
-    }
-
-    public Set<ReviewDto> getReviewsByUserId(String userId, int page, int size) {
-        return reviewService.getAllReviewsByUserId(userId, page, size);
     }
 
     private User initializeUser(User user) {

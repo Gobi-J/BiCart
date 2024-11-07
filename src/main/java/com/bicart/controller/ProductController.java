@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -56,8 +57,10 @@ public class ProductController {
      * @return {@link ResponseEntity<ReviewDto>} review details that were added.
      */
     @PostMapping("/{productId}/reviews")
-    public ResponseEntity<ReviewDto> addProductReview(@PathVariable String productId, @RequestBody ReviewDto reviewDto) {
-        return new ResponseEntity<>(reviewService.addReview(reviewDto, productId), HttpStatus.OK);
+    public ResponseEntity<ReviewDto> addProductReview(@RequestAttribute("id") String userId,
+                                                      @PathVariable String productId,
+                                                      @RequestBody ReviewDto reviewDto) {
+        return new ResponseEntity<>(reviewService.addReview(userId, reviewDto, productId), HttpStatus.CREATED);
     }
 
     /**

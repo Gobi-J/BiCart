@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * <p>
@@ -174,6 +176,7 @@ public class OrderItemService {
                 }
             }
             OrderItem orderItem = new OrderItem();
+            orderItem.setId(UUID.randomUUID().toString());
             orderItem.setProduct(product);
             orderItem.setQuantity(orderItemDto.getQuantity());
             orderItem.setPrice(product.getPrice() * orderItemDto.getQuantity());
@@ -183,6 +186,9 @@ public class OrderItemService {
             orderItems.add(orderItem);
             return orderItems;
         } catch (Exception e) {
+            if (e instanceof NoSuchElementException) {
+                throw e;
+            }
             logger.error("Error updating cart items", e);
             throw new CustomException("Error updating cart items");
         }

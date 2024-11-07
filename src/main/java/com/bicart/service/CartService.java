@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -80,7 +81,6 @@ public class CartService {
      */
     public CartDto addToCart(String userId, CartDto cartDto) {
         try {
-            System.out.println("Adding to cart");
             Cart cart = getCart(userId);
             if (cart == null) {
                 cart = new Cart();
@@ -88,7 +88,6 @@ public class CartService {
                 cart.setUser(userService.getUserModelById(userId));
             }
             Set<OrderItem> orderItems = cart.getOrderItems();
-            System.out.println(cartDto.getOrderItems());
             if (orderItems == null) {
                 orderItems = new HashSet<>();
             }
@@ -96,6 +95,9 @@ public class CartService {
             cart.setOrderItems(orderItems);
             return CartMapper.modelToDto(saveCart(cart));
         } catch (Exception e) {
+            if (e instanceof NoSuchElementException) {
+                throw e;
+            }
             logger.error("Error adding to cart", e);
             throw new CustomException("Error adding to cart");
         }
@@ -117,5 +119,9 @@ public class CartService {
             logger.error("Error deleting cart", e);
             throw new CustomException("Error deleting cart");
         }
+    }
+
+    public CartDto getCartByUserId(String userId) {
+        return CartMapper.modelToDto(getCart(userId));
     }
 }

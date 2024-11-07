@@ -1,5 +1,7 @@
 package com.bicart.mapper;
 
+import java.util.stream.Collectors;
+
 import com.bicart.dto.CartDto;
 import com.bicart.model.Cart;
 
@@ -9,6 +11,9 @@ public class CartMapper {
                 .id(cart.getId())
                 .quantity(cart.getQuantity())
                 .price(cart.getPrice())
+                .orderItems(cart.getOrderItems().stream()
+                        .map(OrderItemMapper::modelToDto)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 

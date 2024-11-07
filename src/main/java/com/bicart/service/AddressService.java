@@ -14,10 +14,12 @@ import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -65,7 +67,11 @@ public class AddressService {
     public AddressDto addAddress(AddressDto addressDTO, String userId) {
         try {
             Address address = AddressMapper.dtoToModel(addressDTO);
+            address.setId(UUID.randomUUID().toString());
             address.setUser(userService.getUserModelById(userId));
+            address.setCreatedAt(new Date());
+            address.setCreatedBy(userId);
+            address.setIsDeleted(false);
             saveAddress(address);
             AddressDto addressDto = AddressMapper.modelToDto((address));
             logger.info("Address added successfully with Id {}", addressDto.getId());

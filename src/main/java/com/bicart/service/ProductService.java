@@ -97,7 +97,7 @@ public class ProductService {
             return product;
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
-                logger.warn("Product not found for the Id: {} ", id, e);
+                logger.warn("Product not found for the Id: {} ", id);
                 throw e;
             }
             logger.error(e);

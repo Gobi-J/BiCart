@@ -22,7 +22,7 @@ import java.util.Set;
  * </p>
  */
 @RestController
-@RequestMapping("/v1/users/me/orders")
+@RequestMapping("/v1/orders")
 @RequiredArgsConstructor
 public class OrderController {
 

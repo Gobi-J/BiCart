@@ -5,9 +5,11 @@ import com.bicart.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Set;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
@@ -30,7 +32,8 @@ public class PaymentController {
      * @return {@link ResponseEntity<PaymentDto>} payment details that were added with {@link HttpStatus} CREATED
      */
     @PostMapping
-    public ResponseEntity<PaymentDto> createPayment(@PathVariable String orderId, @RequestBody PaymentDto paymentDto) {
+    public ResponseEntity<PaymentDto> createPayment(@PathVariable String orderId,
+                                                    @RequestBody PaymentDto paymentDto) {
         return new ResponseEntity<>(paymentService.createPayment(orderId, paymentDto), HttpStatus.CREATED);
     }
 }

@@ -34,7 +34,7 @@ public class UserController {
      * @param userDto The user details to be added.
      * @return {@link ResponseEntity<UserDto>} user details that were added with {@link HttpStatus} CREATED
      */
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) {
         return new ResponseEntity<>(userService.addUser(userDto), HttpStatus.CREATED);
     }

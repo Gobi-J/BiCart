@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.util.Date;
+import java.util.Set;
 
 @Builder
 @Getter
@@ -30,4 +31,6 @@ public class OrderDto {
     private long price;
     private PaymentDto payment;
     private UserDto user;
+
+    private Set<OrderItemDto> orderItems;
 }

@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -36,6 +37,7 @@ public class ReviewService {
 
 
     private static final Logger logger = LogManager.getLogger(ReviewService.class);
+    private final UserService userService;
 
     /**
      * <p>
@@ -63,12 +65,16 @@ public class ReviewService {
      * @return {@link ReviewDto} created reviewDto object.
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
-    public ReviewDto addReview(ReviewDto reviewDTO, String productId) {
+    public ReviewDto addReview(String userId, ReviewDto reviewDTO, String productId) {
         try {
             Review review = ReviewMapper.dtoToModel((reviewDTO));
             Product product = productService.getProductById(productId);
             review.setId(UUID.randomUUID().toString());
             review.setProduct(product);
+            review.setIsDeleted(false);
+            review.setCreatedAt(new Date());
+            review.setCreatedBy(userId);
+            review.setUser(userService.getUserModelById(userId));
             saveReview(review);
             ReviewDto reviewDto = ReviewMapper.modelToDto((review));
             logger.info("Review added successfully with ID: {}", reviewDto.getId());

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +38,7 @@ public class PaymentService {
     private final OrderService orderService;
 
     private static final Logger logger = LogManager.getLogger(PaymentService.class);
+    private final CartService cartService;
 
     /**
      * <p>
@@ -124,11 +126,14 @@ public class PaymentService {
                 throw new DuplicateKeyException("Order is not in pending state");
             }
             Payment payment = PaymentMapper.dtoToModel(paymentDto);
+            payment.setId(UUID.randomUUID().toString());
             payment.setCreatedAt(new Date());
             payment.setStatus(PaymentStatus.PAID);
             order.setStatus(OrderStatus.PAID);
             order.setPayment(payment);
             orderService.saveOrder(order);
+            // TODO
+//            cartService.deleteCart(order.getUser().getId());
             return PaymentMapper.modelToDto(payment);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
@@ -139,15 +144,8 @@ public class PaymentService {
                 logger.error("Order is not in pending state", e);
                 throw e;
             }
-            logger.error("Error in creating payment", e);
+            logger.error("Error in creating payment for the order with the id : {}", orderId);
             throw new CustomException("Server Error!!!!", e);
         }
     }
 }
-
-
-
-
-
-
-

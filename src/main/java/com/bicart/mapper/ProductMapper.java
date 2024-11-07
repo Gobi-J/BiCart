@@ -16,6 +16,7 @@ public class ProductMapper {
 
     public static ProductDto modelToDto(Product product) {
         return ProductDto.builder()
+                .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())

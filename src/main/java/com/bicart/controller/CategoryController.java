@@ -1,8 +1,7 @@
 package com.bicart.controller;
 
-import com.bicart.dto.CategoryDto;
-import com.bicart.model.Category;
-import com.bicart.service.CategoryService;
+import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Set;
+import com.bicart.dto.CategoryDto;
+import com.bicart.model.Category;
+import com.bicart.service.CategoryService;
 
 /**
  * <p>
@@ -39,8 +39,8 @@ public class CategoryController {
      * @param category Category to be added
      * @return {@link ResponseEntity} with the added category and {@link HttpStatus} CREATED
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<CategoryDto> addCategory(@RequestBody CategoryDto category) {
         return new ResponseEntity<>(categoryService.addCategory(category), HttpStatus.CREATED);
     }
@@ -79,7 +79,7 @@ public class CategoryController {
      * @return {@link ResponseEntity} with the updated category and {@link HttpStatus} OK
      */
     @PatchMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<CategoryDto> updateCategory(@RequestBody CategoryDto categoryDto) {
         return new ResponseEntity<>(categoryService.updateCategory(categoryDto), HttpStatus.OK);
     }
@@ -91,8 +91,8 @@ public class CategoryController {
      * @param categoryName Name of the category
      * @return {@link ResponseEntity} with {@link HttpStatus} NO_CONTENT
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{categoryName}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<HttpStatus> deleteCategory(@PathVariable String categoryName) {
         categoryService.deleteCategory(categoryName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -1,13 +1,14 @@
 package com.bicart.controller;
 
-import com.bicart.dto.AddressDto;
-import com.bicart.service.AddressService;
+import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import com.bicart.dto.AddressDto;
+import com.bicart.service.AddressService;
 
 /**
  * <p>
@@ -67,7 +68,7 @@ public class AddressController {
      * @return {@link ResponseEntity<AddressDto>} address details with {@link HttpStatus} OK
      */
     @GetMapping("/{addressId}")
-    public ResponseEntity<AddressDto> getAddressById(@PathVariable String addressId){
+    public ResponseEntity<AddressDto> getAddressById(@PathVariable String addressId) {
         return new ResponseEntity<>(addressService.getAddressById(addressId), HttpStatus.OK);
     }
 

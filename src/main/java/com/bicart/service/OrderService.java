@@ -1,18 +1,12 @@
 package com.bicart.service;
 
-import com.bicart.constant.OrderStatus;
-import com.bicart.dto.OrderDto;
-import com.bicart.helper.CustomException;
-import com.bicart.mapper.OrderMapper;
-import com.bicart.model.Cart;
-import com.bicart.model.Order;
-import com.bicart.repository.OrderItemRepository;
-import com.bicart.repository.OrderRepository;
+import java.util.Date;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
-
-import com.bicart.util.DateUtil;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
@@ -20,11 +14,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import com.bicart.constant.OrderStatus;
+import com.bicart.dto.OrderDto;
+import com.bicart.helper.CustomException;
+import com.bicart.mapper.OrderMapper;
+import com.bicart.model.Cart;
+import com.bicart.model.Order;
+import com.bicart.model.Payment;
+import com.bicart.repository.OrderItemRepository;
+import com.bicart.repository.OrderRepository;
+import com.bicart.util.DateUtil;
 
 /**
  * <p>
@@ -40,6 +39,7 @@ public class OrderService {
 
     private final static Logger logger = LogManager.getLogger(OrderService.class);
     private final OrderItemRepository orderItemRepository;
+    private final ShipmentService shipmentService;
 
     /**
      * <p>
@@ -92,9 +92,9 @@ public class OrderService {
      * @return {@link Order} order
      * @throws CustomException if error while fetching order
      */
-    public Order getOrderById(String orderId) {
+    public Order getOrderById(String userId, String orderId) {
         try {
-            Order order = orderRepository.findById(orderId).orElse(null);
+            Order order = orderRepository.findByIdAndUserId(orderId, userId);
             if (order == null) {
                 throw new NoSuchElementException("Order not found with id: " + orderId);
             }
@@ -165,5 +165,14 @@ public class OrderService {
             logger.error("Could not cancel order with id: {}", orderId);
             throw new CustomException("Could not cancel order with id: " + orderId);
         }
+    }
+
+    public void notifyPayment(String userId, String orderId, Payment payment) {
+        Order order = getOrderById(userId, orderId);
+        order.setPayment(payment);
+        order.setStatus(OrderStatus.PAID);
+        cartService.deleteCart(order.getUser().getId());
+        shipmentService.initializeShipment(order);
+        saveOrder(order);
     }
 }

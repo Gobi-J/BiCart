@@ -1,5 +1,15 @@
 package com.bicart.service;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
+
 import com.bicart.dto.OrderItemDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.OrderItemMapper;
@@ -7,16 +17,6 @@ import com.bicart.model.Cart;
 import com.bicart.model.OrderItem;
 import com.bicart.model.Product;
 import com.bicart.repository.OrderItemRepository;
-import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * <p>
@@ -72,11 +72,10 @@ public class OrderItemService {
      * </p>
      *
      * @param orderItem model.
-     * @return {@link OrderItem} the saved order item
      */
-    public OrderItem saveOrderItem(OrderItem orderItem) {
+    public void saveOrderItem(OrderItem orderItem) {
         try {
-            return orderItemRepository.save(orderItem);
+            orderItemRepository.save(orderItem);
         } catch (Exception e) {
             logger.error("Error saving order item", e);
             throw new CustomException("Error saving order item");

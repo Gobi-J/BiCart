@@ -21,11 +21,11 @@ public class UserDto {
     @Pattern(regexp = "^[a-zA-Z]+")
     private String name;
 
-    @NotBlank(message = "mobileNumber is mandatory")
+    @NotBlank(message = "MobileNumber is mandatory")
     @Pattern(regexp = "^[1-9][0-9]{9}$", message = " Mobile number should contain only numbers")
     private String mobileNumber;
 
-    @Email
+    @Email(message = "Email should be in valid format(Eg. user@gmail.com)")
     private String email;
 
     @NotBlank(message = "Password is mandatory")

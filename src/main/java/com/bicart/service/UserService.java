@@ -1,13 +1,11 @@
 package com.bicart.service;
 
-import com.bicart.dto.UserDto;
-import com.bicart.helper.CustomException;
-import com.bicart.helper.UnAuthorizedException;
-import com.bicart.mapper.UserMapper;
-import com.bicart.model.Role;
-import com.bicart.model.User;
-import com.bicart.repository.UserRepository;
-import com.bicart.util.JwtUtil;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -16,19 +14,20 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import com.bicart.dto.UserDto;
+import com.bicart.helper.CustomException;
+import com.bicart.helper.UnAuthorizedException;
+import com.bicart.mapper.UserMapper;
+import com.bicart.model.Role;
+import com.bicart.model.User;
+import com.bicart.repository.UserRepository;
+import com.bicart.util.JwtUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -48,12 +47,12 @@ public class UserService {
      *
      * @param user model.
      */
-    public User saveUser(User user) {
+    public void saveUser(User user) {
         try {
-            return userRepository.save(user);
+            userRepository.save(user);
         } catch (Exception e) {
             logger.error("Error in saving user");
-            throw new CustomException("Server error!!", e);
+            throw new CustomException("Cannot save user. Try Again", e);
         }
     }
 
@@ -67,37 +66,25 @@ public class UserService {
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
     public UserDto addUser(UserDto userDTO) throws DuplicateKeyException, CustomException {
-        try {
-            User user = UserMapper.dtoToModel((userDTO));
-            if (userRepository.existsByEmailAndIsDeletedFalse(userDTO.getEmail())) {
-                throw new DuplicateKeyException("User exists with same Email Id");
-            }
-            user.setId(UUID.randomUUID().toString());
-            user.setPassword(encoder.encode(userDTO.getPassword()));
-            user.setCreatedAt(new Date());
-            user.setCreatedBy(user.getId());
-            user.setIsDeleted(false);
-            if (userDTO.getRole() != null) {
-                System.out.println(userDTO.getRole());
-                Set<Role> roles = new HashSet<>();
-                userDTO.getRole().forEach(roleDto -> {
-                    Role role = roleService.getRoleByName(roleDto.getRoleName());
-                    roles.add(role);
-                });
-                user.setRole(roles);
-            }
-            userRepository.save(user);
-            UserDto userDto = UserMapper.modelToDto((user));
-            logger.info("User added successfully with ID: {}", userDto.getId());
-            return userDto;
-        } catch (Exception e) {
-            if (e instanceof DuplicateKeyException) {
-                logger.error("User already exists with same Email Id");
-                throw e;
-            }
-            logger.error("Error adding an user", e);
-            throw new CustomException("Server Error!!!!", e);
+        User user = UserMapper.dtoToModel((userDTO));
+        if (userRepository.existsByEmailOrMobileNumber(userDTO.getEmail(), userDTO.getMobileNumber())) {
+            logger.error("User with same Email Id or Mobile Number exists");
+            throw new DuplicateKeyException("User with same Email or Mobile Number exists");
         }
+        user.setId(UUID.randomUUID().toString());
+        user.setPassword(encoder.encode(userDTO.getPassword()));
+        user.setCreatedAt(new Date());
+        user.setCreatedBy(user.getId());
+        user.setIsDeleted(false);
+        try {
+            user.setRole(Set.of(roleService.getRoleByName("USER")));
+        } catch (Exception e) {
+            logger.error("Error in setting role for user", e);
+            throw new CustomException("Cannot apply role to an user", e);
+        }
+        saveUser(user);
+        logger.info("User added successfully with name: {}", user.getName());
+        return UserMapper.modelToDto(user);
     }
 
     /**

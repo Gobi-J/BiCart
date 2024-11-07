@@ -1,24 +1,26 @@
 package com.bicart.service;
 
-import com.bicart.dto.ShipmentDto;
-import com.bicart.helper.CustomException;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-import com.bicart.mapper.ShipmentMapper;
-import com.bicart.model.Shipment;
-import com.bicart.repository.ShipmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.bicart.constant.ShipmentStatus;
+import com.bicart.dto.ShipmentDto;
+import com.bicart.helper.CustomException;
+import com.bicart.mapper.ShipmentMapper;
+import com.bicart.model.Order;
+import com.bicart.model.Shipment;
+import com.bicart.model.ShipmentTracking;
+import com.bicart.repository.ShipmentRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class ShipmentService {
     private final ShipmentRepository shipmentRepository;
 
     private static final Logger logger = LogManager.getLogger(ShipmentService.class);
+    private final ShipmentTrackingService shipmentTrackingService;
 
     /**
      * <p>
@@ -114,6 +117,16 @@ public class ShipmentService {
             logger.error("Error in retrieving a shipment : {}", id, e);
             throw new CustomException("Server Error!!!!", e);
         }
+    }
+
+    public void initializeShipment(Order order) {
+        Shipment shipment = new Shipment();
+        shipment.setId(UUID.randomUUID().toString());
+        ShipmentTracking shipmentTracking = shipmentTrackingService.initializeShipping();
+        shipment.setCurrentStatus(ShipmentStatus.PENDING);
+        shipment.setShipmentTracking(Set.of(shipmentTracking));
+        saveShipment(shipment);
+        order.setShipment(shipment);
     }
 }
 

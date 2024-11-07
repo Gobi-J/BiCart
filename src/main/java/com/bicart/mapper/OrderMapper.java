@@ -25,6 +25,7 @@ public class OrderMapper {
                 .price(order.getPrice())
                 .quantity(order.getQuantity())
                 .status(order.getStatus())
+                .shipment(order.getShipment() != null ? ShipmentMapper.modelToDto(order.getShipment()) : null)
                 .build();
     }
 }

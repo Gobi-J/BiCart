@@ -1,25 +1,24 @@
 package com.bicart.service;
 
-import com.bicart.dto.CategoryDto;
-import com.bicart.helper.CustomException;
-import com.bicart.mapper.CategoryMapper;
-import com.bicart.model.Category;
-import com.bicart.repository.CategoryRepository;
+import java.util.Date;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.bicart.dto.CategoryDto;
+import com.bicart.helper.CustomException;
+import com.bicart.mapper.CategoryMapper;
+import com.bicart.model.Category;
+import com.bicart.repository.CategoryRepository;
 
 /**
  * <p>

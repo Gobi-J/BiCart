@@ -1,26 +1,25 @@
 package com.bicart.service;
 
+import java.util.Date;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.bicart.dto.ReviewDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.ReviewMapper;
 import com.bicart.model.Product;
 import com.bicart.model.Review;
 import com.bicart.repository.ReviewRepository;
-import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -32,12 +31,10 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-
     private final ProductService productService;
-
+    private final UserService userService;
 
     private static final Logger logger = LogManager.getLogger(ReviewService.class);
-    private final UserService userService;
 
     /**
      * <p>

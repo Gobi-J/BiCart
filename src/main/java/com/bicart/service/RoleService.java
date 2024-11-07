@@ -1,21 +1,5 @@
 package com.bicart.service;
 
-import com.bicart.dto.RoleDto;
-import com.bicart.dto.UserDto;
-import com.bicart.helper.CustomException;
-import com.bicart.mapper.RoleMapper;
-import com.bicart.mapper.UserMapper;
-import com.bicart.model.Role;
-import com.bicart.repository.RoleRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
-import org.springframework.stereotype.Service;
-
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,6 +8,15 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
+
+import com.bicart.dto.RoleDto;
+import com.bicart.helper.CustomException;
+import com.bicart.mapper.RoleMapper;
+import com.bicart.model.Role;
+import com.bicart.repository.RoleRepository;
 
 @Service
 @RequiredArgsConstructor

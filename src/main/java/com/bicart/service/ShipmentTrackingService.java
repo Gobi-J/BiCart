@@ -1,23 +1,24 @@
 package com.bicart.service;
 
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.bicart.constant.ShipmentStatus;
 import com.bicart.dto.ShipmentTrackingDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.ShipmentTrackingMapper;
 import com.bicart.model.ShipmentTracking;
 import com.bicart.repository.ShipmentTrackingRepository;
-import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
-import org.springframework.stereotype.Service;
-
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -113,6 +114,14 @@ public class ShipmentTrackingService {
             logger.error("Error in retrieving a shipmentTracking : {}", id, e);
             throw new CustomException("Server Error!!!!", e);
         }
+    }
+
+    public ShipmentTracking initializeShipping() {
+        ShipmentTracking shipmentTracking = new ShipmentTracking();
+        shipmentTracking.setId(UUID.randomUUID().toString());
+        shipmentTracking.setLocation("IN STORE");
+        shipmentTracking.setStatus(ShipmentStatus.PENDING);
+        return shipmentTracking;
     }
 }
 

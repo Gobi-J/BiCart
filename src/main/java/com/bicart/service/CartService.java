@@ -1,21 +1,21 @@
 package com.bicart.service;
 
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
+
 import com.bicart.dto.CartDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.CartMapper;
 import com.bicart.model.Cart;
 import com.bicart.model.OrderItem;
 import com.bicart.repository.CartRepository;
-import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * <p>
@@ -114,6 +114,7 @@ public class CartService {
     public void deleteCart(String userId) {
         try {
             Cart cart = getCart(userId);
+            cart.getOrderItems().forEach(orderItem -> orderItem.setCart(null));
             cartRepository.delete(cart);
         } catch (Exception e) {
             logger.error("Error deleting cart", e);

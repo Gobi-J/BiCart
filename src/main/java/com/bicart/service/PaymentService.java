@@ -1,5 +1,20 @@
 package com.bicart.service;
 
+import java.util.Date;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.bicart.constant.OrderStatus;
 import com.bicart.constant.PaymentStatus;
 import com.bicart.dto.PaymentDto;
@@ -8,22 +23,6 @@ import com.bicart.mapper.PaymentMapper;
 import com.bicart.model.Order;
 import com.bicart.model.Payment;
 import com.bicart.repository.PaymentRepository;
-import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
-import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -38,7 +37,6 @@ public class PaymentService {
     private final OrderService orderService;
 
     private static final Logger logger = LogManager.getLogger(PaymentService.class);
-    private final CartService cartService;
 
     /**
      * <p>
@@ -113,12 +111,11 @@ public class PaymentService {
      *
      * @param orderId the ID of the order for which payment is to be updated.
      * @param paymentDto the updated payment details.
-     * @return {@link PaymentDto} updated Payment object.
      * @throws CustomException if any custom exception is thrown.
      */
-    public PaymentDto createPayment(String orderId, PaymentDto paymentDto) {
+    public void createPayment(String userId, String orderId, PaymentDto paymentDto) {
         try {
-            Order order = orderService.getOrderById(orderId);
+            Order order = orderService.getOrderById(userId, orderId);
             if (order == null) {
                 throw new NoSuchElementException("Order not found with id: " + orderId);
             }
@@ -129,12 +126,7 @@ public class PaymentService {
             payment.setId(UUID.randomUUID().toString());
             payment.setCreatedAt(new Date());
             payment.setStatus(PaymentStatus.PAID);
-            order.setStatus(OrderStatus.PAID);
-            order.setPayment(payment);
-            orderService.saveOrder(order);
-            // TODO
-//            cartService.deleteCart(order.getUser().getId());
-            return PaymentMapper.modelToDto(payment);
+            orderService.notifyPayment(userId, orderId, payment);
         } catch (Exception e) {
             if (e instanceof NoSuchElementException) {
                 logger.error("Order not found", e);

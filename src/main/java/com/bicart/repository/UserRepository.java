@@ -26,5 +26,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findByRoleId(String roleId);
 
     User findByEmailAndIsDeletedFalse(String username);
+
+    boolean existsByEmailOrMobileNumber(@Email String email, String mobileNumber);
 }
 

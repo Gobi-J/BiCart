@@ -1,10 +1,7 @@
 package com.bicart.controller;
 
-import com.bicart.dto.ProductDto;
-import com.bicart.dto.ReviewDto;
-import com.bicart.model.Product;
-import com.bicart.service.ProductService;
-import com.bicart.service.ReviewService;
+import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
+import com.bicart.dto.ProductDto;
+import com.bicart.dto.ReviewDto;
+import com.bicart.model.Product;
+import com.bicart.service.ProductService;
+import com.bicart.service.ReviewService;
 
 /**
  * <p>
@@ -42,8 +43,8 @@ public class ProductController {
      * @param productDto The product details to be added.
      * @return {@link ResponseEntity<ProductDto>} product details that were added.
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto productDto) {
         return new ResponseEntity<>(productService.addProduct(productDto), HttpStatus.CREATED);
     }
@@ -125,8 +126,8 @@ public class ProductController {
      * @param productId The product id to be deleted.
      * @return {@link ResponseEntity<HttpStatus>} status of the request.
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{productId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<HttpStatus> deleteProduct(@PathVariable String productId) {
         productService.deleteProduct(productId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

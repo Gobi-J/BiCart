@@ -1,20 +1,22 @@
 package com.bicart.controller;
 
-import com.bicart.dto.OrderDto;
-import com.bicart.model.Order;
-import com.bicart.service.OrderService;
+import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
+import com.bicart.dto.OrderDto;
+import com.bicart.model.Order;
+import com.bicart.service.OrderService;
 
 /**
  * <p>
@@ -55,8 +57,8 @@ public class OrderController {
      * @return {@link ResponseEntity<Order>} containing the order, with HTTP status OK
      */
     @GetMapping("/{orderId}")
-    public ResponseEntity<Order> getOrderById(@RequestAttribute("id") String userId, @RequestParam String orderId) {
-        return new ResponseEntity<>(orderService.getOrderById(orderId), HttpStatus.OK);
+    public ResponseEntity<Order> getOrderById(@RequestAttribute("id") String userId, @PathVariable String orderId) {
+        return new ResponseEntity<>(orderService.getOrderById(userId, orderId), HttpStatus.OK);
     }
 
     /**
@@ -82,7 +84,7 @@ public class OrderController {
      * @return {@link ResponseEntity<HttpStatus>} with {@link HttpStatus} NO_CONTENT
      */
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<HttpStatus> cancelOrder(@RequestAttribute("id") String userId, @RequestParam String orderId) {
+    public ResponseEntity<HttpStatus> cancelOrder(@RequestAttribute("id") String userId, @PathVariable String orderId) {
         orderService.cancelOrder(userId, orderId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

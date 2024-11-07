@@ -33,4 +33,6 @@ public class OrderDto {
     private UserDto user;
 
     private Set<OrderItemDto> orderItems;
+
+    private ShipmentDto shipment;
 }

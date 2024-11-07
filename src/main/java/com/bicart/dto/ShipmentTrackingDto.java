@@ -22,6 +22,5 @@ public class ShipmentTrackingDto {
     private String location;
 
     private ShipmentStatus status;
-    private ShipmentDto shipment;
 
 }

@@ -39,7 +39,7 @@ public class RoleService {
             logger.info("Role saved successfully");
         } catch (Exception e) {
             logger.error("Error in saving role");
-            throw new CustomException("Server error!!", e);
+            throw new CustomException("Cannot save role");
         }
     }
 
@@ -49,23 +49,14 @@ public class RoleService {
      * </p>
      *
      * @param roleDTO to create new role.
-     * @return the created roleDto object.
      * @throws CustomException if exception is thrown.
      */
-    public RoleDto addRole(RoleDto roleDTO) throws CustomException {
-        try {
-            Role role = RoleMapper.dtoToModel((roleDTO));
-            role.setId(UUID.randomUUID().toString());
-            role.setIsDeleted(false);
-            role.setCreatedAt(new Date());
-            saveRole(role);
-            RoleDto roleDto = RoleMapper.modelToDto((role));
-            logger.info("Role added successfully with ID: {}", roleDto.getId());
-            return roleDto;
-        } catch (Exception e) {
-            logger.error("Error adding a role", e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+    public void addRole(RoleDto roleDTO) {
+        Role role = RoleMapper.dtoToModel((roleDTO));
+        role.setId(UUID.randomUUID().toString());
+        role.setAudit("ADMIN");
+        saveRole(role);
+        logger.info("{} role added successfully", role.getRoleName());
     }
 
     /**
@@ -77,16 +68,11 @@ public class RoleService {
      * @throws CustomException, when any custom Exception is thrown.
      */
     public Set<RoleDto> getAllRoles() throws CustomException {
-        try {
-            List<Role> roles = roleRepository.findAllByIsDeletedFalse();
-            logger.info("Displayed role details for page");
-            return roles.stream()
-                    .map(RoleMapper::modelToDto)
-                    .collect(Collectors.toSet());
-        } catch (Exception e) {
-            logger.error("Error in retrieving all roles", e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+        List<Role> roles = roleRepository.findAllByIsDeletedFalse();
+        logger.info("Displayed role details for page");
+        return roles.stream()
+                .map(RoleMapper::modelToDto)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -98,48 +84,42 @@ public class RoleService {
      * @return the Role object.
      * @throws NoSuchElementException when occurred.
      */
-    public Role getRoleByName(String name) throws NoSuchElementException, CustomException {
-        try {
-            Role role = roleRepository.findByRoleNameAndIsDeletedFalse(name);
-            if (role == null) {
-                throw new NoSuchElementException("Role not found for the given name: " + name);
-            }
-            logger.info("Retrieved role details for name: {}", name);
-            return role;
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.error("Role not found", e);
-                throw e;
-            }
-            logger.error("Error in retrieving a role : {}", name, e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+    public RoleDto getRoleByName(String name) {
+        Role role = getRoleModelByName(name);
+        return RoleMapper.modelToDto(role);
     }
 
     /**
      * <p>
-     * Deletes the role with the given ID.
+     * Retrieves and displays the details of an roles.
+     * </p>
+     *
+     * @param name the name of the role whose details are to be viewed
+     * @return the Role object.
+     * @throws NoSuchElementException when occurred.
+     */
+    public Role getRoleModelByName(String name) {
+        Role role = roleRepository.findByRoleNameAndIsDeletedFalse(name);
+        if (role == null) {
+            throw new NoSuchElementException("Role not found for the given name: " + name);
+        }
+        logger.info("Retrieved role details for name: {}", name);
+        return role;
+    }
+
+    /**
+     * <p>
+     * Deletes the role with the given name.
      * </p>
      *
      * @param name the name of the role to be deleted.
      * @throws CustomException if exception is thrown.
      */
-    public void deleteRole(String name) throws CustomException {
-        try {
-            Role role = roleRepository.findByRoleNameAndIsDeletedFalse(name);
-            if (role == null) {
-                throw new NoSuchElementException("Role not found for the given name: " + name);
-            }
-            role.setIsDeleted(true);
-            saveRole(role);
-            logger.info("Role deleted successfully with ID: {}", name);
-        } catch (NoSuchElementException e) {
-            logger.error("Role not found for the given name: {} ", name, e);
-            throw e;
-        } catch (Exception e) {
-            logger.error("Error in deleting a role : {}", name, e);
-            throw new CustomException("Server error!!", e);
-        }
+    public void deleteRole(String name) {
+        Role role = getRoleModelByName(name);
+        role.setIsDeleted(true);
+        saveRole(role);
+        logger.info("{} role deleted successfully", name);
     }
 }
 

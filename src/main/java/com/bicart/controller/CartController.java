@@ -40,7 +40,10 @@ public class CartController {
     @GetMapping
     public ResponseEntity<SuccessResponse> getCart(@RequestAttribute("id") String userId) {
         CartDto cartDto = cartService.getCartByUserId(userId);
-        return SuccessResponse.setSuccessResponse("Cart fetched Successful", HttpStatus.OK, cartDto);
+        if (cartDto == null) {
+            return SuccessResponse.setSuccessResponse("Cart is empty", HttpStatus.OK);
+        }
+        return SuccessResponse.setSuccessResponse("Cart fetched successfully", HttpStatus.OK, cartDto);
     }
 
     /**
@@ -55,7 +58,7 @@ public class CartController {
     @PutMapping
     public ResponseEntity<SuccessResponse> addToCart(@Validated @RequestAttribute("id") String userId, @RequestBody CartDto cartDto) {
         cartService.addToCart(userId, cartDto);
-        return SuccessResponse.setSuccessResponse("Added to Cart Successful", HttpStatus.OK);
+        return SuccessResponse.setSuccessResponse("Cart updated successfully", HttpStatus.OK);
     }
 
     /**
@@ -69,6 +72,6 @@ public class CartController {
     @DeleteMapping
     public ResponseEntity<SuccessResponse> deleteCart(@RequestAttribute("id") String userId) {
         cartService.deleteCart(userId);
-        return SuccessResponse.setSuccessResponse("Cart Deleted Successfully", HttpStatus.NO_CONTENT);
+        return SuccessResponse.setSuccessResponse("Cart deleted successfully", HttpStatus.NO_CONTENT);
     }
 }

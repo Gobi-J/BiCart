@@ -41,7 +41,7 @@ public class ShipmentTrackingService {
             logger.info("ShipmentTracking saved successfully with the id: {} ", shipmentTracking.getId());
         } catch (Exception e) {
             logger.error("Error in saving shipmentTracking with the id: {} ", shipmentTracking.getId());
-            throw new CustomException("Server error!!", e);
+            throw new CustomException("Cannot save Shipment Tracking", e);
         }
     }
 
@@ -51,76 +51,30 @@ public class ShipmentTrackingService {
      * </p>
      *
      * @param shipmentTrackingDto to create new shipment.
-     * @return the created shipmentTrackingDto object.
+     * @return {@link ShipmentTrackingDto} details which is added
      * @throws CustomException if exception is thrown.
      */
     public ShipmentTrackingDto addShipmentTracking(ShipmentTrackingDto shipmentTrackingDto) {
-        try {
-            ShipmentTracking shipmentTracking = ShipmentTrackingMapper.dtoToModel((shipmentTrackingDto));
-            saveShipmentTracking(shipmentTracking);
-            shipmentTrackingDto = ShipmentTrackingMapper.modelToDto((shipmentTracking));
-            logger.info("ShipmentTracking added successfully with ID: {}", shipmentTrackingDto.getId());
-            return shipmentTrackingDto;
-        } catch (Exception e) {
-            logger.error("Error adding a shipment with ID: {}", shipmentTrackingDto.getId(), e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+        ShipmentTracking shipmentTracking = ShipmentTrackingMapper.dtoToModel((shipmentTrackingDto));
+        saveShipmentTracking(shipmentTracking);
+        shipmentTrackingDto = ShipmentTrackingMapper.modelToDto((shipmentTracking));
+        logger.info("ShipmentTracking added successfully with ID: {}", shipmentTrackingDto.getId());
+        return shipmentTrackingDto;
     }
 
     /**
      * <p>
-     * Retrieves and displays all shipment.
+     *  Initializes the shipping of the product.
      * </p>
      *
-     * @return {@link Set <ShipmentDto>} all the Shipment.
-     * @throws CustomException, when any custom Exception is thrown.
+     * @return {@link ShipmentTracking} initial shipment which is in pending state
      */
-    public Set<ShipmentTrackingDto> getAllShipmentTracking(int page, int size) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<ShipmentTracking> shipmentTrackingPage = shipmentTrackingRepository.findAllByIsDeletedFalse(pageable);
-            logger.info("Displayed shipmentTracking details for page : {}", page);
-            return shipmentTrackingPage.getContent().stream()
-                    .map(ShipmentTrackingMapper::modelToDto)
-                    .collect(Collectors.toSet());
-        } catch (Exception e) {
-            logger.error("Error in retrieving all shipmentTracking", e);
-            throw new CustomException("Server Error!!!!", e);
-        }
-    }
-
-    /**
-     * <p>
-     * Retrieves and displays the details of an shipmentTracking.
-     * </p>
-     *
-     * @param id the ID of the ShipmentTracking whose details are to be viewed
-     * @return the ShipmentTracking object.
-     * @throws NoSuchElementException when occurred.
-     */
-    public ShipmentTrackingDto getShipmentTrackingById(String id) {
-        try {
-            ShipmentTracking shipmentTracking = shipmentTrackingRepository.findByIdAndIsDeletedFalse(id);
-            if (shipmentTracking == null) {
-                throw new NoSuchElementException("ShipmentTracking not found for the given id: " + id);
-            }
-            logger.info("Retrieved shipmentTracking details for ID: {}", id);
-            return ShipmentTrackingMapper.modelToDto(shipmentTracking);
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.error("ShipmentTracking not found", e);
-                throw e;
-            }
-            logger.error("Error in retrieving a shipmentTracking : {}", id, e);
-            throw new CustomException("Server Error!!!!", e);
-        }
-    }
-
     public ShipmentTracking initializeShipping() {
         ShipmentTracking shipmentTracking = new ShipmentTracking();
         shipmentTracking.setId(UUID.randomUUID().toString());
         shipmentTracking.setLocation("IN STORE");
         shipmentTracking.setStatus(ShipmentStatus.PENDING);
+        shipmentTracking.setAudit("SYSTEM");
         return shipmentTracking;
     }
 }

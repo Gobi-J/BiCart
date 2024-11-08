@@ -63,8 +63,9 @@ public class AddressController {
      */
     @GetMapping
     public ResponseEntity<SuccessResponse> getAllAddresses(@RequestParam(defaultValue = "0") int page,
-                                                           @RequestParam(defaultValue = "10") int size) {
-        Set<AddressDto> addresses = addressService.getAllAddresses(page, size);
+                                                           @RequestParam(defaultValue = "10") int size,
+                                                           @RequestAttribute("id") String userId) {
+        Set<AddressDto> addresses = addressService.getAllAddresses(userId, page, size);
         return SuccessResponse.setSuccessResponse("Addresses fetched successfully", HttpStatus.OK, addresses);
     }
 

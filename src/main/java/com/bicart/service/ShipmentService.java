@@ -36,7 +36,7 @@ public class ShipmentService {
      * Saves a Shipment.
      * </p>
      *
-     * @param shipment model.
+     * @param shipment to save.
      */
     public void saveShipment(Shipment shipment) {
         try {
@@ -44,7 +44,7 @@ public class ShipmentService {
             logger.info("Shipment saved successfully");
         } catch (Exception e) {
             logger.error("Error in saving shipment");
-            throw new CustomException("Server error!!", e);
+            throw new CustomException("Cannot save shipment");
         }
     }
 
@@ -58,16 +58,13 @@ public class ShipmentService {
      * @throws CustomException if exception is thrown.
      */
     public ShipmentDto addShipment(ShipmentDto shipmentDto) {
-        try {
-            Shipment shipment = ShipmentMapper.dtoToModel((shipmentDto));
-            saveShipment(shipment);
-            shipmentDto = ShipmentMapper.modelToDto((shipment));
-            logger.info("Shipment added successfully with ID: {}", shipmentDto.getId());
-            return shipmentDto;
-        } catch (Exception e) {
-            logger.error("Error adding a shipment", e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+        Shipment shipment = ShipmentMapper.dtoToModel(shipmentDto);
+        shipment.setId(UUID.randomUUID().toString());
+        shipment.setAudit("SYSTEM");
+        saveShipment(shipment);
+        shipmentDto = ShipmentMapper.modelToDto((shipment));
+        logger.info("Shipment added successfully with ID: {}", shipmentDto.getId());
+        return shipmentDto;
     }
 
     /**
@@ -79,17 +76,12 @@ public class ShipmentService {
      * @throws CustomException, when any custom Exception is thrown.
      */
     public Set<ShipmentDto> getAllShipments(int page, int size) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<Shipment> shipmentPage = shipmentRepository.findAllByIsDeletedFalse(pageable);
-            logger.info("Displayed shipment details for page : {}", page);
-            return shipmentPage.getContent().stream()
-                    .map(ShipmentMapper::modelToDto)
-                    .collect(Collectors.toSet());
-        } catch (Exception e) {
-            logger.error("Error in retrieving all shipment", e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Shipment> shipmentPage = shipmentRepository.findAllByIsDeletedFalse(pageable);
+        logger.info("Displayed shipment details for page : {}", page);
+        return shipmentPage.getContent().stream()
+                .map(ShipmentMapper::modelToDto)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -102,31 +94,37 @@ public class ShipmentService {
      * @throws NoSuchElementException when occurred.
      */
     public ShipmentDto getShipmentById(String id) {
-        try {
-            Shipment shipment = shipmentRepository.findByIdAndIsDeletedFalse(id);
-            if (shipment == null) {
-                throw new NoSuchElementException("Shipment not found for the given id: " + id);
-            }
-            logger.info("Retrieved shipment details for ID: {}", id);
-            return ShipmentMapper.modelToDto(shipment);
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.error("Shipment not found for ID: {}", id, e);
-                throw e;
-            }
-            logger.error("Error in retrieving a shipment : {}", id, e);
-            throw new CustomException("Server Error!!!!", e);
+        Shipment shipment = shipmentRepository.findByIdAndIsDeletedFalse(id);
+        if (shipment == null) {
+            throw new NoSuchElementException("Shipment not found for the given id: " + id);
         }
+        logger.info("Retrieved shipment details for ID: {}", id);
+        return ShipmentMapper.modelToDto(shipment);
     }
 
     public void initializeShipment(Order order) {
-        Shipment shipment = new Shipment();
-        shipment.setId(UUID.randomUUID().toString());
         ShipmentTracking shipmentTracking = shipmentTrackingService.initializeShipping();
-        shipment.setCurrentStatus(ShipmentStatus.PENDING);
-        shipment.setShipmentTracking(Set.of(shipmentTracking));
+        Shipment shipment = Shipment.builder()
+                .id(UUID.randomUUID().toString())
+                .currentStatus(ShipmentStatus.PENDING)
+                .shipmentTracking(Set.of(shipmentTracking))
+                .build();
+        shipment.setAudit("SYSTEM");
         saveShipment(shipment);
         order.setShipment(shipment);
+    }
+
+    /**
+     * <p>
+     * Cancels the shipment.
+     * </p>
+     *
+     * @param order order
+     */
+    public void cancelShipment(Order order) {
+        Shipment shipment = order.getShipment();
+        shipment.setCurrentStatus(ShipmentStatus.CANCELLED);
+        saveShipment(shipment);
     }
 }
 

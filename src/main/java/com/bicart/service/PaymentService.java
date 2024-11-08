@@ -1,6 +1,5 @@
 package com.bicart.service;
 
-import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -64,17 +63,12 @@ public class PaymentService {
      * @throws CustomException, when any custom Exception is thrown.
      */
     public Set<PaymentDto> getAllPayments(int page, int size) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<Payment> paymentPage = paymentRepository.findAllByIsDeletedFalse(pageable);
-            logger.info("Displayed payment details for page : {}", page);
-            return paymentPage.getContent().stream()
-                    .map(PaymentMapper::modelToDto)
-                    .collect(Collectors.toSet());
-        } catch (Exception e) {
-            logger.error("Error in retrieving all payments", e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Payment> paymentPage = paymentRepository.findAllByIsDeletedFalse(pageable);
+        logger.info("Displayed payment details for page : {}", page);
+        return paymentPage.getContent().stream()
+                .map(PaymentMapper::modelToDto)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -87,21 +81,12 @@ public class PaymentService {
      * @throws NoSuchElementException when occurred.
      */
     public PaymentDto getPaymentById(String id) {
-        try {
-            Payment payment = paymentRepository.findByIdAndIsDeletedFalse(id);
-            if (payment == null) {
-                throw new NoSuchElementException("Payment not found for the given id: " + id);
-            }
-            logger.info("Retrieved payment details for ID: {}", id);
-            return PaymentMapper.modelToDto(payment);
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.error("Payment not found for the Id: {}", id, e);
-                throw e;
-            }
-            logger.error("Error in retrieving a payment with the id : {}", id, e);
-            throw new CustomException("Server Error!!!!", e);
+        Payment payment = paymentRepository.findByIdAndIsDeletedFalse(id);
+        if (payment == null) {
+            throw new NoSuchElementException("Payment not found for the given id: " + id);
         }
+        logger.info("Retrieved payment details for ID: {}", id);
+        return PaymentMapper.modelToDto(payment);
     }
 
     /**
@@ -109,35 +94,22 @@ public class PaymentService {
      * Updates the payment details.
      * </p>
      *
-     * @param orderId the ID of the order for which payment is to be updated.
+     * @param orderId    the ID of the order for which payment is to be updated.
      * @param paymentDto the updated payment details.
      * @throws CustomException if any custom exception is thrown.
      */
     public void createPayment(String userId, String orderId, PaymentDto paymentDto) {
-        try {
-            Order order = orderService.getOrderById(userId, orderId);
-            if (order == null) {
-                throw new NoSuchElementException("Order not found with id: " + orderId);
-            }
-            if (order.getStatus() != OrderStatus.PENDING) {
-                throw new DuplicateKeyException("Order is not in pending state");
-            }
-            Payment payment = PaymentMapper.dtoToModel(paymentDto);
-            payment.setId(UUID.randomUUID().toString());
-            payment.setCreatedAt(new Date());
-            payment.setStatus(PaymentStatus.PAID);
-            orderService.notifyPayment(userId, orderId, payment);
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.error("Order not found", e);
-                throw e;
-            }
-            if (e instanceof DuplicateKeyException) {
-                logger.error("Order is not in pending state", e);
-                throw e;
-            }
-            logger.error("Error in creating payment for the order with the id : {}", orderId);
-            throw new CustomException("Server Error!!!!", e);
+        Order order = orderService.getOrderModelById(userId, orderId);
+        if (order == null) {
+            throw new NoSuchElementException("Order not found with id: " + orderId);
         }
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new DuplicateKeyException("Order is not in pending state");
+        }
+        Payment payment = PaymentMapper.dtoToModel(paymentDto);
+        payment.setId(UUID.randomUUID().toString());
+        payment.setAudit(userId);
+        payment.setStatus(PaymentStatus.PAID);
+        orderService.notifyPayment(userId, orderId, payment);
     }
 }

@@ -2,7 +2,9 @@ package com.bicart.mapper;
 
 import java.util.stream.Collectors;
 
+import com.bicart.dto.ResponseUserDto;
 import com.bicart.dto.UserDto;
+import com.bicart.dto.UserRoleDto;
 import com.bicart.model.User;
 
 public class UserMapper {
@@ -19,16 +21,16 @@ public class UserMapper {
                 .build();
     }
 
-    public static UserDto modelToResponseUserDto(User user) {
-        return UserDto.builder()
+    public static ResponseUserDto modelToResponseUserDto(User user) {
+        return ResponseUserDto.builder()
                 .name(user.getName())
                 .mobileNumber(user.getMobileNumber())
                 .email(user.getEmail())
                 .build();
     }
 
-    public static UserDto modelToUserRoleDto(User user) {
-        return UserDto.builder()
+    public static UserRoleDto modelToUserRoleDto(User user) {
+        return  UserRoleDto.builder()
                 .name(user.getName())
                 .mobileNumber(user.getMobileNumber())
                 .email(user.getEmail())

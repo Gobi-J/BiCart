@@ -38,6 +38,23 @@ public class SubCategoryService {
 
     /**
      * <p>
+     * Saves a sub category.
+     * </p>
+     *
+     * @param subCategory the sub category to save
+     * @throws CustomException if an error occurs while saving the sub category
+     */
+    public void saveSubCategory(@NonNull SubCategory subCategory) {
+        try {
+            subCategoryRepository.save(subCategory);
+        } catch (Exception e) {
+            logger.error("Error in saving the sub category ", e);
+            throw new CustomException("Cannot save sub category with name " + subCategory.getName());
+        }
+    }
+
+    /**
+     * <p>
      *   Fetches a sub category by name.
      * </p>
      *
@@ -47,20 +64,26 @@ public class SubCategoryService {
      * @throws CustomException if an error occurs while fetching the sub category
      */
     public SubCategoryDto getSubCategoryByName(@NonNull String subCategoryName) {
-        try {
-            SubCategory subCategory = subCategoryRepository.findByNameAndIsDeletedFalse(subCategoryName);
-            if (subCategory == null) {
-                throw new NoSuchElementException("Sub category not found for the Name: " + subCategoryName);
-            }
-            return SubCategoryMapper.modelToDto(subCategory);
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.warn("Sub category not found for the Name: {} ", subCategoryName, e);
-                throw e;
-            }
-            logger.error("Error in retrieving the subcategory: {}", subCategoryName, e);
-            throw new CustomException("Error while fetching sub category");
+        SubCategory subCategory = getSubCategoryModelByName(subCategoryName);
+        return SubCategoryMapper.modelToDto(subCategory);
+    }
+
+    /**
+     * <p>
+     *   Fetches a sub category model by name.
+     * </p>
+     *
+     * @param subCategoryName the name of the sub category to fetch
+     * @return {@link SubCategory} the sub category model with the given name
+     * @throws NoSuchElementException if the sub category is not found
+     */
+    public SubCategory getSubCategoryModelByName(String subCategoryName) {
+        SubCategory subCategory = subCategoryRepository.findByNameAndIsDeletedFalse(subCategoryName);
+        if (subCategory == null) {
+            logger.warn("Sub category not found for the Name: {} ", subCategoryName);
+            throw new NoSuchElementException("Sub category not found for the Name: " + subCategoryName);
         }
+        return subCategory;
     }
 
     /**
@@ -74,32 +97,10 @@ public class SubCategoryService {
      * @throws CustomException if an error occurs while fetching the sub categories
      */
     public Set<SubCategoryDto> getSubCategories(int page, int size) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            return subCategoryRepository.findAllByIsDeletedFalse(pageable).getContent().stream()
-                    .map(SubCategoryMapper::modelToDto)
-                    .collect(Collectors.toSet());
-        } catch (Exception e) {
-            logger.error("Error in retrieving the sub categories", e);
-            throw new CustomException("Error while fetching sub categories");
-        }
-    }
-
-    /**
-     * <p>
-     * Saves a sub category.
-     * </p>
-     *
-     * @param subCategory the sub category to save
-     * @throws CustomException if an error occurs while saving the sub category
-     */
-    public void saveSubCategory(@NonNull SubCategory subCategory) {
-        try {
-            subCategoryRepository.save(subCategory);
-        } catch (Exception e) {
-            logger.error("Error in saving the sub category ", e);
-            throw new CustomException("Cannot save sub category");
-        }
+        Pageable pageable = PageRequest.of(page, size);
+        return subCategoryRepository.findAllByIsDeletedFalse(pageable).getContent().stream()
+                .map(SubCategoryMapper::modelToDto)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -118,22 +119,12 @@ public class SubCategoryService {
             throw new DuplicateKeyException("Sub category with name " + subCategoryDto.getName() + " already exists");
         }
         SubCategory subCategory = SubCategoryMapper.dtoToModel(subCategoryDto);
-        Category category = categoryService.getCategoryByName(subCategoryDto.getCategory().getName());
-        if (category == null) {
-            logger.warn("Category {} not found", subCategoryDto.getCategory().getName());
-            throw new NoSuchElementException("Category " + subCategoryDto.getCategory().getName() + " not found");
-        }
+        Category category = categoryService.getCategoryModelByName(subCategoryDto.getCategory().getName());
         subCategory.setCategory(category);
         subCategory.setId(UUID.randomUUID().toString());
-        subCategory.setCreatedAt(new Date());
-        subCategory.setIsDeleted(false);
-        try {
-            saveSubCategory(subCategory);
-            logger.info("Sub category {} added successfully", subCategoryDto.getName());
-        } catch (Exception e) {
-            logger.error("error in adding sub category : {}", subCategoryDto.getName(), e);
-            throw new CustomException("Cannot add sub category " + subCategoryDto.getName());
-        }
+        subCategory.setAudit("ADMIN");
+        saveSubCategory(subCategory);
+        logger.info("Sub category {} added successfully", subCategoryDto.getName());
     }
 
     /**
@@ -145,26 +136,14 @@ public class SubCategoryService {
      * @throws NoSuchElementException if the sub category is not found
      * @throws CustomException        if an error occurs while updating the sub category
      */
-    public void updateSubCategory(@NonNull SubCategoryDto subCategoryDto) {
-        SubCategory subCategory = subCategoryRepository.findByNameAndIsDeletedFalse(subCategoryDto.getName());
-        if (subCategory == null) {
-            logger.warn("Sub category {} not found", subCategoryDto.getName());
-            throw new NoSuchElementException("Sub category " + subCategoryDto.getName() + " not found");
-        }
+    public SubCategoryDto updateSubCategory(@NonNull SubCategoryDto subCategoryDto) {
+        SubCategory subCategory = getSubCategoryModelByName(subCategoryDto.getName());
         subCategory.setDescription(subCategoryDto.getDescription());
-        Category category = categoryService.getCategoryByName(subCategoryDto.getCategory().getName());
-        if (category == null) {
-            logger.warn("Category {} not found", subCategoryDto.getCategory().getName());
-            throw new NoSuchElementException("Category " + subCategoryDto.getCategory().getName() + " not found");
-        }
+        Category category = categoryService.getCategoryModelByName(subCategoryDto.getCategory().getName());
         subCategory.setCategory(category);
-        try {
-            saveSubCategory(subCategory);
-            logger.info("Sub category {} updated successfully", subCategoryDto.getName());
-        } catch (Exception e) {
-            logger.error("Error in updating sub category: {} ", subCategoryDto.getName(), e);
-            throw new CustomException("Cannot update sub category " + subCategoryDto.getName());
-        }
+        saveSubCategory(subCategory);
+        logger.info("Sub category {} updated successfully", subCategoryDto.getName());
+        return SubCategoryMapper.modelToDto(subCategory);
     }
 
     /**
@@ -177,18 +156,9 @@ public class SubCategoryService {
      * @throws CustomException if an error occurs while deleting the sub category
      */
     public void deleteSubCategory(@NonNull String subCategoryName) {
-        SubCategory subCategory = subCategoryRepository.findByNameAndIsDeletedFalse(subCategoryName);
-        if (subCategory == null) {
-            logger.warn("Sub category {} not found", subCategoryName);
-            throw new NoSuchElementException("Sub category " + subCategoryName + " not found");
-        }
+        SubCategory subCategory = getSubCategoryModelByName(subCategoryName);
         subCategory.setIsDeleted(true);
-        try {
-            saveSubCategory(subCategory);
-            logger.info("Sub category {} deleted successfully", subCategoryName);
-        } catch (Exception e) {
-            logger.error("Error in deleting Sub category: {}", subCategoryName, e);
-            throw new CustomException("Cannot delete sub category " + subCategoryName);
-        }
+        saveSubCategory(subCategory);
+        logger.info("Sub category {} deleted successfully", subCategoryName);
     }
 }

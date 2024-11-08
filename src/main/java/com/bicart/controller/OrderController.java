@@ -3,6 +3,7 @@ package com.bicart.controller;
 import java.util.Set;
 
 import com.bicart.helper.SuccessResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -75,8 +76,8 @@ public class OrderController {
      */
     @PostMapping
     public ResponseEntity<SuccessResponse> createOrder(@Validated @RequestAttribute("id") String userId) {
-        orderService.createOrder(userId);
-        return SuccessResponse.setSuccessResponse("Orders Created Successfully", HttpStatus.CREATED);
+        OrderDto order = orderService.createOrder(userId);
+        return SuccessResponse.setSuccessResponse("Orders Created Successfully", HttpStatus.CREATED, order);
     }
 
     /**
@@ -91,7 +92,6 @@ public class OrderController {
     @DeleteMapping("/{orderId}")
     public ResponseEntity<SuccessResponse> cancelOrder(@RequestAttribute("id") String userId, @PathVariable String orderId) {
         orderService.cancelOrder(userId, orderId);
-        return SuccessResponse.setSuccessResponse("Order cancelled Successfully", HttpStatus.NO_CONTENT);
-
+        return SuccessResponse.setSuccessResponse("Order Cancelled Successfully", HttpStatus.NO_CONTENT);
     }
 }

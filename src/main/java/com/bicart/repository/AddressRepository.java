@@ -20,4 +20,6 @@ public interface AddressRepository extends JpaRepository<Address, String> {
     Page<Address> findAllByIsDeletedFalse(Pageable pageable);
 
     List<Address> findByUserIdAndIsDeletedFalse(String userId);
+
+    Page<Address> findAllByUserIdAndIsDeletedFalse(String userId, Pageable pageable);
 }

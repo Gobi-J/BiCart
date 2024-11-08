@@ -5,4 +5,5 @@ public enum ShipmentStatus {
     DISPATCHED,
     OUT_FOR_DELIVERY,
     DELIVERED,
+    CANCELLED
 }

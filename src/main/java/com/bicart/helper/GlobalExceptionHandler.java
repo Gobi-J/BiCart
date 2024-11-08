@@ -3,14 +3,12 @@ package com.bicart.helper;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
@@ -22,79 +20,38 @@ import java.util.NoSuchElementException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {IllegalArgumentException.class, IllegalStateException.class})
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(RuntimeException e) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .code(HttpStatus.BAD_REQUEST.value())
-                .message(e.getMessage())
-                .status("ERROR")
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(Exception e) {
+        return ErrorResponse.setErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = {NoSuchElementException.class})
     public ResponseEntity<ErrorResponse> handleNoSuchElementException(NoSuchElementException e) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .code(HttpStatus.NOT_FOUND.value())
-                .message(e.getMessage())
-                .status("ERROR")
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        return ErrorResponse.setErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(value = {DuplicateKeyException.class})
     public ResponseEntity<ErrorResponse> handleDuplicateKeyException(DuplicateKeyException e) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .code(HttpStatus.CONFLICT.value())
-                .message(e.getMessage())
-                .status("ERROR")
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+        return ErrorResponse.setErrorResponse(e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .code(HttpStatus.BAD_REQUEST.value())
-                .message(e.getAllErrors().getFirst().getDefaultMessage())
-                .status("ERROR")
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return ErrorResponse.setErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = {UnAuthorizedException.class, UsernameNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleUserServiceException(Exception e) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .code(HttpStatus.UNAUTHORIZED.value())
-                .message(e.getMessage())
-                .status("ERROR")
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        return ErrorResponse.setErrorResponse(e.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(value = {ForbiddenException.class})
+    @ExceptionHandler(value = {ForbiddenException.class, AccessDeniedException.class})
     public ResponseEntity<ErrorResponse> handleForbiddenException(Exception e) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .code(HttpStatus.FORBIDDEN.value())
-                .message(e.getMessage())
-                .status("ERROR")
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+        return ErrorResponse.setErrorResponse(e.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(value = {CustomException.class})
+    @ExceptionHandler(value = {CustomException.class, Exception.class})
     public ResponseEntity<ErrorResponse> handleException(CustomException e) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .code(HttpStatus.CONFLICT.value())
-                .message("Error occurred with the server\n" + e.getMessage())
-                .status("ERROR")
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        String message = "Error occurred with the server. " + e.getMessage();
+        return ErrorResponse.setErrorResponse(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -1,6 +1,5 @@
 package com.bicart.service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -23,7 +22,7 @@ import com.bicart.repository.AddressRepository;
 
 /**
  * <p>
- *   Service class that handles business logic related to address.
+ * Service class that handles business logic related to address.
  * </p>
  */
 @Service
@@ -48,7 +47,7 @@ public class AddressService {
             logger.info("Address saved successfully with the id : {} ", address.getId());
         } catch (Exception e) {
             logger.error("Error in saving address with the id : {}", address.getId());
-            throw new CustomException("Server error!!", e);
+            throw new CustomException("Cannot save address with the id : " + address.getId());
         }
     }
 
@@ -58,25 +57,15 @@ public class AddressService {
      * </p>
      *
      * @param addressDTO to create new address.
-     * @return the created addressDto object.
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
-    public AddressDto addAddress(AddressDto addressDTO, String userId) {
-        try {
-            Address address = AddressMapper.dtoToModel(addressDTO);
-            address.setId(UUID.randomUUID().toString());
-            address.setUser(userService.getUserModelById(userId));
-            address.setCreatedAt(new Date());
-            address.setCreatedBy(userId);
-            address.setIsDeleted(false);
-            saveAddress(address);
-            AddressDto addressDto = AddressMapper.modelToDto((address));
-            logger.info("Address added successfully with Id {}", addressDto.getId());
-            return addressDto;
-        } catch (Exception e) {
-            logger.error("Error adding a address with the phone: {}", addressDTO.getPhone(), e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+    public void addAddress(AddressDto addressDTO, String userId) {
+        Address address = AddressMapper.dtoToModel(addressDTO);
+        address.setId(UUID.randomUUID().toString());
+        address.setUser(userService.getUserModelById(userId));
+        address.setAudit(userId);
+        saveAddress(address);
+        logger.info("Address added successfully with Id {}", address.getId());
     }
 
     /**
@@ -89,18 +78,13 @@ public class AddressService {
      * @return {@link Set <AddressDto>} all the Address.
      * @throws CustomException, when any custom Exception is thrown.
      */
-    public Set<AddressDto> getAllAddresses(int page, int size) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<Address> addressPage = addressRepository.findAllByIsDeletedFalse(pageable);
-            logger.info("Displayed address details for page : {}", page);
-            return addressPage.getContent().stream()
-                    .map(AddressMapper::modelToDto)
-                    .collect(Collectors.toSet());
-        } catch (Exception e) {
-            logger.error("Error in retrieving all addresses", e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+    public Set<AddressDto> getAllAddresses(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Address> addressPage = addressRepository.findAllByUserIdAndIsDeletedFalse(userId, pageable);
+        logger.info("Displayed address details for user : {}", userId);
+        return addressPage.getContent().stream()
+                .map(AddressMapper::modelToDto)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -113,15 +97,10 @@ public class AddressService {
      * @throws CustomException when exception is thrown.
      */
     public AddressDto updateAddress(AddressDto addressDto) {
-        try {
-            Address address = AddressMapper.dtoToModel((addressDto));
-            saveAddress(address);
-            logger.info("Address updated successfully for ID: {}", addressDto.getId());
-            return AddressMapper.modelToDto((address));
-        } catch (Exception e) {
-            logger.error("Error updating address for ID: {}", addressDto.getId(), e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+        Address address = AddressMapper.dtoToModel((addressDto));
+        saveAddress(address);
+        logger.info("Address updated successfully for ID: {}", addressDto.getId());
+        return AddressMapper.modelToDto((address));
     }
 
     /**
@@ -134,21 +113,9 @@ public class AddressService {
      * @throws NoSuchElementException when occurred.
      */
     public AddressDto getAddressById(String id) {
-        try {
-            Address address = addressRepository.findByIdAndIsDeletedFalse(id);
-            if (address == null) {
-                throw new NoSuchElementException("Address not found for the given id: " + id);
-            }
-            logger.info("Retrieved address details for ID: {}", id);
-            return AddressMapper.modelToDto(address);
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.error("Address not found for the given ID: {} ", id, e);
-                throw e;
-            }
-            logger.error("Error in retrieving an address for the id : {}", id, e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+        Address address = getAddressModelById(id);
+        logger.info("Retrieved address details for ID: {}", id);
+        return AddressMapper.modelToDto(address);
     }
 
     /**
@@ -160,22 +127,10 @@ public class AddressService {
      * @throws NoSuchElementException when occurred.
      */
     public void deleteAddressById(String id) {
-        try {
-            Address address = addressRepository.findByIdAndIsDeletedFalse(id);
-            if (address == null) {
-                throw new NoSuchElementException("Address not found for the given id: " + id);
-            }
-            address.setIsDeleted(true);
-            saveAddress(address);
-            logger.info("Address removed successfully with ID: {}", id);
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.error("Address not found for the id: {}", id, e);
-                throw e;
-            }
-            logger.error("Error in retrieving an address : {}", id, e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+        Address address = getAddressModelById(id);
+        address.setIsDeleted(true);
+        saveAddress(address);
+        logger.info("Address removed successfully with ID: {}", id);
     }
 
     /**
@@ -188,14 +143,13 @@ public class AddressService {
      * @throws NoSuchElementException when occurred.
      */
     public Address getAddressModelById(String id) {
-        try {
-            Address address = addressRepository.findByIdAndIsDeletedFalse(id);
-            logger.info("Retrieved address for the given id: {}", id);
-            return address;
-        } catch (Exception e) {
-            logger.error("Error in retrieving address for the given id: {}", id);
-            throw new CustomException("Error in retrieving address for the given id: " + id, e);
+        Address address = addressRepository.findByIdAndIsDeletedFalse(id);
+        if (address == null) {
+            logger.error("Address not found for the given id: {}", id);
+            throw new NoSuchElementException("Address not found for the given id: " + id);
         }
+        logger.info("Retrieved address for the given id: {}", id);
+        return address;
     }
 
     /**
@@ -206,16 +160,11 @@ public class AddressService {
      * @param userId the ID of the user whose address to be deleted.
      */
     public void deleteAddressWithUserId(String userId) {
-        try {
-            List<Address> addresses = addressRepository.findByUserIdAndIsDeletedFalse(userId);
-            addresses.forEach(address -> {
-                address.setIsDeleted(true);
-                saveAddress(address);
-            });
-        } catch (Exception e) {
-            logger.error("Error in address retrieving", e);
-            throw new CustomException("Address not found for the given user");
-        }
+        List<Address> addresses = addressRepository.findByUserIdAndIsDeletedFalse(userId);
+        addresses.forEach(address -> {
+            address.setIsDeleted(true);
+            saveAddress(address);
+        });
     }
 }
 

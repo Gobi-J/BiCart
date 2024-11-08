@@ -27,4 +27,10 @@ public class BaseEntity {
     private String updatedBy;
     @Column(name = "is_deleted")
     private Boolean isDeleted;
+
+    public void setAudit(String userId) {
+        this.createdAt = new Date();
+        this.createdBy = userId;
+        this.isDeleted = false;
+    }
 }

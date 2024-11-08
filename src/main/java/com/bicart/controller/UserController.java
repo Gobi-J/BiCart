@@ -12,15 +12,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bicart.dto.ReviewDto;
+import com.bicart.dto.ResponseUserDto;
 import com.bicart.dto.UserDto;
+import com.bicart.dto.UserRoleDto;
 import com.bicart.helper.SuccessResponse;
-import com.bicart.service.ReviewService;
 import com.bicart.service.UserService;
 
 /**
@@ -34,7 +35,6 @@ import com.bicart.service.UserService;
 public class UserController {
 
     private final UserService userService;
-    private final ReviewService reviewService;
 
     /**
      * <p>
@@ -77,7 +77,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {
-        Set<UserDto> users = userService.getAllUsers(page, size);
+        Set<ResponseUserDto> users = userService.getAllUsers(page, size);
         return SuccessResponse.setSuccessResponse("Users fetched successfully", HttpStatus.OK, users);
     }
 
@@ -89,9 +89,9 @@ public class UserController {
      * @param userId for which user is fetched
      * @return {@link ResponseEntity<UserDto>} user with {@link HttpStatus} OK
      */
-    @GetMapping("/{userId}")
-    public ResponseEntity<SuccessResponse> getUserById(@PathVariable String userId) {
-        UserDto user = userService.getUserById(userId);
+    @GetMapping("/me")
+    public ResponseEntity<SuccessResponse> getUserById(@RequestAttribute("id") String userId) {
+        UserRoleDto user = userService.getUserById(userId);
         return SuccessResponse.setSuccessResponse("User fetched successfully", HttpStatus.OK, user);
     }
 
@@ -121,5 +121,12 @@ public class UserController {
     public ResponseEntity<SuccessResponse> login(@RequestBody UserDto userDto) {
         String token = userService.authenticateUser(userDto);
         return SuccessResponse.setSuccessResponse("User authenticated successfully", HttpStatus.OK, token);
+    }
+
+    @PatchMapping("/make-admin")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<SuccessResponse> makeAdmin(@RequestBody UserDto userDto) {
+        userService.makeAdmin(userDto);
+        return SuccessResponse.setSuccessResponse("User updated successfully", HttpStatus.OK);
     }
 }

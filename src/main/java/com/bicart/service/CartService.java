@@ -1,7 +1,6 @@
 package com.bicart.service;
 
 import java.util.HashSet;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -71,21 +70,20 @@ public class CartService {
 
     /**
      * <p>
-     *   Adds an item to the cart.
+     * Adds an item to the cart.
      * </p>
      *
-     * @param userId the id of the user to add the item to the cart for
+     * @param userId  the id of the user to add the item to the cart for
      * @param cartDto the cart dto containing the item to add
-     * @return {@link CartDto} the updated cart
      * @throws CustomException if an error occurs while adding to the cart
      */
-    public CartDto addToCart(String userId, CartDto cartDto) {
-        try {
+    public void addToCart(String userId, CartDto cartDto) {
             Cart cart = getCart(userId);
             if (cart == null) {
                 cart = new Cart();
                 cart.setId(UUID.randomUUID().toString());
                 cart.setUser(userService.getUserModelById(userId));
+                cart.setAudit(userId);
             }
             Set<OrderItem> orderItems = cart.getOrderItems();
             if (orderItems == null) {
@@ -93,14 +91,7 @@ public class CartService {
             }
             orderItems = orderItemService.updateCartItems(orderItems, cartDto.getOrderItems(), cart);
             cart.setOrderItems(orderItems);
-            return CartMapper.modelToDto(saveCart(cart));
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                throw e;
-            }
-            logger.error("Error adding to cart", e);
-            throw new CustomException("Error adding to cart");
-        }
+        CartMapper.modelToDto(saveCart(cart));
     }
 
     /**
@@ -112,17 +103,14 @@ public class CartService {
      * @throws CustomException if an error occurs while deleting the cart
      */
     public void deleteCart(String userId) {
-        try {
             Cart cart = getCart(userId);
             cart.getOrderItems().forEach(orderItem -> orderItem.setCart(null));
             cartRepository.delete(cart);
-        } catch (Exception e) {
-            logger.error("Error deleting cart", e);
-            throw new CustomException("Error deleting cart");
-        }
+            logger.info("Cart deleted successfully for user id: {}", userId);
     }
 
     public CartDto getCartByUserId(String userId) {
+        Cart cart = getCart(userId);
         return CartMapper.modelToDto(getCart(userId));
     }
 }

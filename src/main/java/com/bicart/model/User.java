@@ -49,7 +49,7 @@ public class User extends BaseEntity implements UserDetails {
         for (Role r : role) {
              authorities.add(new SimpleGrantedAuthority(r.getRoleName()));
         }
-        return Collections.unmodifiableList(authorities);
+        return authorities;
    }
 
    @Override

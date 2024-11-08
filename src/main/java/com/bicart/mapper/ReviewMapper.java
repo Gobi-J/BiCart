@@ -10,14 +10,11 @@ public class ReviewMapper {
         return ReviewDto.builder()
                 .message(review.getMessage())
                 .rating(review.getRating())
-                .user((review.getUser() != null) ? UserMapper.modelToDto(review.getUser()) : null)
-                .product((review.getProduct() != null) ? ProductMapper.modelToDto(review.getProduct()) : null)
                 .build();
     }
 
     public static Review dtoToModel(ReviewDto reviewDto) {
         return Review.builder()
-                .id(reviewDto.getId())
                 .message(reviewDto.getMessage())
                 .rating(reviewDto.getRating())
                 .user((reviewDto.getUser() != null) ? UserMapper.dtoToModel(reviewDto.getUser()) : null)

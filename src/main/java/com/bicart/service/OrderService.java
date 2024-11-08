@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +39,6 @@ public class OrderService {
     private final CartService cartService;
 
     private final static Logger logger = LogManager.getLogger(OrderService.class);
-    private final OrderItemRepository orderItemRepository;
     private final ShipmentService shipmentService;
 
     /**
@@ -52,6 +52,7 @@ public class OrderService {
     public void saveOrder(Order order) {
         try {
             orderRepository.save(order);
+            logger.info("Order saved successfully with id: {}", order.getId());
         } catch (Exception e) {
             logger.error("Error saving order", e);
             throw new CustomException("Could not save order with id: " + order.getId(), e);
@@ -71,16 +72,12 @@ public class OrderService {
      * @throws CustomException if error while fetching orders
      */
     public Set<OrderDto> getOrdersByUserId(String userId, int page, int size) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<Order> orders = orderRepository.findByUserId(userId, pageable);
-            return orders.getContent().stream()
-                    .map(OrderMapper::modelToDto)
-                    .collect(Collectors.toSet());
-        } catch (Exception e) {
-            logger.error("Error in retrieving the orders with the user id: {}", userId, e);
-            throw new CustomException("Could not retrieve the orders with the user id: " + userId);
-        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Order> orders = orderRepository.findByUserId(userId, pageable);
+        logger.info("Fetched orders for user id: {}", userId);
+        return orders.getContent().stream()
+                .map(OrderMapper::modelToDto)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -92,21 +89,27 @@ public class OrderService {
      * @return {@link Order} order
      * @throws CustomException if error while fetching order
      */
-    public Order getOrderById(String userId, String orderId) {
-        try {
-            Order order = orderRepository.findByIdAndUserId(orderId, userId);
-            if (order == null) {
-                throw new NoSuchElementException("Order not found with id: " + orderId);
-            }
-            return order;
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.warn("Order not found with id: {}", orderId);
-                throw e;
-            }
-            logger.error(e);
-            throw new CustomException("Could not fetch order with id: " + orderId);
+    public OrderDto getOrderById(String userId, String orderId) {
+        Order order = getOrderModelById(userId, orderId);
+        return OrderMapper.modelToDto(order);
+    }
+
+    /**
+     * <p>
+     * Getting order by order id
+     * </p>
+     *
+     * @param orderId order id
+     * @return {@link Order} order
+     * @throws CustomException if error while fetching order
+     */
+    public Order getOrderModelById(String userId, String orderId) {
+        Order order = orderRepository.findByIdAndUserId(orderId, userId);
+        if (order == null) {
+            logger.warn("Order not found with id: {}", orderId);
+            throw new NoSuchElementException("Order not found with id: " + orderId);
         }
+        return order;
     }
 
     /**
@@ -119,25 +122,22 @@ public class OrderService {
      * @return {@link OrderDto} order
      */
     public OrderDto createOrder(String userId) {
-        try {
-            Cart cart = cartService.getCart(userId);
-            final Order order = new Order();
-            order.setId(UUID.randomUUID().toString());
-            order.setQuantity(cart.getQuantity());
-            order.setPrice(cart.getPrice());
-            order.setUser(cart.getUser());
-            // TODO
-//            order.setOrderItems(cart.getOrderItems());
-            order.setStatus(OrderStatus.PENDING);
-            order.setDeliveryDate(DateUtil.getUpdatedDate(new Date(), 3));
-            order.setCreatedAt(new Date());
-            order.setIsDeleted(false);
-            saveOrder(order);
-            return OrderMapper.modelToDto(order);
-        } catch (Exception e) {
-            logger.error("Could not create order for user id: {}", userId, e);
-            throw new CustomException("Could not create order for user id: " + userId);
+        Cart cart = cartService.getCart(userId);
+        if (cart == null) {
+            throw new NoSuchElementException("Cart not found for user id: " + userId);
         }
+        Order order = new Order();
+        order.setId(UUID.randomUUID().toString());
+        order.setQuantity(cart.getQuantity());
+        order.setPrice(cart.getPrice());
+        order.setUser(cart.getUser());
+        // TODO
+//      order.setOrderItems(cart.getOrderItems());
+        order.setStatus(OrderStatus.PENDING);
+        order.setDeliveryDate(DateUtil.getUpdatedDate(new Date(), 3));
+        order.setAudit(userId);
+        saveOrder(order);
+        return OrderMapper.modelToDto(order);
     }
 
     /**
@@ -145,30 +145,22 @@ public class OrderService {
      * Cancels an order.
      * </p>
      *
-     * @param userId user id
+     * @param userId  user id
      * @param orderId order id
      * @throws CustomException if error while deleting order
      */
     public void cancelOrder(String userId, String orderId) {
-        try {
-            Order order = orderRepository.findByIdAndUserId(orderId, userId);
-            if (order == null) {
-                throw new NoSuchElementException("Order not found with id: " + orderId);
-            }
-            order.setStatus(OrderStatus.CANCELLED);
-            orderRepository.save(order);
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.warn("Order not found with id: {}", orderId);
-                throw e;
-            }
-            logger.error("Could not cancel order with id: {}", orderId);
-            throw new CustomException("Could not cancel order with id: " + orderId);
+        Order order = getOrderModelById(userId, orderId);
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new DuplicateKeyException("Order already cancelled");
         }
+        order.setStatus(OrderStatus.CANCELLED);
+        shipmentService.cancelShipment(order);
+        saveOrder(order);
     }
 
     public void notifyPayment(String userId, String orderId, Payment payment) {
-        Order order = getOrderById(userId, orderId);
+        Order order = getOrderModelById(userId, orderId);
         order.setPayment(payment);
         order.setStatus(OrderStatus.PAID);
         cartService.deleteCart(order.getUser().getId());

@@ -1,7 +1,6 @@
 package com.bicart.service;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -20,7 +19,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.bicart.dto.ResponseUserDto;
 import com.bicart.dto.UserDto;
+import com.bicart.dto.UserRoleDto;
 import com.bicart.helper.CustomException;
 import com.bicart.helper.UnAuthorizedException;
 import com.bicart.mapper.UserMapper;
@@ -50,9 +51,10 @@ public class UserService {
     public void saveUser(User user) {
         try {
             userRepository.save(user);
+            logger.info("User saved successfully with id : {}", user.getId());
         } catch (Exception e) {
-            logger.error("Error in saving user");
-            throw new CustomException("Cannot save user. Try Again", e);
+            logger.error("Error in saving user with id : {}", user.getId(), e);
+            throw new CustomException("Cannot save user. Try Again");
         }
     }
 
@@ -62,10 +64,9 @@ public class UserService {
      * </p>
      *
      * @param userDTO to create new user.
-     * @return the created userDto object.
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
-    public UserDto addUser(UserDto userDTO) throws DuplicateKeyException, CustomException {
+    public void addUser(UserDto userDTO) {
         User user = UserMapper.dtoToModel((userDTO));
         if (userRepository.existsByEmailOrMobileNumber(userDTO.getEmail(), userDTO.getMobileNumber())) {
             logger.error("User with same Email Id or Mobile Number exists");
@@ -73,18 +74,16 @@ public class UserService {
         }
         user.setId(UUID.randomUUID().toString());
         user.setPassword(encoder.encode(userDTO.getPassword()));
-        user.setCreatedAt(new Date());
-        user.setCreatedBy(user.getId());
-        user.setIsDeleted(false);
+        user.setAudit(user.getId());
         try {
-            user.setRole(Set.of(roleService.getRoleByName("USER")));
+            user.setRole(Set.of(roleService.getRoleModelByName("USER")));
         } catch (Exception e) {
             logger.error("Error in setting role for user", e);
-            throw new CustomException("Cannot apply role to an user", e);
+            throw new CustomException("Cannot apply role to an user");
         }
         saveUser(user);
         logger.info("User added successfully with name: {}", user.getName());
-        return UserMapper.modelToDto(user);
+        UserMapper.modelToDto(user);
     }
 
     /**
@@ -96,16 +95,11 @@ public class UserService {
      * @return the updated User object.
      * @throws CustomException when exception is thrown.
      */
-    public UserDto updateUser(UserDto userDto) throws CustomException {
-        try {
-            User user = UserMapper.dtoToModel((userDto));
-            userRepository.save(user);
-            logger.info("User updated successfully for ID: {}", userDto.getId());
-            return UserMapper.modelToDto((user));
-        } catch (Exception e) {
-            logger.error("Error updating user", e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+    public UserDto updateUser(UserDto userDto) {
+        User user = UserMapper.dtoToModel((userDto));
+        saveUser(user);
+        logger.info("User updated successfully for ID: {}", userDto.getId());
+        return UserMapper.modelToDto((user));
     }
 
     /**
@@ -116,18 +110,13 @@ public class UserService {
      * @return {@link Set <UserDto>} all the Users.
      * @throws CustomException, when any custom Exception is thrown.
      */
-    public Set<UserDto> getAllUsers(int page, int size) throws CustomException {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<User> userPage = userRepository.findAllByIsDeletedFalse(pageable);
-            logger.info("Displayed user details for page : {}", page);
-            return userPage.getContent().stream()
-                    .map(UserMapper::modelToDto)
-                    .collect(Collectors.toSet());
-        } catch (Exception e) {
-            logger.error("Error in retrieving all users", e);
-            throw new CustomException("Server Error!!!!", e);
-        }
+    public Set<ResponseUserDto> getAllUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> userPage = userRepository.findAllByIsDeletedFalse(pageable);
+        logger.info("Displayed user details for page : {}", page);
+        return userPage.getContent().stream()
+                .map(UserMapper::modelToResponseUserDto)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -139,22 +128,14 @@ public class UserService {
      * @return the User object.
      * @throws NoSuchElementException when occurred.
      */
-    public UserDto getUserById(String id) throws NoSuchElementException, CustomException {
-        try {
-            User user = userRepository.findByIdAndIsDeletedFalse(id);
-            if (user == null) {
-                throw new NoSuchElementException("User not found for the given id: " + id);
-            }
-            logger.info("Retrieved user details for ID: {}", id);
-            return UserMapper.modelToDto(user);
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.error("User not found", e);
-                throw e;
-            }
-            logger.error("Error retrieving an user", e);
-            throw new CustomException("Server Error!!!!", e);
+    public UserRoleDto getUserById(String id) throws NoSuchElementException, CustomException {
+        User user = userRepository.findByIdAndIsDeletedFalse(id);
+        if (user == null) {
+            logger.warn("User not found for the given id: {}", id);
+            throw new NoSuchElementException("User not found for the given id: " + id);
         }
+        logger.info("Retrieved user details for ID: {}", id);
+        return UserMapper.modelToUserRoleDto(user);
     }
 
     /**
@@ -166,33 +147,20 @@ public class UserService {
      * @return the User model
      */
     public User getUserModelById(String id) {
-        try {
-            User user = userRepository.findByIdAndIsDeletedFalse(id);
-            logger.info("Retrieved user for the given id: {}", id);
-            return user;
-        } catch (Exception e) {
-            logger.error("Error in retrieving user for the given id: {}", id);
-            throw new CustomException("Server error!!", e);
+        User user = userRepository.findByIdAndIsDeletedFalse(id);
+        if (user == null) {
+            logger.error("User not found for the given id: {}", id);
+            throw new NoSuchElementException("User not found for the given id: " + id);
         }
+        logger.info("Retrieved user for the given id: {}", id);
+        return user;
     }
 
     public Set<UserDto> getUsersByRole(String name) {
-        try {
-            Role role = roleService.getRoleByName(name);
-            if (role == null) {
-                throw new NoSuchElementException("Role not found for the given name: " + name);
-            }
-            return userRepository.findByRoleId(role.getId()).stream()
-                    .map(UserMapper::modelToDto)
-                    .collect(Collectors.toSet());
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.warn(e);
-                throw e;
-            }
-            logger.error("Error in retrieving a role : {}", name, e);
-            throw new CustomException("Server error!!", e);
-        }
+        Role role = roleService.getRoleModelByName(name);
+        return userRepository.findByRoleId(role.getId()).stream()
+                .map(UserMapper::modelToDto)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -204,26 +172,18 @@ public class UserService {
      * @throws NoSuchElementException and CustomException.
      */
     public void deleteUser(String id) throws NoSuchElementException, CustomException {
-        try {
-            User user = userRepository.findByIdAndIsDeletedFalse(id);
-            if (user == null) {
-                throw new NoSuchElementException("User not found for the given id: " + id);
-            }
-            Set<Role> roles = user.getRole();
-            if (roles != null && !roles.isEmpty()) {
-                user.setRole(null);
-            }
-            user.setIsDeleted(true);
-            userRepository.save(user);
-            logger.info("User removed successfully with ID: {}", id);
-        } catch (Exception e) {
-            if (e instanceof NoSuchElementException) {
-                logger.error("Error in removing a user : {}", id, e);
-                throw e;
-            }
-            logger.error("Error removing an user", e);
-            throw new CustomException("Server Error!!!!", e);
+        User user = userRepository.findByIdAndIsDeletedFalse(id);
+        if (user == null) {
+            logger.warn("User not found for the given id: {}", id);
+            throw new NoSuchElementException("User not found for the given id: " + id);
         }
+        Set<Role> roles = user.getRole();
+        if (roles != null && !roles.isEmpty()) {
+            user.setRole(null);
+        }
+        user.setIsDeleted(true);
+        saveUser(user);
+        logger.info("User removed successfully with ID: {}", id);
     }
 
     /**
@@ -232,10 +192,10 @@ public class UserService {
      * </p>
      *
      * @param userDTO object.
-     * @return the created token as string.
-     * @throws CustomException .
+     * @return {@link String} created token.
+     * @throws UnAuthorizedException when user is not authorized.
      */
-    public String authenticateUser(UserDto userDTO) throws CustomException {
+    public String authenticateUser(UserDto userDTO) {
         try {
             authenticationManager
                     .authenticate(
@@ -250,13 +210,18 @@ public class UserService {
         }
     }
 
-    private User initializeUser(User user) {
-        user.setId(UUID.randomUUID().toString());
-        user.setPassword(encoder.encode(user.getPassword()));
-        user.setCreatedAt(new Date());
-        user.setCreatedBy(user.getId());
-        user.setIsDeleted(false);
-        return user;
+    public void makeAdmin(UserDto userDto) {
+        User user = getUserModelById(userDto.getId());
+        try {
+            Set<Role> roles = user.getRole();
+            roles.add(roleService.getRoleModelByName("ADMIN"));
+            user.setRole(roles);
+        } catch (Exception e) {
+            logger.error("Error in setting role for user", e);
+            throw new CustomException("Cannot apply role to an user");
+        }
+        saveUser(user);
+        logger.info("User updated successfully for ID: {}", userDto.getId());
     }
 }
 

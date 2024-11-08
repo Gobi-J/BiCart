@@ -6,7 +6,6 @@ import com.bicart.model.Shipment;
 public class ShipmentMapper {
     public static ShipmentDto modelToDto(Shipment shipment) {
         return ShipmentDto.builder()
-                .id(shipment.getId())
                 .currentStatus(shipment.getCurrentStatus())
                 .build();
     }

@@ -8,7 +8,6 @@ import com.bicart.model.Cart;
 public class CartMapper {
     public static CartDto modelToDto(Cart cart) {
         return CartDto.builder()
-                .id(cart.getId())
                 .quantity(cart.getQuantity())
                 .price(cart.getPrice())
                 .orderItems(cart.getOrderItems().stream()

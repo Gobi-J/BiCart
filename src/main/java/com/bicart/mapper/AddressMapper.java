@@ -7,7 +7,6 @@ public class AddressMapper {
 
     public static AddressDto modelToDto(Address address) {
         return AddressDto.builder()
-                .id(address.getId())
                 .doorNumber(address.getDoorNumber())
                 .street(address.getStreet())
                 .city(address.getCity())
@@ -15,7 +14,6 @@ public class AddressMapper {
                 .country(address.getCountry())
                 .pinCode(address.getPinCode())
                 .phone(address.getPhone())
-                .user((address.getUser() != null) ? UserMapper.modelToDto(address.getUser()) : null)
                 .build();
     }
 

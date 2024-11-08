@@ -1,8 +1,10 @@
 package com.bicart.controller;
 
+import com.bicart.helper.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,7 +19,7 @@ import com.bicart.service.CartService;
 
 /**
  * <p>
- *     CartController class is a REST controller class that handles all the requests related to cart.
+ * CartController class is a REST controller class that handles all the requests related to cart.
  * </p>
  */
 @RestController
@@ -29,42 +31,44 @@ public class CartController {
 
     /**
      * <p>
-     *     Get the cart of the user.
+     * Get the cart of the user.
      * </p>
      *
      * @param userId fetched from the request attribute
      * @return {@link ResponseEntity<Cart>} containing the cart of the user, with HTTP status OK
      */
     @GetMapping
-    public ResponseEntity<CartDto> getCart(@RequestAttribute("id") String userId) {
-        return new ResponseEntity<>(cartService.getCartByUserId(userId), HttpStatus.OK);
+    public ResponseEntity<SuccessResponse> getCart(@RequestAttribute("id") String userId) {
+        CartDto cartDto = cartService.getCartByUserId(userId);
+        return SuccessResponse.setSuccessResponse("Cart fetched Successful", HttpStatus.OK, cartDto);
     }
 
     /**
      * <p>
-     *     Add a product to the cart of the user.
+     * Add a product to the cart of the user.
      * </p>
      *
-     * @param userId fetched from the request attribute
+     * @param userId  fetched from the request attribute
      * @param cartDto containing the product to be added to the cart
      * @return {@link ResponseEntity<CartDto>} containing the updated cart of the user, with HTTP status OK
      */
     @PutMapping
-    public ResponseEntity<CartDto> addToCart(@RequestAttribute("id") String userId, @RequestBody CartDto cartDto) {
-        return new ResponseEntity<>(cartService.addToCart(userId, cartDto), HttpStatus.OK);
+    public ResponseEntity<SuccessResponse> addToCart(@Validated @RequestAttribute("id") String userId, @RequestBody CartDto cartDto) {
+        cartService.addToCart(userId, cartDto);
+        return SuccessResponse.setSuccessResponse("Added to Cart Successful", HttpStatus.OK);
     }
 
     /**
      * <p>
-     *     Delete the cart of the user.
+     * Delete the cart of the user.
      * </p>
      *
      * @param userId fetched from the request attribute
      * @return {@link ResponseEntity<HttpStatus>} with {@link HttpStatus} NO_CONTENT
      */
     @DeleteMapping
-    public ResponseEntity<HttpStatus> deleteCart(@RequestAttribute("id") String userId) {
+    public ResponseEntity<SuccessResponse> deleteCart(@RequestAttribute("id") String userId) {
         cartService.deleteCart(userId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return SuccessResponse.setSuccessResponse("Cart Deleted Successfully", HttpStatus.NO_CONTENT);
     }
 }

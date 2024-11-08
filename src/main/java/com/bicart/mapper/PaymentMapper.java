@@ -6,7 +6,6 @@ import com.bicart.model.Payment;
 public class PaymentMapper {
     public static PaymentDto modelToDto(Payment payment) {
         return PaymentDto.builder()
-                .id(payment.getId())
                 .paymentMode(payment.getPaymentMode())
                 .price(payment.getPrice())
                 .status(payment.getStatus())

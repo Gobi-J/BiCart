@@ -7,9 +7,7 @@ public class RoleMapper {
 
     public static RoleDto modelToDto(Role role) {
         return RoleDto.builder()
-                .id(role.getId())
                 .roleName(role.getRoleName())
-                .description(role.getDescription())
                 .build();
     }
 

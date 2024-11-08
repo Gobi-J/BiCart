@@ -1,20 +1,18 @@
 package com.bicart.dto;
 
-import java.util.Set;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
+
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserDto {
-
-    private String id;
+public class ResponseUserDto {
 
     @NotBlank(message = "Name is mandatory")
     @Pattern(regexp = "^[a-zA-Z]+")
@@ -27,8 +25,4 @@ public class UserDto {
     @Email(message = "Email should be in valid format(Eg. user@gmail.com)")
     private String email;
 
-    @NotBlank(message = "Password is mandatory")
-    private String password;
-
-    private Set<RoleDto> role;
 }

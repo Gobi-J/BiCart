@@ -22,7 +22,7 @@ import com.bicart.service.SubCategoryService;
 
 /**
  * <p>
- *     SubCategoryController class is a REST controller class that handles all the sub category related requests.
+ * SubCategoryController class is a REST controller class that handles all the sub category related requests.
  * </p>
  */
 @RestController
@@ -34,100 +34,74 @@ public class SubCategoryController {
 
     /**
      * <p>
-     *     Adds a new sub category to the database.
+     * Adds a new sub category to the database.
      * </p>
+     *
      * @param subCategory The sub category details to be added.
      */
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> addSubCategory(@RequestBody SubCategoryDto subCategory) {
         subCategoryService.addSubCategory(subCategory);
-        SuccessResponse response = SuccessResponse.builder()
-                .success(true)
-                .code(HttpStatus.CREATED.value())
-                .message("Sub category added successfully")
-                .status("SUCCESS")
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return SuccessResponse.setSuccessResponse("SubCategory added Successfully", HttpStatus.CREATED);
     }
 
     /**
      * <p>
-     *     Gets a sub category by its name.
+     * Gets a sub category by its name.
      * </p>
+     *
      * @param subCategoryName for which sub category is fetched
      * @return {@link SubCategoryDto} with {@link HttpStatus} OK
      */
     @GetMapping("/{subCategoryName}")
     public ResponseEntity<SuccessResponse> getSubCategory(@PathVariable String subCategoryName) {
         SubCategoryDto subCategory = subCategoryService.getSubCategoryByName(subCategoryName);
-        SuccessResponse response = SuccessResponse.builder()
-                .success(true)
-                .code(HttpStatus.OK.value())
-                .message("Sub category fetched successfully")
-                .status("SUCCESS")
-                .response(subCategory)
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return SuccessResponse.setSuccessResponse("SubCategory fetched Successfully", HttpStatus.OK, subCategory);
     }
 
     /**
      * <p>
-     *     Gets all the sub categories.
+     * Gets all the sub categories.
      * </p>
+     *
      * @param page page number
      * @param size number of sub categories per page
      * @return set of {@link SubCategoryDto} limited by page and size
      */
     @GetMapping
     public ResponseEntity<SuccessResponse> getSubCategories(@RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "10") int size) {
+                                                            @RequestParam(defaultValue = "10") int size) {
         Set<SubCategoryDto> subCategories = subCategoryService.getSubCategories(page, size);
-        SuccessResponse response = SuccessResponse.builder()
-                .success(true)
-                .code(HttpStatus.OK.value())
-                .message("Sub categories fetched successfully")
-                .status("SUCCESS")
-                .response(subCategories)
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return SuccessResponse.setSuccessResponse("SubCategories fetched Successfully", HttpStatus.OK, subCategories);
     }
 
     /**
      * <p>
-     *     Updates the sub category details.
+     * Updates the sub category details.
      * </p>
+     *
      * @param categoryDto The sub category details to be updated.
      */
     @PatchMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<SuccessResponse> updateSubCategory(@RequestBody SubCategoryDto categoryDto) {
-        subCategoryService.updateSubCategory(categoryDto);
-        SuccessResponse response = SuccessResponse.builder()
-                .success(true)
-                .code(HttpStatus.OK.value())
-                .message("Sub category updated successfully")
-                .status("SUCCESS")
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<SuccessResponse> updateSubCategory(@RequestBody SubCategoryDto subCategoryDto) {
+        SubCategoryDto subcategoryDto = subCategoryService.updateSubCategory(subCategoryDto);
+        return SuccessResponse.setSuccessResponse("SubCategory Updated Successfully", HttpStatus.OK, subCategoryDto);
     }
 
     /**
      * <p>
-     *   Deletes a sub category.
+     * Deletes a sub category.
      * </p>
+     *
      * @param subCategoryName for which sub category is deleted
      */
     @DeleteMapping("/{subCategoryName}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> deleteSubCategory(@PathVariable String subCategoryName) {
         subCategoryService.deleteSubCategory(subCategoryName);
-        SuccessResponse response = SuccessResponse.builder()
-                .success(true)
-                .code(HttpStatus.NO_CONTENT.value())
-                .message("Sub category deleted successfully")
-                .status("SUCCESS")
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
+        return SuccessResponse.setSuccessResponse("SubCategory deleted Successfully", HttpStatus.NO_CONTENT);
+
     }
 }

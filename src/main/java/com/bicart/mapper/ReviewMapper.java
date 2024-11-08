@@ -8,7 +8,6 @@ import com.bicart.model.Review;
 public class ReviewMapper {
     public static ReviewDto modelToDto(Review review) {
         return ReviewDto.builder()
-                .id(review.getId())
                 .message(review.getMessage())
                 .rating(review.getRating())
                 .user((review.getUser() != null) ? UserMapper.modelToDto(review.getUser()) : null)

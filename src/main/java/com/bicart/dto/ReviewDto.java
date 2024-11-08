@@ -11,7 +11,6 @@ import lombok.*;
 @Setter
 public class ReviewDto {
 
-    private String id;
     private String message;
     private int rating;
     private UserDto user;

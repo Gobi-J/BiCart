@@ -1,6 +1,7 @@
 package com.bicart.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -152,6 +153,13 @@ public class OrderItemService {
         Product product = productService.getProductModelById(orderItemDto.getProduct().getId());
         for (OrderItem orderItem : orderItems) {
             if (orderItem.getProduct().getId().equals(product.getId())) {
+                if (product.getQuantity() + orderItem.getQuantity() < orderItemDto.getQuantity()) {
+                    throw new NoSuchElementException("Product quantity is less than the requested quantity");
+                }
+                product.setQuantity(product.getQuantity() + orderItem.getQuantity() - orderItemDto.getQuantity());
+                productService.saveProduct(product);
+                cart.setPrice(cart.getPrice() - orderItem.getPrice());
+                cart.setQuantity(cart.getQuantity() - orderItem.getQuantity());
                 orderItem.setQuantity(orderItemDto.getQuantity());
                 orderItem.setPrice(product.getPrice() * orderItemDto.getQuantity());
                 cart.setPrice(cart.getPrice() + orderItem.getPrice());
@@ -159,6 +167,11 @@ public class OrderItemService {
                 return orderItems;
             }
         }
+        if (product.getQuantity() < orderItemDto.getQuantity()) {
+            throw new NoSuchElementException("Product quantity is less than the requested quantity");
+        }
+        product.setQuantity(product.getQuantity() - orderItemDto.getQuantity());
+        productService.saveProduct(product);
         OrderItem orderItem = OrderItem.builder()
                 .id(UUID.randomUUID().toString())
                 .product(product)
@@ -171,5 +184,13 @@ public class OrderItemService {
         cart.setQuantity(cart.getQuantity() + orderItem.getQuantity());
         orderItems.add(orderItem);
         return orderItems;
+    }
+
+    public void releaseProducts(Set<OrderItem> orderItems) {
+        for (OrderItem orderItem : orderItems) {
+            Product product = orderItem.getProduct();
+            product.setQuantity(product.getQuantity() + orderItem.getQuantity());
+            productService.saveProduct(product);
+        }
     }
 }

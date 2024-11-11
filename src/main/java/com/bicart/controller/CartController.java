@@ -71,7 +71,7 @@ public class CartController {
      */
     @DeleteMapping
     public ResponseEntity<SuccessResponse> deleteCart(@RequestAttribute("id") String userId) {
-        cartService.deleteCart(userId);
+        cartService.deleteCartBeforeOrder(userId);
         return SuccessResponse.setSuccessResponse("Cart deleted successfully", HttpStatus.NO_CONTENT);
     }
 }

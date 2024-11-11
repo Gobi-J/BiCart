@@ -97,10 +97,10 @@ public class AddressService {
      * @throws CustomException when exception is thrown.
      */
     public AddressDto updateAddress(AddressDto addressDto) {
-        Address address = AddressMapper.dtoToModel((addressDto));
+        Address address = AddressMapper.dtoToModel(addressDto);
         saveAddress(address);
         logger.info("Address updated successfully for ID: {}", addressDto.getId());
-        return AddressMapper.modelToDto((address));
+        return AddressMapper.modelToDto(address);
     }
 
     /**
@@ -149,6 +149,25 @@ public class AddressService {
             throw new NoSuchElementException("Address not found for the given id: " + id);
         }
         logger.info("Retrieved address for the given id: {}", id);
+        return address;
+    }
+
+    /**
+     * <p>
+     * Retrieves and displays the details of an address.
+     * </p>
+     *
+     * @param id the ID of the user whose address details are to be viewed
+     * @return {@link Address} which to be fetched.
+     * @throws NoSuchElementException when occurred.
+     */
+    public Address getAddressModelByUserId(String id) {
+        Address address = addressRepository.findByUserIdAndIsDeletedFalse(id).getFirst();
+        if (address == null) {
+            logger.error("Address not found for the given user: {}", id);
+            throw new NoSuchElementException("Address not found for the given user: " + id);
+        }
+        logger.info("Retrieved address for the given user: {}", id);
         return address;
     }
 

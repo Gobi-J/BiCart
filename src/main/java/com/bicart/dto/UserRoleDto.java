@@ -25,6 +25,6 @@ public class UserRoleDto {
     @Email(message = "Email should be in valid format(Eg. user@gmail.com)")
     private String email;
 
-    private Set<RoleDto> role;
+    private RoleDto role;
 
 }

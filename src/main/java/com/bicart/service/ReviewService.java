@@ -67,7 +67,6 @@ public class ReviewService {
         review.setAudit(userId);
         review.setUser(userService.getUserModelById(userId));
         saveReview(review);
-        ReviewDto reviewDto = ReviewMapper.modelToDto(review);
         logger.info("Review added successfully with ID: {}", review.getId());
     }
 

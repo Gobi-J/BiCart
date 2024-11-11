@@ -70,10 +70,11 @@ public class ShipmentTrackingService {
      * @return {@link ShipmentTracking} initial shipment which is in pending state
      */
     public ShipmentTracking initializeShipping() {
-        ShipmentTracking shipmentTracking = new ShipmentTracking();
-        shipmentTracking.setId(UUID.randomUUID().toString());
-        shipmentTracking.setLocation("IN STORE");
-        shipmentTracking.setStatus(ShipmentStatus.PENDING);
+        ShipmentTracking shipmentTracking = ShipmentTracking.builder()
+                .id(UUID.randomUUID().toString())
+                .location("IN STORE")
+                .status(ShipmentStatus.PENDING)
+                .build();
         shipmentTracking.setAudit("SYSTEM");
         return shipmentTracking;
     }

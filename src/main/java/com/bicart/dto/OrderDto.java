@@ -31,6 +31,7 @@ public class OrderDto {
     private long price;
     private PaymentDto payment;
     private UserDto user;
+    private AddressDto address;
 
     private Set<OrderItemDto> orderItems;
 

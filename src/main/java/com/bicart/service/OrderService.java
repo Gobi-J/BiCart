@@ -19,10 +19,11 @@ import com.bicart.constant.OrderStatus;
 import com.bicart.dto.OrderDto;
 import com.bicart.helper.CustomException;
 import com.bicart.mapper.OrderMapper;
+import com.bicart.model.Address;
 import com.bicart.model.Cart;
 import com.bicart.model.Order;
 import com.bicart.model.Payment;
-import com.bicart.repository.OrderItemRepository;
+import com.bicart.model.User;
 import com.bicart.repository.OrderRepository;
 import com.bicart.util.DateUtil;
 
@@ -40,6 +41,7 @@ public class OrderService {
 
     private final static Logger logger = LogManager.getLogger(OrderService.class);
     private final ShipmentService shipmentService;
+    private final AddressService addressService;
 
     /**
      * <p>
@@ -126,15 +128,17 @@ public class OrderService {
         if (cart == null) {
             throw new NoSuchElementException("Cart not found for user id: " + userId);
         }
-        Order order = new Order();
-        order.setId(UUID.randomUUID().toString());
-        order.setQuantity(cart.getQuantity());
-        order.setPrice(cart.getPrice());
-        order.setUser(cart.getUser());
-        // TODO
-//      order.setOrderItems(cart.getOrderItems());
-        order.setStatus(OrderStatus.PENDING);
-        order.setDeliveryDate(DateUtil.getUpdatedDate(new Date(), 3));
+        Order order = Order.builder()
+                .id(UUID.randomUUID().toString())
+                .quantity(cart.getQuantity())
+                .price(cart.getPrice())
+                .status(OrderStatus.PENDING)
+                .deliveryDate(DateUtil.getUpdatedDate(new Date(), 3))
+                .user(cart.getUser())
+                .build();
+        Address address = addressService.getAddressModelByUserId(userId);
+        order.setAddress(address);
+        order.setOrderItems(cart.getOrderItems());
         order.setAudit(userId);
         saveOrder(order);
         return OrderMapper.modelToDto(order);
@@ -159,6 +163,16 @@ public class OrderService {
         saveOrder(order);
     }
 
+    /**
+     * <p>
+     * Notifies payment for an order.
+     * </p>
+     *
+     * @param userId  user id
+     * @param orderId order id
+     * @param payment payment details
+     * @throws CustomException if error while updating order
+     */
     public void notifyPayment(String userId, String orderId, Payment payment) {
         Order order = getOrderModelById(userId, orderId);
         order.setPayment(payment);

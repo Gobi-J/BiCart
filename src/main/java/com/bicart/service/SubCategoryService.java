@@ -1,11 +1,11 @@
 package com.bicart.service;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.bicart.dto.ProductDto;
-import com.bicart.mapper.CategoryMapper;
-import com.bicart.model.Product;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;

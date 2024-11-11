@@ -25,7 +25,11 @@ public class OrderMapper {
                 .price(order.getPrice())
                 .quantity(order.getQuantity())
                 .status(order.getStatus())
+                .address(order.getAddress() != null ? AddressMapper.modelToDto(order.getAddress()) : null)
                 .shipment(order.getShipment() != null ? ShipmentMapper.modelToDto(order.getShipment()) : null)
+                .orderItems(order.getOrderItems().stream()
+                        .map(OrderItemMapper::modelToDto)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 }

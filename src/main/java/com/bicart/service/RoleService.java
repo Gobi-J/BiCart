@@ -52,7 +52,7 @@ public class RoleService {
      * @throws CustomException if exception is thrown.
      */
     public void addRole(RoleDto roleDTO) {
-        Role role = RoleMapper.dtoToModel((roleDTO));
+        Role role = RoleMapper.dtoToModel(roleDTO);
         role.setId(UUID.randomUUID().toString());
         role.setAudit("ADMIN");
         saveRole(role);

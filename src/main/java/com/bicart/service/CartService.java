@@ -34,7 +34,7 @@ public class CartService {
 
     /**
      * <p>
-     *   Fetches a cart by user id.
+     * Fetches a cart by user id.
      * </p>
      *
      * @param userId the id of the user to fetch the cart for
@@ -52,7 +52,7 @@ public class CartService {
 
     /**
      * <p>
-     *   Saves a cart.
+     * Saves a cart.
      * </p>
      *
      * @param cart the cart to save
@@ -78,39 +78,49 @@ public class CartService {
      * @throws CustomException if an error occurs while adding to the cart
      */
     public void addToCart(String userId, CartDto cartDto) {
-            Cart cart = getCart(userId);
-            if (cart == null) {
-                cart = new Cart();
-                cart.setId(UUID.randomUUID().toString());
-                cart.setUser(userService.getUserModelById(userId));
-                cart.setAudit(userId);
-            }
-            Set<OrderItem> orderItems = cart.getOrderItems();
-            if (orderItems == null) {
-                orderItems = new HashSet<>();
-            }
-            orderItems = orderItemService.updateCartItems(orderItems, cartDto.getOrderItems(), cart);
-            cart.setOrderItems(orderItems);
+        Cart cart = getCart(userId);
+        if (cart == null) {
+            cart = new Cart();
+            cart.setId(UUID.randomUUID().toString());
+            cart.setUser(userService.getUserModelById(userId));
+            cart.setAudit(userId);
+        }
+        Set<OrderItem> orderItems = cart.getOrderItems();
+        if (orderItems == null) {
+            orderItems = new HashSet<>();
+        }
+        orderItems = orderItemService.updateCartItems(orderItems, cartDto.getOrderItems(), cart);
+        cart.setOrderItems(orderItems);
         CartMapper.modelToDto(saveCart(cart));
     }
 
     /**
      * <p>
-     *   Deletes a cart.
+     * Deletes a cart.
      * </p>
      *
      * @param userId the id of the user to delete the cart for
      * @throws CustomException if an error occurs while deleting the cart
      */
     public void deleteCart(String userId) {
-            Cart cart = getCart(userId);
-            cart.getOrderItems().forEach(orderItem -> orderItem.setCart(null));
-            cartRepository.delete(cart);
-            logger.info("Cart deleted successfully for user id: {}", userId);
+        Cart cart = getCart(userId);
+        cart.getOrderItems().forEach(orderItem -> orderItem.setCart(null));
+        cartRepository.delete(cart);
+        logger.info("Cart deleted successfully for user id: {}", userId);
     }
 
     public CartDto getCartByUserId(String userId) {
         Cart cart = getCart(userId);
-        return CartMapper.modelToDto(getCart(userId));
+        if (cart == null) {
+            return null;
+        }
+        return CartMapper.modelToDto(cart);
+    }
+
+    public void deleteCartBeforeOrder(String userId) {
+        Cart cart = getCart(userId);
+        orderItemService.releaseProducts(cart.getOrderItems());
+        cart.getOrderItems().forEach(orderItem -> orderItem.setCart(null));
+        cartRepository.delete(cart);
     }
 }

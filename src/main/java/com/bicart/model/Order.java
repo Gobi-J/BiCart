@@ -41,6 +41,10 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinColumn(name = "address_id")
+    private Address address;
+
     @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "payment_id")
     private Payment payment;
@@ -49,6 +53,6 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "shipment_id")
     private Shipment shipment;
 
-//    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-//    private Set<OrderItem> orderItems;
+    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
+    private Set<OrderItem> orderItems;
 }

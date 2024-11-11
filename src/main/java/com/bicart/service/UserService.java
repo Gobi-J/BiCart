@@ -67,7 +67,7 @@ public class UserService {
      * @throws CustomException, DuplicateKeyException if exception is thrown.
      */
     public void addUser(UserDto userDTO) {
-        User user = UserMapper.dtoToModel((userDTO));
+        User user = UserMapper.dtoToModel(userDTO);
         if (userRepository.existsByEmailOrMobileNumber(userDTO.getEmail(), userDTO.getMobileNumber())) {
             logger.error("User with same Email Id or Mobile Number exists");
             throw new DuplicateKeyException("User with same Email or Mobile Number exists");
@@ -83,7 +83,6 @@ public class UserService {
         }
         saveUser(user);
         logger.info("User added successfully with name: {}", user.getName());
-        UserMapper.modelToDto(user);
     }
 
     /**
@@ -96,7 +95,7 @@ public class UserService {
      * @throws CustomException when exception is thrown.
      */
     public UserDto updateUser(UserDto userDto) {
-        User user = UserMapper.dtoToModel((userDto));
+        User user = UserMapper.dtoToModel(userDto);
         saveUser(user);
         logger.info("User updated successfully for ID: {}", userDto.getId());
         return UserMapper.modelToDto((user));

@@ -34,9 +34,7 @@ public class UserMapper {
                 .name(user.getName())
                 .mobileNumber(user.getMobileNumber())
                 .email(user.getEmail())
-                .role((user.getRole() == null) ? null : user.getRole().stream()
-                        .map(RoleMapper::modelToDto)
-                        .collect(Collectors.toSet()))
+                .role((user.getRole() == null) ? null : RoleMapper.modelToDto(user.getRole().iterator().next()))
                 .build();
     }
 

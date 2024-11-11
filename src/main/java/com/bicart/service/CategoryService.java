@@ -1,10 +1,14 @@
 package com.bicart.service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.bicart.model.Product;
+import com.bicart.model.SubCategory;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +35,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     private static final Logger logger = LogManager.getLogger(CategoryService.class);
+   // private final SubCategoryService subCategoryService;
 
     /**
      * <p>
@@ -148,8 +153,24 @@ public class CategoryService {
      */
     public void deleteCategory(String categoryName) {
         Category category = getCategoryModelByName(categoryName);
+      //  List<SubCategory> subCategories = subCategoryService.getAllCategories(categoryName);
+       // Category unknownCategory = categoryRepository.findByName("Unknown");
+//        if(unknownCategory == null) {
+//            unknownCategory =  Category.builder()
+//                    .id(UUID.randomUUID().toString())
+//                    .name("Unknown")
+//                    .description("Unknown category")
+//                    .build();
+//            unknownCategory.setAudit("ADMIN");
+//            saveCategory(unknownCategory);
+//        }
+//        for(SubCategory subCategory : subCategories) {
+//            subCategory.setCategory(unknownCategory);
+//            subCategoryService.saveSubCategory(subCategory);
+//        }
         category.setIsDeleted(true);
         saveCategory(category);
         logger.info("Deleted Category with the Name: {}", categoryName);
     }
+
 }

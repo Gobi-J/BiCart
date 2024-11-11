@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 public interface SubCategoryRepository extends JpaRepository<SubCategory, String> {
@@ -15,4 +16,8 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, String
     boolean existsByName(@NotBlank(message = "Sub category must have a name") String name);
 
     Page<SubCategory> findAllByIsDeletedFalse(Pageable pageable);
+
+    SubCategory findByCategoryNameAndName(String name, String unknown);
+
+    List<SubCategory> findAllByCategoryNameAndIsDeletedFalse(String categoryName);
 }

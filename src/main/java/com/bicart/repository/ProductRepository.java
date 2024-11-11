@@ -19,4 +19,5 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     Page<Product> findAllByIsDeletedFalse(Pageable pageable);
 
     Page<Product> findAllBySubCategoryNameAndIsDeletedFalse(@NonNull String subCategoryName, Pageable pageable);
+    List<Product> findAllBySubCategoryNameAndIsDeletedFalse(@NonNull String subCategoryName);
 }

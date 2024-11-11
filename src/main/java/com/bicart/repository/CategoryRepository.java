@@ -1,6 +1,7 @@
 package com.bicart.repository;
 
 import com.bicart.model.Category;
+import lombok.NonNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,4 +14,6 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
     boolean existsByName(String name);
 
     List<Category> findAllByIsDeletedFalse(Pageable pageable);
+
+    Category findByName(String unknown);
 }

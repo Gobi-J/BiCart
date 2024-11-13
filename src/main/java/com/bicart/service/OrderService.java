@@ -1,9 +1,6 @@
 package com.bicart.service;
 
-import java.util.Date;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -75,9 +72,9 @@ public class OrderService {
      */
     public Set<OrderDto> getOrdersByUserId(String userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Order> orders = orderRepository.findByUserId(userId, pageable);
+        List<Order> orders = orderRepository.findByUserId(userId, pageable);
         logger.info("Fetched orders for user id: {}", userId);
-        return orders.getContent().stream()
+        return orders.stream()
                 .map(OrderMapper::modelToDto)
                 .collect(Collectors.toSet());
     }
@@ -105,7 +102,7 @@ public class OrderService {
      * @return {@link Order} order
      * @throws CustomException if error while fetching order
      */
-    public Order getOrderModelById(String userId, String orderId) {
+    protected Order getOrderModelById(String userId, String orderId) {
         Order order = orderRepository.findByIdAndUserId(orderId, userId);
         if (order == null) {
             logger.warn("Order not found with id: {}", orderId);

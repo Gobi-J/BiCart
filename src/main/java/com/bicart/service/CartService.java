@@ -59,7 +59,7 @@ public class CartService {
      * @return {@link Cart} the saved cart
      * @throws CustomException if an error occurs while saving the cart
      */
-    public Cart saveCart(Cart cart) {
+    protected Cart saveCart(Cart cart) {
         try {
             return cartRepository.save(cart);
         } catch (Exception e) {
@@ -91,7 +91,7 @@ public class CartService {
         }
         orderItems = orderItemService.updateCartItems(orderItems, cartDto.getOrderItems(), cart);
         cart.setOrderItems(orderItems);
-        CartMapper.modelToDto(saveCart(cart));
+        saveCart(cart);
     }
 
     /**

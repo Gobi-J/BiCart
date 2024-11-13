@@ -17,9 +17,9 @@ import org.springframework.stereotype.Repository;
 public interface AddressRepository extends JpaRepository<Address, String> {
     Address findByIdAndIsDeletedFalse(String id);
     // Address findByEmployeeIdAndIsDeletedFalse(String employeeId);
-    Page<Address> findAllByIsDeletedFalse(Pageable pageable);
+    List<Address> findAllByIsDeletedFalse(Pageable pageable);
 
     List<Address> findByUserIdAndIsDeletedFalse(String userId);
 
-    Page<Address> findAllByUserIdAndIsDeletedFalse(String userId, Pageable pageable);
+    List<Address> findAllByUserIdAndIsDeletedFalse(String userId, Pageable pageable);
 }

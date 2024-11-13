@@ -3,8 +3,10 @@ package com.bicart.service;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import com.bicart.dto.CategoryDto;
 import com.bicart.dto.ProductDto;
 import com.bicart.dto.SubCategoryDto;
+import com.bicart.model.Category;
 import com.bicart.model.Product;
 import com.bicart.model.SubCategory;
 import com.bicart.repository.ProductRepository;
@@ -31,6 +33,8 @@ class ProductServiceTest {
     private ProductDto productDto;
     private SubCategory subCategory;
     private SubCategoryDto subCategoryDto;
+    private Category category;
+    private CategoryDto categoryDto;
 
     @Mock
     private ProductRepository productRepository;
@@ -43,21 +47,28 @@ class ProductServiceTest {
 
     @BeforeEach
     void setUp() {
-        product = Product.builder()
+        category = Category.builder()
                 .id("1")
-                .name("Sample Product")
-                .description("Product description")
-                .price(100)
+                .name("test name")
+                .description("test")
+                .build();
+
+        categoryDto = CategoryDto.builder()
+                .id("1")
+                .name("test name")
+                .description("test")
                 .build();
 
         subCategory = SubCategory.builder()
                 .id("1")
                 .name("Sample SubCategory")
+                .category(category)
                 .build();
 
         subCategoryDto = SubCategoryDto.builder()
                 .id("1")
                 .name("Sample SubCategory")
+                .category(categoryDto)
                 .build();
 
         productDto = ProductDto.builder()
@@ -66,6 +77,14 @@ class ProductServiceTest {
                 .description("Product description")
                 .price(100)
                 .subCategory(subCategoryDto)
+                .build();
+
+        product = Product.builder()
+                .id("1")
+                .name("Sample Product")
+                .description("Product description")
+                .subCategory(subCategory)
+                .price(100)
                 .build();
     }
 
@@ -109,7 +128,7 @@ class ProductServiceTest {
     void testUpdateProductSuccess() {
         when(productRepository.existsByName(anyString())).thenReturn(true);
         when(subCategoryService.getSubCategoryModelByName(anyString())).thenReturn(subCategory);
-        when(productRepository.save(product)).thenReturn(product);
+        when(productRepository.save(any(Product.class))).thenReturn(product);
         ProductDto result = productService.updateProduct(productDto);
         assertNotNull(result);
         assertEquals(productDto.getName(), result.getName());
@@ -132,7 +151,7 @@ class ProductServiceTest {
 
     @Test
     void testGetProductsBySubCategoryNameSuccess() {
-        when(productRepository.findAllBySubCategoryNameAndIsDeletedFalse(anyString(), PageRequest.of(0, 1))).thenReturn(List.of(product));
-        assertEquals(1, productService.getProductsBySubCategoryName("category", 0, 1).size());
+        when(productRepository.findAllBySubCategoryNameAndIsDeletedFalse(anyString(), any())).thenReturn(List.of(product));
+        assertEquals(1, productService.getProductsBySubCategoryName("test", 0, 1).size());
     }
 }

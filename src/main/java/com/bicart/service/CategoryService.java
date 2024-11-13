@@ -45,7 +45,7 @@ public class CategoryService {
      * @param category category to be saved
      * @throws CustomException if any error occurs
      */
-    public void saveCategory(Category category) {
+    private void saveCategory(Category category) {
         logger.debug("Saving Category with the id : {}", category.getId());
         try {
             categoryRepository.save(category);
@@ -80,7 +80,7 @@ public class CategoryService {
      * @throws NoSuchElementException if category is not found
      * @throws CustomException        if any other error occurs
      */
-    public Category getCategoryModelByName(String categoryName) {
+    protected Category getCategoryModelByName(String categoryName) {
         Category category = categoryRepository.findByNameAndIsDeletedFalse(categoryName);
         if (category == null) {
             throw new NoSuchElementException("Category not found for the name : {}" + categoryName);
@@ -153,21 +153,6 @@ public class CategoryService {
      */
     public void deleteCategory(String categoryName) {
         Category category = getCategoryModelByName(categoryName);
-      //  List<SubCategory> subCategories = subCategoryService.getAllCategories(categoryName);
-       // Category unknownCategory = categoryRepository.findByName("Unknown");
-//        if(unknownCategory == null) {
-//            unknownCategory =  Category.builder()
-//                    .id(UUID.randomUUID().toString())
-//                    .name("Unknown")
-//                    .description("Unknown category")
-//                    .build();
-//            unknownCategory.setAudit("ADMIN");
-//            saveCategory(unknownCategory);
-//        }
-//        for(SubCategory subCategory : subCategories) {
-//            subCategory.setCategory(unknownCategory);
-//            subCategoryService.saveSubCategory(subCategory);
-//        }
         category.setIsDeleted(true);
         saveCategory(category);
         logger.info("Deleted Category with the Name: {}", categoryName);

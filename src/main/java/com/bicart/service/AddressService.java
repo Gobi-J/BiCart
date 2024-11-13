@@ -80,9 +80,9 @@ public class AddressService {
      */
     public Set<AddressDto> getAllAddresses(String userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Address> addressPage = addressRepository.findAllByUserIdAndIsDeletedFalse(userId, pageable);
+        List<Address> addresses = addressRepository.findAllByUserIdAndIsDeletedFalse(userId, pageable);
         logger.info("Displayed address details for user : {}", userId);
-        return addressPage.getContent().stream()
+        return addresses.stream()
                 .map(AddressMapper::modelToDto)
                 .collect(Collectors.toSet());
     }
@@ -142,7 +142,7 @@ public class AddressService {
      * @return {@link Address} which to be fetched.
      * @throws NoSuchElementException when occurred.
      */
-    public Address getAddressModelById(String id) {
+    protected Address getAddressModelById(String id) {
         Address address = addressRepository.findByIdAndIsDeletedFalse(id);
         if (address == null) {
             logger.error("Address not found for the given id: {}", id);
@@ -161,7 +161,7 @@ public class AddressService {
      * @return {@link Address} which to be fetched.
      * @throws NoSuchElementException when occurred.
      */
-    public Address getAddressModelByUserId(String id) {
+    protected Address getAddressModelByUserId(String id) {
         List<Address> address = addressRepository.findByUserIdAndIsDeletedFalse(id);
         if (address == null || address.isEmpty()) {
             logger.error("Address not found for the given user: {}", id);
@@ -178,7 +178,7 @@ public class AddressService {
      *
      * @param userId the ID of the user whose address to be deleted.
      */
-    public void deleteAddressWithUserId(String userId) {
+    protected void deleteAddressWithUserId(String userId) {
         List<Address> addresses = addressRepository.findByUserIdAndIsDeletedFalse(userId);
         addresses.forEach(address -> {
             address.setIsDeleted(true);

@@ -44,7 +44,7 @@ public class PaymentService {
      *
      * @param payment model.
      */
-    public void savePayment(Payment payment) {
+    protected void savePayment(Payment payment) {
         try {
             paymentRepository.save(payment);
             logger.info("Payment saved successfully with the Id : {} ", payment.getId());

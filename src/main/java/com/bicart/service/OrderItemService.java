@@ -1,6 +1,5 @@
 package com.bicart.service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.bicart.dto.OrderItemDto;
 import com.bicart.helper.CustomException;
-import com.bicart.mapper.OrderItemMapper;
 import com.bicart.model.Cart;
 import com.bicart.model.OrderItem;
 import com.bicart.model.Product;
@@ -34,46 +32,12 @@ public class OrderItemService {
 
     /**
      * <p>
-     * Fetches order items by order id.
-     * </p>
-     *
-     * @param orderId the id of the order to fetch order items for
-     * @return {@link List<OrderItemDto>} of order items
-     */
-    public List<OrderItemDto> getOrderItemsByOrderId(String orderId) {
-        try {
-            return orderItemRepository.findByOrderId(orderId);
-        } catch (Exception e) {
-            logger.error("Error getting order items by order id", e);
-            throw new CustomException("Error getting order items by order id");
-        }
-    }
-
-    /**
-     * <p>
-     * Fetches order items by cart id.
-     * </p>
-     *
-     * @param cartId the id of the cart to fetch order items for
-     * @return {@link Set<OrderItemDto>} of order items
-     */
-    public List<OrderItemDto> getOrderItemsByCartId(String cartId) {
-        try {
-            return orderItemRepository.findByCartId(cartId);
-        } catch (Exception e) {
-            logger.error("Error getting order items by order id", e);
-            throw new CustomException("Error getting order items by cart id");
-        }
-    }
-
-    /**
-     * <p>
      * Saves an order item.
      * </p>
      *
-     * @param orderItem model.
+     * @param orderItem details to save.
      */
-    public void saveOrderItem(OrderItem orderItem) {
+    protected void saveOrderItem(OrderItem orderItem) {
         try {
             orderItemRepository.save(orderItem);
             logger.info("Order item saved successfully");
@@ -85,20 +49,33 @@ public class OrderItemService {
 
     /**
      * <p>
-     * Adds an item to the cart.
+     *     Checks and updates the cart items.
+     *     If the product is already in the cart, it updates the quantity.
      * </p>
-     *
-     * @param cart      the cart to add the item to
-     * @param orderItem the item to add
+     * @param orderItems the order items to update
+     * @param product the product to update
+     * @param orderItemDto the order item dto to update
+     * @param cart the cart to update
+     * @return {@link Boolean} true if the product is in the cart, false otherwise
      */
-    public void addToCart(Cart cart, OrderItemDto orderItem) {
-        Product product = productService.getProductModelById(orderItem.getProduct().getId());
-        OrderItem item = OrderItemMapper.dtoToModel(orderItem);
-        item.setProduct(product);
-        item.setCart(cart);
-        item.setPrice(product.getPrice() * item.getQuantity());
-        item.setAudit("SYSTEM");
-        saveOrderItem(item);
+    private boolean isProductInCart(Set<OrderItem> orderItems, Product product, OrderItemDto orderItemDto, Cart cart) {
+        for (OrderItem orderItem : orderItems) {
+            if (orderItem.getProduct().getId().equals(product.getId())) {
+                if (product.getQuantity() + orderItem.getQuantity() < orderItemDto.getQuantity()) {
+                    throw new NoSuchElementException("Product quantity is less than the requested quantity");
+                }
+                product.setQuantity(product.getQuantity() + orderItem.getQuantity() - orderItemDto.getQuantity());
+                productService.saveProduct(product);
+                cart.setPrice(cart.getPrice() - orderItem.getPrice());
+                cart.setQuantity(cart.getQuantity() - orderItem.getQuantity());
+                orderItem.setQuantity(orderItemDto.getQuantity());
+                orderItem.setPrice(product.getPrice() * orderItemDto.getQuantity());
+                cart.setPrice(cart.getPrice() + orderItem.getPrice());
+                cart.setQuantity(cart.getQuantity() + orderItem.getQuantity());
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -114,21 +91,8 @@ public class OrderItemService {
     public Set<OrderItem> updateCartItems(Set<OrderItem> orderItems, Set<OrderItemDto> orderItemDtos, Cart cart) {
         OrderItemDto orderItemDto = orderItemDtos.stream().findFirst().get();
         Product product = productService.getProductModelById(orderItemDto.getProduct().getId());
-        for (OrderItem orderItem : orderItems) {
-            if (orderItem.getProduct().getId().equals(product.getId())) {
-                if (product.getQuantity() + orderItem.getQuantity() < orderItemDto.getQuantity()) {
-                    throw new NoSuchElementException("Product quantity is less than the requested quantity");
-                }
-                product.setQuantity(product.getQuantity() + orderItem.getQuantity() - orderItemDto.getQuantity());
-                productService.saveProduct(product);
-                cart.setPrice(cart.getPrice() - orderItem.getPrice());
-                cart.setQuantity(cart.getQuantity() - orderItem.getQuantity());
-                orderItem.setQuantity(orderItemDto.getQuantity());
-                orderItem.setPrice(product.getPrice() * orderItemDto.getQuantity());
-                cart.setPrice(cart.getPrice() + orderItem.getPrice());
-                cart.setQuantity(cart.getQuantity() + orderItem.getQuantity());
-                return orderItems;
-            }
+        if (isProductInCart(orderItems, product, orderItemDto, cart)) {
+            return orderItems;
         }
         if (product.getQuantity() < orderItemDto.getQuantity()) {
             throw new NoSuchElementException("Product quantity is less than the requested quantity");
@@ -149,11 +113,19 @@ public class OrderItemService {
         return orderItems;
     }
 
+    /**
+     * <p>
+     * Removes an item from the cart.
+     * </p>
+     *
+     * @param orderItems the order items to remove
+     */
     public void releaseProducts(Set<OrderItem> orderItems) {
         for (OrderItem orderItem : orderItems) {
             Product product = orderItem.getProduct();
             product.setQuantity(product.getQuantity() + orderItem.getQuantity());
             productService.saveProduct(product);
+            orderItemRepository.delete(orderItem);
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.bicart.controller;
 
-import com.bicart.helper.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bicart.dto.PaymentDto;
+import com.bicart.helper.SuccessResponse;
 import com.bicart.service.PaymentService;
 
 /**
@@ -31,14 +31,15 @@ public class PaymentController {
      * <p>
      *     Creates a new payment for an order.
      * </p>
+     * @param userId The user id for which the payment is to be created.
      * @param orderId The order id for which the payment is to be created.
-     * @param paymentDto The payment details to be added.
-     * @return {@link ResponseEntity<String>} notify success state to user that were added with {@link HttpStatus} CREATED
+     * @param payment The payment details to be added.
+     * @return {@link SuccessResponse} with {@link HttpStatus} CREATED
      */
     @PostMapping
     public ResponseEntity<SuccessResponse> createPayment(@Validated @RequestAttribute("id") String userId, @PathVariable String orderId,
-                                                         @RequestBody PaymentDto paymentDto) {
-        paymentService.createPayment(userId, orderId, paymentDto);
+                                                         @RequestBody PaymentDto payment) {
+        paymentService.createPayment(userId, orderId, payment);
         return SuccessResponse.setSuccessResponse("Payment Completed Successfully!", HttpStatus.CREATED);
     }
 }

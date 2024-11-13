@@ -1,8 +1,8 @@
 package com.bicart.controller;
 
+import java.util.Map;
 import java.util.Set;
 
-import com.bicart.helper.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.bicart.dto.AddressDto;
+import com.bicart.helper.SuccessResponse;
 import com.bicart.service.AddressService;
 
 /**
@@ -30,7 +31,7 @@ public class AddressController {
      * </p>
      *
      * @param addressDto The address details to be added.
-     * @return {@link ResponseEntity<AddressDto>} address details that were added with {@link HttpStatus} CREATED
+     * @return {@link SuccessResponse} with {@link HttpStatus} CREATED
      */
     @PostMapping
     public ResponseEntity<SuccessResponse> addAddress(@Validated @RequestAttribute("id") String userId, @RequestBody AddressDto addressDto) {
@@ -44,7 +45,7 @@ public class AddressController {
      * </p>
      *
      * @param addressDto The address details to be updated.
-     * @return {@link ResponseEntity<AddressDto>} address details that were updated with {@link HttpStatus} OK
+     * @return {@link SuccessResponse} with updated address details and {@link HttpStatus} OK
      */
     @PatchMapping
     public ResponseEntity<SuccessResponse> updateAddress(@RequestBody AddressDto addressDto) {
@@ -59,7 +60,7 @@ public class AddressController {
      *
      * @param page The page number to be fetched.
      * @param size The number of addresses to be fetched.
-     * @return {@link ResponseEntity<Set<AddressDto>} addresses with {@link HttpStatus} OK
+     * @return {@link SuccessResponse} with all the addresses and {@link HttpStatus} OK
      */
     @GetMapping
     public ResponseEntity<SuccessResponse> getAllAddresses(@RequestParam(defaultValue = "0") int page,
@@ -69,7 +70,7 @@ public class AddressController {
         if (null == addresses || addresses.isEmpty()) {
             return SuccessResponse.setSuccessResponse("No addresses found", HttpStatus.NO_CONTENT);
         }
-        return SuccessResponse.setSuccessResponse("Addresses fetched successfully", HttpStatus.OK, addresses);
+        return SuccessResponse.setSuccessResponse("Addresses fetched successfully", HttpStatus.OK, Map.of("addresses", addresses));
     }
 
     /**
@@ -78,12 +79,12 @@ public class AddressController {
      * </p>
      *
      * @param addressId The id of the address to be fetched.
-     * @return {@link ResponseEntity<AddressDto>} address details with {@link HttpStatus} OK
+     * @return {@link SuccessResponse} with address details and {@link HttpStatus} OK
      */
     @GetMapping("/{addressId}")
     public ResponseEntity<SuccessResponse> getAddressById(@PathVariable String addressId) {
-        AddressDto addressDto = addressService.getAddressById(addressId);
-        return SuccessResponse.setSuccessResponse("Address fetched successfully", HttpStatus.OK, addressDto);
+        AddressDto address = addressService.getAddressById(addressId);
+        return SuccessResponse.setSuccessResponse("Address fetched successfully", HttpStatus.OK, Map.of("address", address));
     }
 
     /**
@@ -92,7 +93,7 @@ public class AddressController {
      * </p>
      *
      * @param addressId The id of the address to be deleted.
-     * @return {@link ResponseEntity<String>} with {@link HttpStatus} NO_CONTENT
+     * @return {@link SuccessResponse} with {@link HttpStatus} NO_CONTENT
      */
     @DeleteMapping("/{addressId}")
     public ResponseEntity<SuccessResponse> removeAddress(@PathVariable String addressId) {

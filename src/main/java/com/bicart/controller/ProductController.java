@@ -1,8 +1,8 @@
 package com.bicart.controller;
 
+import java.util.Map;
 import java.util.Set;
 
-import com.bicart.helper.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bicart.dto.ProductDto;
 import com.bicart.dto.ReviewDto;
-import com.bicart.model.Product;
+import com.bicart.helper.SuccessResponse;
 import com.bicart.service.ProductService;
 import com.bicart.service.ReviewService;
 
@@ -43,13 +43,13 @@ public class ProductController {
      * Adds a new product to the database.
      * </p>
      *
-     * @param productDto The product details to be added.
-     * @return {@link ResponseEntity<ProductDto>} product details that were added.
+     * @param product  details to be added.
+     * @return {@link SuccessResponse} with {@link HttpStatus} CREATED.
      */
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<SuccessResponse> addProduct(@Validated @RequestBody ProductDto productDto) {
-        productService.addProduct(productDto);
+    public ResponseEntity<SuccessResponse> addProduct(@Validated @RequestBody ProductDto product) {
+        productService.addProduct(product);
         return SuccessResponse.setSuccessResponse("Product Added Successfully", HttpStatus.CREATED);
     }
 
@@ -58,9 +58,10 @@ public class ProductController {
      * Adds a new review to a product.
      * </p>
      *
+     * @param userId    who is adding the review.
      * @param productId The product id to which the review is to be added.
      * @param reviewDto The review details to be added.
-     * @return {@link ResponseEntity<ReviewDto>} review details that were added.
+     * @return {@link SuccessResponse} with {@link HttpStatus} CREATED.
      */
     @PostMapping("/{productId}/reviews")
     public ResponseEntity<SuccessResponse> addProductReview(@RequestAttribute("id") String userId,
@@ -77,13 +78,13 @@ public class ProductController {
      *
      * @param page The page number.
      * @param size The number of products to be returned.
-     * @return {@link ResponseEntity<Set<ProductDto>} set of products.
+     * @return {@link SuccessResponse} containing the list of products, with {@link HttpStatus} OK.
      */
     @GetMapping
     public ResponseEntity<SuccessResponse> getProducts(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {
         Set<ProductDto> products = productService.getAllProducts(page, size);
-        return SuccessResponse.setSuccessResponse("Products fetched Successfully", HttpStatus.OK, products);
+        return SuccessResponse.setSuccessResponse("Products fetched Successfully", HttpStatus.OK, Map.of("products", products));
     }
 
     /**
@@ -92,12 +93,12 @@ public class ProductController {
      * </p>
      *
      * @param productId The product id.
-     * @return {@link ResponseEntity<Product>} product details.
+     * @return {@link SuccessResponse} containing the product details, with {@link HttpStatus} OK.
      */
     @GetMapping("/{productId}")
     public ResponseEntity<SuccessResponse> getProduct(@PathVariable String productId) {
         ProductDto product = productService.getProductById(productId);
-        return SuccessResponse.setSuccessResponse("Product fetched Successfully", HttpStatus.OK, product);
+        return SuccessResponse.setSuccessResponse("Product fetched Successfully", HttpStatus.OK, Map.of("product", product));
     }
 
     /**
@@ -105,17 +106,17 @@ public class ProductController {
      * Returns the reviews of a product.
      * </p>
      *
-     * @param page      The page number.
-     * @param size      The number of reviews to be returned.
-     * @param productId The product id.
-     * @return {@link ResponseEntity<Set<ReviewDto>} set of reviews.
+     * @param page      page number.
+     * @param size      number of reviews to be returned.
+     * @param productId which reviews are to be fetched.
+     * @return {@link SuccessResponse} containing the reviews of the product, with {@link HttpStatus} OK.
      */
     @GetMapping("/{productId}/reviews")
     public ResponseEntity<SuccessResponse> getProductReviews(@RequestParam(defaultValue = "0") int page,
                                                              @RequestParam(defaultValue = "10") int size,
                                                              @PathVariable String productId) {
         Set<ReviewDto> reviews = reviewService.getReviewsByProductId(productId, page, size);
-        return SuccessResponse.setSuccessResponse("Reviews of the product fetched Successfully", HttpStatus.OK, reviews);
+        return SuccessResponse.setSuccessResponse("Reviews of the product fetched Successfully", HttpStatus.OK, Map.of("reviews", reviews));
     }
 
     /**
@@ -124,13 +125,13 @@ public class ProductController {
      * </p>
      *
      * @param productDto The product details to be updated.
-     * @return {@link ResponseEntity<ProductDto>} updated product details.
+     * @return {@link SuccessResponse} containing the updated product details, with {@link HttpStatus} OK.
      */
     @PatchMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse> updateProduct(@RequestBody ProductDto productDto) {
         ProductDto product = productService.updateProduct(productDto);
-        return SuccessResponse.setSuccessResponse("Product updated Successfully", HttpStatus.OK, product);
+        return SuccessResponse.setSuccessResponse("Product updated Successfully", HttpStatus.OK, Map.of("product", product));
     }
 
     /**
@@ -139,7 +140,7 @@ public class ProductController {
      * </p>
      *
      * @param productId The product id to be deleted.
-     * @return {@link ResponseEntity<HttpStatus>} status of the request.
+     * @return {@link SuccessResponse} with {@link HttpStatus} NO_CONTENT.
      */
     @DeleteMapping("/{productId}")
     @PreAuthorize("hasAuthority('ADMIN')")

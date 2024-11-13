@@ -42,12 +42,12 @@ public class UserController {
      * Adds a new user to the database.
      * </p>
      *
-     * @param userDto The user details to be added.
-     * @return {@link ResponseEntity<UserDto>} user details that were added with {@link HttpStatus} CREATED
+     * @param user The user details to be added.
+     * @return {@link SuccessResponse} with {@link HttpStatus} CREATED
      */
     @PostMapping("/register")
-    public ResponseEntity<SuccessResponse> addUser(@Validated @RequestBody UserDto userDto) {
-        userService.addUser(userDto);
+    public ResponseEntity<SuccessResponse> addUser(@Validated @RequestBody UserDto user) {
+        userService.addUser(user);
         return SuccessResponse.setSuccessResponse("User Registration Successful",
                 HttpStatus.CREATED);
     }
@@ -57,12 +57,12 @@ public class UserController {
      * Updates the user details.
      * </p>
      *
-     * @param userDto The user details to be updated.
-     * @return {@link ResponseEntity<UserDto>} user details that were updated with {@link HttpStatus} OK
+     * @param user The user details to be updated.
+     * @return {@link SuccessResponse} containing user details with {@link HttpStatus} OK
      */
     @PatchMapping
-    public ResponseEntity<SuccessResponse> updateUser(@RequestBody UserDto userDto) {
-        UserDto user = userService.updateUser(userDto);
+    public ResponseEntity<SuccessResponse> updateUser(@RequestBody UserDto user) {
+        user = userService.updateUser(user);
         return SuccessResponse.setSuccessResponse("User updated successfully",
                 HttpStatus.OK, Map.of("user", user));
     }
@@ -74,7 +74,7 @@ public class UserController {
      *
      * @param page page number
      * @param size number of users per page
-     * @return {@link ResponseEntity<Set<UserDto>} users with {@link HttpStatus} OK
+     * @return {@link SuccessResponse} containing users with {@link HttpStatus} OK
      */
     @GetMapping
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -91,7 +91,7 @@ public class UserController {
      * </p>
      *
      * @param userId for which user is fetched
-     * @return {@link ResponseEntity<UserDto>} user with {@link HttpStatus} OK
+     * @return {@link SuccessResponse} containing user with {@link HttpStatus} OK
      */
     @GetMapping("/me")
     public ResponseEntity<SuccessResponse> getUser(@RequestAttribute("id") String userId) {
@@ -106,7 +106,7 @@ public class UserController {
      * </p>
      *
      * @param userId for which user is updated
-     * @return {@link HttpStatus} NO_CONTENT if user is deleted
+     * @return {@link SuccessResponse} with {@link HttpStatus} NO_CONTENT
      */
     @DeleteMapping("/{userId}")
     public ResponseEntity<SuccessResponse> removeUser(@PathVariable String userId) {
@@ -120,16 +120,24 @@ public class UserController {
      * Authenticates a user and returns the token for the user.
      * </p>
      *
-     * @param userDto The user details to be authenticated.
-     * @return {@link ResponseEntity<String>} user details that were authenticated with {@link HttpStatus} OK
+     * @param user The user details to be authenticated.
+     * @return {@link SuccessResponse} containing the token with {@link HttpStatus} OK
      */
     @PostMapping("/login")
-    public ResponseEntity<SuccessResponse> login(@RequestBody UserDto userDto) {
-        String token = userService.authenticateUser(userDto);
+    public ResponseEntity<SuccessResponse> login(@RequestBody UserDto user) {
+        String token = userService.authenticateUser(user);
         return SuccessResponse.setSuccessResponse("User authenticated successfully",
                 HttpStatus.OK, Map.of("token", token));
     }
 
+    /**
+     * <p>
+     * Makes a user an admin.
+     * </p>
+     *
+     * @param userDto The user details to be updated.
+     * @return {@link SuccessResponse} with {@link HttpStatus} OK
+     */
     @PatchMapping("/make-admin")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> makeAdmin(@RequestBody UserDto userDto) {

@@ -1,13 +1,16 @@
 package com.bicart.service;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,7 +23,6 @@ import com.bicart.model.Address;
 import com.bicart.model.Cart;
 import com.bicart.model.Order;
 import com.bicart.model.Payment;
-import com.bicart.model.User;
 import com.bicart.repository.OrderRepository;
 import com.bicart.util.DateUtil;
 
@@ -46,7 +48,7 @@ public class OrderService {
      * </p>
      *
      * @param order order to save
-     * @throws CustomException if error while saving order
+     * @throws CustomException if any issues while saving order
      */
     public void saveOrder(Order order) {
         try {
@@ -64,11 +66,10 @@ public class OrderService {
      * Getting orders by user id
      * </p>
      *
-     * @param userId user id
+     * @param userId whose orders to fetch
      * @param page   page number
      * @param size   number of orders per page
-     * @return {@link Set<OrderDto>} set of orders
-     * @throws CustomException if error while fetching orders
+     * @return {@link OrderDto} set containing details of all orders
      */
     public Set<OrderDto> getOrdersByUserId(String userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -84,9 +85,8 @@ public class OrderService {
      * Getting order by order id
      * </p>
      *
-     * @param orderId order id
-     * @return {@link Order} order
-     * @throws CustomException if error while fetching order
+     * @param orderId which order to fetch
+     * @return {@link Order} details that is fetched
      */
     public OrderDto getOrderById(String userId, String orderId) {
         Order order = getOrderModelById(userId, orderId);
@@ -98,9 +98,9 @@ public class OrderService {
      * Getting order by order id
      * </p>
      *
-     * @param orderId order id
-     * @return {@link Order} order
-     * @throws CustomException if error while fetching order
+     * @param orderId which order to fetch
+     * @return {@link Order} details that is fetched
+     * @throws NoSuchElementException if order not found
      */
     protected Order getOrderModelById(String userId, String orderId) {
         Order order = orderRepository.findByIdAndUserId(orderId, userId);
@@ -117,8 +117,8 @@ public class OrderService {
      * Transfer the cart to order.
      * </p>
      *
-     * @param userId user id
-     * @return {@link OrderDto} order
+     * @param userId whose order to create
+     * @return {@link OrderDto} details of the order created
      */
     public OrderDto createOrder(String userId) {
         Cart cart = cartService.getCart(userId);
@@ -146,9 +146,9 @@ public class OrderService {
      * Cancels an order.
      * </p>
      *
-     * @param userId  user id
-     * @param orderId order id
-     * @throws CustomException if error while deleting order
+     * @param userId  whose order to cancel
+     * @param orderId which order to cancel
+     * @throws DuplicateKeyException if order already canceled
      */
     public void cancelOrder(String userId, String orderId) {
         Order order = getOrderModelById(userId, orderId);
@@ -165,10 +165,9 @@ public class OrderService {
      * Notifies payment for an order.
      * </p>
      *
-     * @param userId  user id
-     * @param orderId order id
-     * @param payment payment details
-     * @throws CustomException if error while updating order
+     * @param userId  whose order to notify
+     * @param orderId which order to notify
+     * @param payment payment details to notify
      */
     public void notifyPayment(String userId, String orderId, Payment payment) {
         Order order = getOrderModelById(userId, orderId);

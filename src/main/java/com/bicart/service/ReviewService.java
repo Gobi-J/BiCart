@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,6 +40,7 @@ public class ReviewService {
      * </p>
      *
      * @param review model object to be saved.
+     * @throws CustomException if any issue occurs while saving the review.
      */
     private void saveReview(Review review) {
         try {
@@ -57,8 +57,9 @@ public class ReviewService {
      * Creates a new Review object and saves it in the repository.
      * </p>
      *
-     * @param reviewDTO to create new review.
-     * @throws CustomException, DuplicateKeyException if exception is thrown.
+     * @param userId    who is adding the review.
+     * @param reviewDTO to create a new review.
+     * @param productId in which review is to be added
      */
     public void addReview(String userId, ReviewDto reviewDTO, String productId) {
         Review review = ReviewMapper.dtoToModel(reviewDTO);
@@ -79,8 +80,7 @@ public class ReviewService {
      * @param productId whose reviews are to be fetched
      * @param page   entries from which page are to be fetched
      * @param size   number of entries needed
-     * @return {@link Set<ReviewDto>} set of all reviews of the given product
-     * @throws CustomException if any exception is thrown
+     * @return {@link ReviewDto} set containing all reviews of the given product
      */
     public Set<ReviewDto> getReviewsByProductId(String productId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

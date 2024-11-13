@@ -40,8 +40,8 @@ public class SubCategoryService {
      * Saves a sub category.
      * </p>
      *
-     * @param subCategory the sub category to save
-     * @throws CustomException if an error occurs while saving the sub category
+     * @param subCategory the subcategory to save
+     * @throws CustomException if an error occurs while saving the subcategory
      */
     private void saveSubCategory(@NonNull SubCategory subCategory) {
         try {
@@ -57,10 +57,8 @@ public class SubCategoryService {
      *   Fetches a sub category by name.
      * </p>
      *
-     * @param subCategoryName the name of the sub category to fetch
-     * @return {@link SubCategory} the sub category with the given name
-     * @throws NoSuchElementException if the sub category is not found
-     * @throws CustomException if an error occurs while fetching the sub category
+     * @param subCategoryName the name of the subcategory to fetch
+     * @return {@link SubCategoryDto} the subcategory with the given name
      */
     public SubCategoryDto getSubCategoryByName(@NonNull String subCategoryName) {
         SubCategory subCategory = getSubCategoryModelByName(subCategoryName);
@@ -72,9 +70,9 @@ public class SubCategoryService {
      *   Fetches a sub category model by name.
      * </p>
      *
-     * @param subCategoryName the name of the sub category to fetch
-     * @return {@link SubCategory} the sub category model with the given name
-     * @throws NoSuchElementException if the sub category is not found
+     * @param subCategoryName the name of the subcategory to fetch
+     * @return {@link SubCategory} the subcategory model with the given name
+     * @throws NoSuchElementException if the subcategory is not found
      */
     protected SubCategory getSubCategoryModelByName(String subCategoryName) {
         SubCategory subCategory = subCategoryRepository.findByNameAndIsDeletedFalse(subCategoryName);
@@ -91,9 +89,8 @@ public class SubCategoryService {
      * </p>
      *
      * @param page the page number
-     * @param size the number of sub categories per page
-     * @return {@link Set<SubCategoryDto>} the set of sub categories on the given page
-     * @throws CustomException if an error occurs while fetching the sub categories
+     * @param size the number of subcategories per page
+     * @return {@link SubCategoryDto} set containing required details
      */
     public Set<SubCategoryDto> getSubCategories(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -107,10 +104,8 @@ public class SubCategoryService {
      * Adds a sub category.
      * </p>
      *
-     * @param subCategoryDto the sub category to add
-     * @throws DuplicateKeyException if the sub category already exists
-     * @throws NoSuchElementException if the category is not found
-     * @throws CustomException if an error occurs while adding the sub category
+     * @param subCategoryDto the subcategory to add
+     * @throws DuplicateKeyException if the subcategory already exists
      */
     public void addSubCategory(@NonNull SubCategoryDto subCategoryDto) {
         if (subCategoryRepository.existsByName(subCategoryDto.getName())) {
@@ -131,9 +126,8 @@ public class SubCategoryService {
      * Updates a sub category.
      * </p>
      *
-     * @param subCategoryDto the sub category to update
-     * @throws NoSuchElementException if the sub category is not found
-     * @throws CustomException        if an error occurs while updating the sub category
+     * @param subCategoryDto the subcategory to update
+     * @return {@link SubCategoryDto} updated subcategory details
      */
     public SubCategoryDto updateSubCategory(@NonNull SubCategoryDto subCategoryDto) {
         SubCategory subCategory = getSubCategoryModelByName(subCategoryDto.getName());
@@ -150,9 +144,7 @@ public class SubCategoryService {
      *   Deletes a sub category.
      * </p>
      *
-     * @param subCategoryName the name of the sub category to delete
-     * @throws NoSuchElementException if the sub category is not found
-     * @throws CustomException if an error occurs while deleting the sub category
+     * @param subCategoryName the name of the subcategory to delete
      */
     public void deleteSubCategory(@NonNull String subCategoryName) {
         SubCategory subCategory = getSubCategoryModelByName(subCategoryName);

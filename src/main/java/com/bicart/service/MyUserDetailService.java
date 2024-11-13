@@ -20,6 +20,14 @@ public class MyUserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    /**
+     * <p>
+     * Loads user details by username.
+     * </p>
+     *
+     * @param username the username to load which is email in this case
+     * @return {@link UserDetails} the user details
+     */
     @Override
     public UserDetails loadUserByUsername(String username) {
         User user = userRepository.findByEmailAndIsDeletedFalse(username);

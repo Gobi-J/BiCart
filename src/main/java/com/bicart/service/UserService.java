@@ -29,6 +29,11 @@ import com.bicart.model.User;
 import com.bicart.repository.UserRepository;
 import com.bicart.util.JwtUtil;
 
+/**
+ * <p>
+ *     Service class that handles business logic related to user.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -42,10 +47,11 @@ public class UserService {
 
     /**
      * <p>
-     * Saves an user.
+     * Saves an user to the database.
      * </p>
      *
-     * @param user model.
+     * @param user model to save. Must have its ID assigned manually.
+     * @throws CustomException if any issue with the server.
      */
     public void saveUser(User user) {
         try {
@@ -59,11 +65,11 @@ public class UserService {
 
     /**
      * <p>
-     * Creates a new User object and saves it in the repository.
+     * Creates a new User object after checking if the user is already present.
      * </p>
      *
      * @param userDTO to create new user.
-     * @throws CustomException, DuplicateKeyException if exception is thrown.
+     * @throws DuplicateKeyException if the user is already present with same mobile or email
      */
     public void addUser(UserDto userDTO) {
         User user = UserMapper.dtoToModel(userDTO);
@@ -85,8 +91,7 @@ public class UserService {
      * </p>
      *
      * @param userDto to update the all the details of the user.
-     * @return the updated User object.
-     * @throws CustomException when exception is thrown.
+     * @return {@link UserDto} updated details of a user.
      */
     public UserDto updateUser(UserDto userDto) {
         User user = UserMapper.dtoToModel(userDto);
@@ -97,11 +102,10 @@ public class UserService {
 
     /**
      * <p>
-     * Retrieves and displays all users.
+     * Retrieves all users of specified page and size
      * </p>
      *
-     * @return {@link Set <UserDto>} all the Users.
-     * @throws CustomException, when any custom Exception is thrown.
+     * @return {@link ResponseUserDto} set containing all users information
      */
     public Set<ResponseUserDto> getAllUsers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -114,30 +118,25 @@ public class UserService {
 
     /**
      * <p>
-     * Retrieves and displays the details of an user.
+     * Retrieves a user with given id
      * </p>
      *
      * @param id the ID of the user whose details are to be viewed
-     * @return the User object.
-     * @throws NoSuchElementException when occurred.
      */
-    public UserRoleDto getUser(String id) throws NoSuchElementException, CustomException {
-        User user = userRepository.findByIdAndIsDeletedFalse(id);
-        if (user == null) {
-            logger.warn("User not found for the given id: {}", id);
-            throw new NoSuchElementException("User not found for the given id: " + id);
-        }
+    public UserRoleDto getUser(String id) {
+        User user = getUserModelById(id);
         logger.info("Retrieved user details for ID: {}", id);
         return UserMapper.modelToUserRoleDto(user);
     }
 
     /**
      * <p>
-     * Retrieves an user model.
+     * Retrieves an user model of given ID.
      * </p>
      *
-     * @param id of a user.
-     * @return the User model
+     * @param id of the user to retrieve.
+     * @return {@link User} model of the user.
+     * @throws NoSuchElementException if no user is found with the given ID.
      */
     protected User getUserModelById(String id) {
         User user = userRepository.findByIdAndIsDeletedFalse(id);
@@ -151,13 +150,12 @@ public class UserService {
 
     /**
      * <p>
-     * Deletes an user based on the provided ID.
+     * Deletes an user based on the given ID.
      * </p>
      *
      * @param id of the user for deleting.
-     * @throws NoSuchElementException and CustomException.
      */
-    public void deleteUser(String id) throws NoSuchElementException, CustomException {
+    public void deleteUser(String id) {
         User user = getUserModelById(id);
         Set<Role> roles = user.getRole();
         if (roles != null && !roles.isEmpty()) {
@@ -173,9 +171,9 @@ public class UserService {
      * Login an user based on the provided Username and password. Generates new token for a user.
      * </p>
      *
-     * @param userDTO object.
-     * @return {@link String} created token.
-     * @throws UnAuthorizedException when user is not authorized.
+     * @param userDTO containing username and password
+     * @return {@link String} created token for the authenticated user.
+     * @throws UnAuthorizedException when a user is not authorized.
      */
     public String authenticateUser(UserDto userDTO) {
         try {
@@ -187,11 +185,19 @@ public class UserService {
                     );
             return JwtUtil.generateToken(userDTO.getEmail());
         } catch (BadCredentialsException e) {
-            logger.error("Error in user login with id: {} ", userDTO.getId(), e);
+            logger.error("Invalid username or password", e);
             throw new UnAuthorizedException("Invalid Username or Password");
         }
     }
 
+    /**
+     * <p>
+     * Makes an user an admin.
+     * </p>
+     *
+     * @param userDto to make an admin. Must contain the ID of the user.
+     * @throws CustomException if an error occurs while making a user an admin.
+     */
     public void makeAdmin(UserDto userDto) {
         User user = getUserModelById(userDto.getId());
         try {

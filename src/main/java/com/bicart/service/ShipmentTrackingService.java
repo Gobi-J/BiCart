@@ -12,6 +12,11 @@ import com.bicart.helper.CustomException;
 import com.bicart.model.ShipmentTracking;
 import com.bicart.repository.ShipmentTrackingRepository;
 
+/**
+ * <p>
+ * Service class that handles business logic related to shipment tracking.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class ShipmentTrackingService {
@@ -25,7 +30,7 @@ public class ShipmentTrackingService {
      * Saves a ShipmentTracking.
      * </p>
      *
-     * @param shipmentTracking model.
+     * @param shipmentTracking details of the shipment tracking to save
      */
     private void saveShipmentTracking(ShipmentTracking shipmentTracking) {
         try {
@@ -36,23 +41,6 @@ public class ShipmentTrackingService {
             throw new CustomException("Cannot save Shipment Tracking", e);
         }
     }
-
-//    /**
-//     * <p>
-//     * Creates a new ShipmentTracking object and saves it in the repository.
-//     * </p>
-//     *
-//     * @param shipmentTrackingDto to create new shipment.
-//     * @return {@link ShipmentTrackingDto} details which is added
-//     * @throws CustomException if exception is thrown.
-//     */
-//    public ShipmentTrackingDto addShipmentTracking(ShipmentTrackingDto shipmentTrackingDto) {
-//        ShipmentTracking shipmentTracking = ShipmentTrackingMapper.dtoToModel((shipmentTrackingDto));
-//        saveShipmentTracking(shipmentTracking);
-//        shipmentTrackingDto = ShipmentTrackingMapper.modelToDto((shipmentTracking));
-//        logger.info("ShipmentTracking added successfully with ID: {}", shipmentTrackingDto.getId());
-//        return shipmentTrackingDto;
-//    }
 
     /**
      * <p>

@@ -1,16 +1,11 @@
 package com.bicart.service;
 
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bicart.constant.ShipmentStatus;
@@ -22,6 +17,11 @@ import com.bicart.model.Shipment;
 import com.bicart.model.ShipmentTracking;
 import com.bicart.repository.ShipmentRepository;
 
+/**
+ * <p>
+ * Service class that handles business logic related to shipment.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class ShipmentService {
@@ -33,10 +33,11 @@ public class ShipmentService {
 
     /**
      * <p>
-     * Saves a Shipment.
+     * Saves a shipment to the repository.
      * </p>
      *
      * @param shipment to save.
+     * @throws CustomException if any issues occur while saving the shipment.
      */
     private void saveShipment(Shipment shipment) {
         try {
@@ -53,9 +54,8 @@ public class ShipmentService {
      * Creates a new Shipment object and saves it in the repository.
      * </p>
      *
-     * @param shipmentDto to create new shipment.
-     * @return the created shipmentDto object.
-     * @throws CustomException if exception is thrown.
+     * @param shipmentDto to create a new shipment.
+     * @return {@link ShipmentDto} the newly created shipment.
      */
     public ShipmentDto addShipment(ShipmentDto shipmentDto) {
         Shipment shipment = ShipmentMapper.dtoToModel(shipmentDto);
@@ -84,7 +84,7 @@ public class ShipmentService {
      * Cancels the shipment.
      * </p>
      *
-     * @param order order
+     * @param order from which the shipment is to be canceled.
      */
     public void cancelShipment(Order order) {
         Shipment shipment = order.getShipment();

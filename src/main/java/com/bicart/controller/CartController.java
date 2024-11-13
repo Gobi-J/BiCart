@@ -1,6 +1,5 @@
 package com.bicart.controller;
 
-import com.bicart.helper.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bicart.dto.CartDto;
-import com.bicart.model.Cart;
+import com.bicart.helper.SuccessResponse;
 import com.bicart.service.CartService;
 
 /**
@@ -35,7 +34,7 @@ public class CartController {
      * </p>
      *
      * @param userId fetched from the request attribute
-     * @return {@link ResponseEntity<Cart>} containing the cart of the user, with HTTP status OK
+     * @return {@link SuccessResponse} containing the cart of the user, with {@link HttpStatus} OK
      */
     @GetMapping
     public ResponseEntity<SuccessResponse> getCart(@RequestAttribute("id") String userId) {
@@ -53,7 +52,7 @@ public class CartController {
      *
      * @param userId  fetched from the request attribute
      * @param cartDto containing the product to be added to the cart
-     * @return {@link ResponseEntity<CartDto>} containing the updated cart of the user, with HTTP status OK
+     * @return {@link SuccessResponse} with {@link HttpStatus} OK
      */
     @PutMapping
     public ResponseEntity<SuccessResponse> addToCart(@Validated @RequestAttribute("id") String userId, @RequestBody CartDto cartDto) {
@@ -67,7 +66,7 @@ public class CartController {
      * </p>
      *
      * @param userId fetched from the request attribute
-     * @return {@link ResponseEntity<HttpStatus>} with {@link HttpStatus} NO_CONTENT
+     * @return {@link SuccessResponse} with {@link HttpStatus} NO_CONTENT
      */
     @DeleteMapping
     public ResponseEntity<SuccessResponse> deleteCart(@RequestAttribute("id") String userId) {

@@ -1,8 +1,7 @@
 package com.bicart.controller;
 
+import java.util.Map;
 import java.util.Set;
-
-import com.bicart.helper.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bicart.dto.OrderDto;
-import com.bicart.model.Order;
+import com.bicart.helper.SuccessResponse;
 import com.bicart.service.OrderService;
 
 /**
@@ -41,14 +40,14 @@ public class OrderController {
      * @param page   Page number
      * @param size   Number of orders per page
      * @param userId fetched from the request attribute
-     * @return {@link ResponseEntity<Set<OrderDto>>} containing the list of orders of the user, with HTTP status OK
+     * @return {@link SuccessResponse} containing the list of orders of the user, with {@link HttpStatus} OK
      */
     @GetMapping
     public ResponseEntity<SuccessResponse> getOrders(@RequestParam(defaultValue = "0") int page,
                                                      @RequestParam(defaultValue = "10") int size,
                                                      @RequestAttribute("id") String userId) {
-        Set<OrderDto> orderDto = orderService.getOrdersByUserId(userId, page, size);
-        return SuccessResponse.setSuccessResponse("Orders Fetched Successfully", HttpStatus.OK, orderDto);
+        Set<OrderDto> orders = orderService.getOrdersByUserId(userId, page, size);
+        return SuccessResponse.setSuccessResponse("Orders Fetched Successfully", HttpStatus.OK, Map.of("orders", orders));
     }
 
     /**
@@ -56,14 +55,14 @@ public class OrderController {
      * Get the order by id.
      * </p>
      *
-     * @param orderId Id of the order
+     * @param orderId to be fetched
      * @param userId  fetched from the request attribute
-     * @return {@link ResponseEntity<Order>} containing the order, with HTTP status OK
+     * @return {@link SuccessResponse} containing the order, with {@link HttpStatus} OK
      */
     @GetMapping("/{orderId}")
     public ResponseEntity<SuccessResponse> getOrderById(@RequestAttribute("id") String userId, @PathVariable String orderId) {
-        OrderDto orderDto = orderService.getOrderById(userId, orderId);
-        return SuccessResponse.setSuccessResponse("Order Fetched Successfully", HttpStatus.OK, orderDto);
+        OrderDto order = orderService.getOrderById(userId, orderId);
+        return SuccessResponse.setSuccessResponse("Order Fetched Successfully", HttpStatus.OK, Map.of("order", order));
     }
 
     /**
@@ -72,12 +71,12 @@ public class OrderController {
      * </p>
      *
      * @param userId fetched from the request attribute
-     * @return {@link ResponseEntity<OrderDto>} containing the created order, with HTTP status CREATED
+     * @return {@link SuccessResponse} containing the created order, {@link HttpStatus} CREATED
      */
     @PostMapping
     public ResponseEntity<SuccessResponse> createOrder(@Validated @RequestAttribute("id") String userId) {
         OrderDto order = orderService.createOrder(userId);
-        return SuccessResponse.setSuccessResponse("Orders Created Successfully", HttpStatus.CREATED, order);
+        return SuccessResponse.setSuccessResponse("Orders Created Successfully", HttpStatus.CREATED, Map.of("order", order));
     }
 
     /**
@@ -85,9 +84,9 @@ public class OrderController {
      * Cancel the order.
      * </p>
      *
-     * @param orderId Id of the order
+     * @param orderId to be deleted
      * @param userId  fetched from the request attribute
-     * @return {@link ResponseEntity<HttpStatus>} with {@link HttpStatus} NO_CONTENT
+     * @return {@link SuccessResponse} with {@link HttpStatus} NO_CONTENT
      */
     @DeleteMapping("/{orderId}")
     public ResponseEntity<SuccessResponse> cancelOrder(@RequestAttribute("id") String userId, @PathVariable String orderId) {

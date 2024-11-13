@@ -1,14 +1,10 @@
 package com.bicart.service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.bicart.model.Product;
-import com.bicart.model.SubCategory;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,15 +31,14 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     private static final Logger logger = LogManager.getLogger(CategoryService.class);
-   // private final SubCategoryService subCategoryService;
 
     /**
      * <p>
      * Saves category
      * </p>
      *
-     * @param category category to be saved
-     * @throws CustomException if any error occurs
+     * @param category details to be saved
+     * @throws CustomException if any issues occur while saving the category
      */
     private void saveCategory(Category category) {
         logger.debug("Saving Category with the id : {}", category.getId());
@@ -63,7 +58,6 @@ public class CategoryService {
      *
      * @param categoryName category to be fetched
      * @return {@link CategoryDto} object which is requested
-     * @throws NoSuchElementException if category is not found
      */
     public CategoryDto getCategoryByName(String categoryName) {
         Category category = getCategoryModelByName(categoryName);
@@ -78,7 +72,6 @@ public class CategoryService {
      * @param categoryName category to be fetched
      * @return {@link Category} object which is requested
      * @throws NoSuchElementException if category is not found
-     * @throws CustomException        if any other error occurs
      */
     protected Category getCategoryModelByName(String categoryName) {
         Category category = categoryRepository.findByNameAndIsDeletedFalse(categoryName);
@@ -95,8 +88,7 @@ public class CategoryService {
      *
      * @param page page number
      * @param size number of categories to be fetched
-     * @return {@link CategoryDto} objects
-     * @throws CustomException if any error occurs
+     * @return {@link CategoryDto} set containing details of all categories
      */
     public Set<CategoryDto> getAllCategories(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -112,7 +104,7 @@ public class CategoryService {
      * </p>
      *
      * @param categoryDto category to be added
-     * @throws CustomException if any error occurs
+     * @throws DuplicateKeyException if category already exists
      */
     public void addCategory(CategoryDto categoryDto) {
         if (categoryRepository.existsByName(categoryDto.getName())) {
@@ -131,8 +123,7 @@ public class CategoryService {
      * </p>
      *
      * @param newCategory category to be updated
-     * @return updated {@link CategoryDto} object
-     * @throws CustomException if any error occurs
+     * @return {@link CategoryDto} details that is updated
      */
     public CategoryDto updateCategory(CategoryDto newCategory) {
         Category category = CategoryMapper.dtoToModel(newCategory);
@@ -147,9 +138,7 @@ public class CategoryService {
      * Deletes category
      * </p>
      *
-     * @param categoryName category to be deleted
-     * @throws NoSuchElementException if category is not found
-     * @throws CustomException        if any other error occurs
+     * @param categoryName which to be deleted
      */
     public void deleteCategory(String categoryName) {
         Category category = getCategoryModelByName(categoryName);
@@ -157,5 +146,4 @@ public class CategoryService {
         saveCategory(category);
         logger.info("Deleted Category with the Name: {}", categoryName);
     }
-
 }

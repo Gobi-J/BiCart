@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,9 +38,10 @@ public class AddressService {
      * Saves an Address.
      * </p>
      *
-     * @param address model.
+     * @param address details to save.
+     * @throws CustomException if any issues occur while saving.
      */
-    public void saveAddress(Address address) {
+    private void saveAddress(Address address) {
         try {
             addressRepository.save(address);
             logger.info("Address saved successfully with the id : {} ", address.getId());
@@ -56,8 +56,7 @@ public class AddressService {
      * Creates a new Address object and saves it in the repository.
      * </p>
      *
-     * @param addressDTO to create new address.
-     * @throws CustomException, DuplicateKeyException if exception is thrown.
+     * @param addressDTO to create a new address.
      */
     public void addAddress(AddressDto addressDTO, String userId) {
         Address address = AddressMapper.dtoToModel(addressDTO);
@@ -70,13 +69,13 @@ public class AddressService {
 
     /**
      * <p>
-     * Retrieves and displays all address.
+     * Retrieves and displays all address of a given user
      * </p>
      *
+     * @param userId the ID of the user whose address details are to be viewed
      * @param page entries from which page are to be fetched
      * @param size number of entries needed
-     * @return {@link Set <AddressDto>} all the Address.
-     * @throws CustomException, when any custom Exception is thrown.
+     * @return {@link AddressDto} set containing details of all the Address.
      */
     public Set<AddressDto> getAllAddresses(String userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -92,9 +91,8 @@ public class AddressService {
      * Updates the address with new details.
      * </p>
      *
-     * @param addressDto to update the all the details of the address.
-     * @return the updated Address object.
-     * @throws CustomException when exception is thrown.
+     * @param addressDto to update all the details of the address.
+     * @return {@link AddressDto} which is updated.
      */
     public AddressDto updateAddress(AddressDto addressDto) {
         Address address = AddressMapper.dtoToModel(addressDto);
@@ -108,9 +106,8 @@ public class AddressService {
      * Retrieves and displays the details of an address.
      * </p>
      *
-     * @param id the ID of the address whose details are to be viewed
-     * @return the Address object.
-     * @throws NoSuchElementException when occurred.
+     * @param id of the address whose details are to be viewed
+     * @return {@link AddressDto} which to be fetched.
      */
     public AddressDto getAddressById(String id) {
         Address address = getAddressModelById(id);
@@ -138,9 +135,9 @@ public class AddressService {
      * Retrieves and displays the details of an address.
      * </p>
      *
-     * @param id the ID of the user whose address details are to be viewed
+     * @param id of the user whose address details are to be viewed
      * @return {@link Address} which to be fetched.
-     * @throws NoSuchElementException when occurred.
+     * @throws NoSuchElementException if address not found.
      */
     protected Address getAddressModelById(String id) {
         Address address = addressRepository.findByIdAndIsDeletedFalse(id);
@@ -157,9 +154,9 @@ public class AddressService {
      * Retrieves and displays the details of an address.
      * </p>
      *
-     * @param id the ID of the user whose address details are to be viewed
+     * @param id of the user whose address details are to be viewed
      * @return {@link Address} which to be fetched.
-     * @throws NoSuchElementException when occurred.
+     * @throws NoSuchElementException if address not found.
      */
     protected Address getAddressModelByUserId(String id) {
         List<Address> address = addressRepository.findByUserIdAndIsDeletedFalse(id);
@@ -176,7 +173,7 @@ public class AddressService {
      * Deletes the address with the given user ID.
      * </p>
      *
-     * @param userId the ID of the user whose address to be deleted.
+     * @param userId of the user whose address to be deleted.
      */
     protected void deleteAddressWithUserId(String userId) {
         List<Address> addresses = addressRepository.findByUserIdAndIsDeletedFalse(userId);

@@ -1,5 +1,6 @@
 package com.bicart.controller;
 
+import java.util.Map;
 import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,8 @@ public class SubCategoryController {
      * Adds a new sub category to the database.
      * </p>
      *
-     * @param subCategory The sub category details to be added.
+     * @param subCategory details to be added.
+     * @return {@link SuccessResponse} with {@link HttpStatus} CREATED
      */
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -51,13 +53,13 @@ public class SubCategoryController {
      * Gets a sub category by its name.
      * </p>
      *
-     * @param subCategoryName for which sub category is fetched
+     * @param subCategoryName for which subcategory is fetched
      * @return {@link SubCategoryDto} with {@link HttpStatus} OK
      */
     @GetMapping("/{subCategoryName}")
     public ResponseEntity<SuccessResponse> getSubCategory(@PathVariable String subCategoryName) {
         SubCategoryDto subCategory = subCategoryService.getSubCategoryByName(subCategoryName);
-        return SuccessResponse.setSuccessResponse("SubCategory fetched Successfully", HttpStatus.OK, subCategory);
+        return SuccessResponse.setSuccessResponse("SubCategory fetched Successfully", HttpStatus.OK, Map.of("subCategory", subCategory));
     }
 
     /**
@@ -67,13 +69,13 @@ public class SubCategoryController {
      *
      * @param page page number
      * @param size number of sub categories per page
-     * @return set of {@link SubCategoryDto} limited by page and size
+     * @return {@link SuccessResponse} containing the list of sub categories, with {@link HttpStatus} OK
      */
     @GetMapping
     public ResponseEntity<SuccessResponse> getSubCategories(@RequestParam(defaultValue = "0") int page,
                                                             @RequestParam(defaultValue = "10") int size) {
         Set<SubCategoryDto> subCategories = subCategoryService.getSubCategories(page, size);
-        return SuccessResponse.setSuccessResponse("SubCategories fetched Successfully", HttpStatus.OK, subCategories);
+        return SuccessResponse.setSuccessResponse("SubCategories fetched Successfully", HttpStatus.OK, Map.of("subCategories", subCategories));
     }
 
     /**
@@ -81,13 +83,14 @@ public class SubCategoryController {
      * Updates the sub category details.
      * </p>
      *
-     * @param categoryDto The sub category details to be updated.
+     * @param subCategory The subcategory details to be updated.
+     * @return {@link SuccessResponse} containing the updated subcategory details, with {@link HttpStatus} OK
      */
     @PatchMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<SuccessResponse> updateSubCategory(@RequestBody SubCategoryDto subCategoryDto) {
-        SubCategoryDto subcategoryDto = subCategoryService.updateSubCategory(subCategoryDto);
-        return SuccessResponse.setSuccessResponse("SubCategory Updated Successfully", HttpStatus.OK, subCategoryDto);
+    public ResponseEntity<SuccessResponse> updateSubCategory(@RequestBody SubCategoryDto subCategory) {
+        subCategory = subCategoryService.updateSubCategory(subCategory);
+        return SuccessResponse.setSuccessResponse("SubCategory Updated Successfully", HttpStatus.OK, Map.of("subCategory", subCategory));
     }
 
     /**
@@ -95,7 +98,8 @@ public class SubCategoryController {
      * Deletes a sub category.
      * </p>
      *
-     * @param subCategoryName for which sub category is deleted
+     * @param subCategoryName for which subcategory is deleted
+     * @return {@link SuccessResponse} with {@link HttpStatus} NO_CONTENT
      */
     @DeleteMapping("/{subCategoryName}")
     @PreAuthorize("hasAuthority('ADMIN')")

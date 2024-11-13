@@ -1,8 +1,8 @@
 package com.bicart.controller;
 
+import java.util.Map;
 import java.util.Set;
 
-import com.bicart.helper.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bicart.dto.RoleDto;
-import com.bicart.model.Role;
+import com.bicart.helper.SuccessResponse;
 import com.bicart.service.RoleService;
-
 
 /**
  * <p>
@@ -38,7 +37,7 @@ public class RoleController {
      * </p>
      *
      * @param roleDto The role details to be added.
-     * @return {@link ResponseEntity<RoleDto>} role details that were added with {@link HttpStatus} CREATED
+     * @return {@link SuccessResponse} with {@link HttpStatus} CREATED
      */
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -52,13 +51,13 @@ public class RoleController {
      * Gets all the roles.
      * </p>
      *
-     * @return {@link ResponseEntity<Set<RoleDto>} roles with {@link HttpStatus} OK
+     * @return {@link SuccessResponse} containing roles with {@link HttpStatus} OK
      */
     @GetMapping
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> getAllRoles() {
         Set<RoleDto> roles = roleService.getAllRoles();
-        return SuccessResponse.setSuccessResponse("Roles fetched Successfully", HttpStatus.OK, roles);
+        return SuccessResponse.setSuccessResponse("Roles fetched Successfully", HttpStatus.OK, Map.of("roles", roles));
     }
 
     /**
@@ -67,13 +66,13 @@ public class RoleController {
      * </p>
      *
      * @param name for which role is fetched
-     * @return {@link ResponseEntity<Role>} role with {@link HttpStatus} OK
+     * @return {@link SuccessResponse} role with {@link HttpStatus} OK
      */
     @GetMapping("/{name}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> getRoleByName(@PathVariable String name) {
         RoleDto role = roleService.getRoleByName(name);
-        return SuccessResponse.setSuccessResponse("Role fetched Successfully", HttpStatus.OK, role);
+        return SuccessResponse.setSuccessResponse("Role fetched Successfully", HttpStatus.OK, Map.of("role", role));
     }
 
     /**
@@ -82,7 +81,7 @@ public class RoleController {
      * </p>
      *
      * @param name for which role is updated
-     * @return {@link HttpStatus} NO_CONTENT if role is deleted
+     * @return {@link SuccessResponse} with {@link HttpStatus} NO_CONTENT
      */
     @DeleteMapping("/{name}")
     @PreAuthorize("hasAuthority('ADMIN')")

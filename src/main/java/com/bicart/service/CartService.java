@@ -41,12 +41,12 @@ public class CartService {
      * @return {@link Cart} cart of the user
      * @throws CustomException if an error occurs while fetching the cart
      */
-    public Cart getCart(String userId) {
+    protected Cart getCart(String userId) {
         try {
             return cartRepository.findByUserId(userId);
         } catch (Exception e) {
             logger.error("Error in getting cart by user id: {}", userId, e);
-            throw new CustomException("Error getting cart by user id " + userId, e);
+            throw new CustomException("Error getting cart by user id " + userId);
         }
     }
 
@@ -56,15 +56,14 @@ public class CartService {
      * </p>
      *
      * @param cart the cart to save
-     * @return {@link Cart} the saved cart
      * @throws CustomException if an error occurs while saving the cart
      */
-    protected Cart saveCart(Cart cart) {
+    protected void saveCart(Cart cart) {
         try {
-            return cartRepository.save(cart);
+            cartRepository.save(cart);
         } catch (Exception e) {
             logger.error("Error saving cart with the id: {} ", cart.getId(), e);
-            throw new CustomException("Error saving cart", e);
+            throw new CustomException("Cannot save cart. Try again");
         }
     }
 
@@ -74,8 +73,7 @@ public class CartService {
      * </p>
      *
      * @param userId  the id of the user to add the item to the cart for
-     * @param cartDto the cart dto containing the item to add
-     * @throws CustomException if an error occurs while adding to the cart
+     * @param cartDto containing details of the item to add
      */
     public void addToCart(String userId, CartDto cartDto) {
         Cart cart = getCart(userId);
@@ -99,8 +97,7 @@ public class CartService {
      * Deletes a cart.
      * </p>
      *
-     * @param userId the id of the user to delete the cart for
-     * @throws CustomException if an error occurs while deleting the cart
+     * @param userId the id of the user to delete the cart
      */
     public void deleteCart(String userId) {
         Cart cart = getCart(userId);
@@ -109,6 +106,14 @@ public class CartService {
         logger.info("Cart deleted successfully for user id: {}", userId);
     }
 
+    /**
+     * <p>
+     * Fetches a cart by user id.
+     * </p>
+     *
+     * @param userId the id of the user to fetch the cart for
+     * @return {@link CartDto} cart of the user
+     */
     public CartDto getCartByUserId(String userId) {
         Cart cart = getCart(userId);
         if (cart == null) {
@@ -117,6 +122,13 @@ public class CartService {
         return CartMapper.modelToDto(cart);
     }
 
+    /**
+     * <p>
+     * Deletes a cart before order.
+     * </p>
+     *
+     * @param userId the id of the user to delete the cart before order
+     */
     public void deleteCartBeforeOrder(String userId) {
         Cart cart = getCart(userId);
         orderItemService.releaseProducts(cart.getOrderItems());

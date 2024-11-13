@@ -1,7 +1,6 @@
 package com.bicart.service;
 
 import java.util.Date;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -59,7 +58,6 @@ public class ProductService {
      * </p>
      *
      * @param productDto object to be added
-     * @throws CustomException if error occurs while adding product
      */
     public void addProduct(@NonNull ProductDto productDto) {
         logger.debug("Adding product with name: {} ", productDto.getName());
@@ -76,8 +74,7 @@ public class ProductService {
      * </p>
      *
      * @param id of product to be fetched
-     * @return {@link Product} fetched object
-     * @throws CustomException if error occurs while getting product
+     * @return {@link Product} which is retrieved
      */
     public ProductDto getProductById(@NonNull String id) {
         Product product = getProductModelById(id);
@@ -107,10 +104,9 @@ public class ProductService {
      * Get all products
      * </p>
      *
-     * @param page number of page
+     * @param page page number to be fetched
      * @param size number of products per page
-     * @return {@link Set<ProductDto>} of all products
-     * @throws CustomException if error occurs while getting all products
+     * @return {@link ProductDto} set containing of all products
      */
     public Set<ProductDto> getAllProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -125,7 +121,6 @@ public class ProductService {
      * </p>
      *
      * @param id of product to be deleted
-     * @throws CustomException if error occurs while deleting product
      */
     public void deleteProduct(@NonNull String id) {
         Product product = getProductModelById(id);
@@ -140,7 +135,7 @@ public class ProductService {
      *
      * @param productDto object to be updated
      * @return {@link ProductDto} updated object
-     * @throws CustomException if error occurs while updating product
+     * @throws NoSuchElementException if the product is not found
      */
     public ProductDto updateProduct(@NonNull ProductDto productDto) {
         Product product = ProductMapper.dtoToModel(productDto);
@@ -159,7 +154,6 @@ public class ProductService {
      *
      * @param productId       of product to be updated
      * @param subCategoryName of product to be updated
-     * @throws CustomException if error occurs while updating category of product
      */
     public void updateCategory(@NonNull String productId, @NonNull String subCategoryName) {
         Product product = getProductModelById(productId);
@@ -173,10 +167,9 @@ public class ProductService {
      * </p>
      *
      * @param subCategoryName of products to be fetched
-     * @param page            number of page
+     * @param page            page number to be fetched
      * @param size            number of products per page
-     * @return {@link Set<ProductDto>} of products
-     * @throws CustomException if error occurs while getting products by sub category name
+     * @return {@link ProductDto} set containing details of products
      */
     public Set<ProductDto> getProductsBySubCategoryName(@NonNull String subCategoryName, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

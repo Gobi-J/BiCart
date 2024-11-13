@@ -1,6 +1,6 @@
 target/
 /src/main/resources/
-/logs/
+logs/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

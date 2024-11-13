@@ -17,6 +17,11 @@ import com.bicart.mapper.RoleMapper;
 import com.bicart.model.Role;
 import com.bicart.repository.RoleRepository;
 
+/**
+ * <p>
+ * Service class that handles business logic related to roles.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class RoleService {
@@ -30,7 +35,8 @@ public class RoleService {
      * Saves a Role.
      * </p>
      *
-     * @param role model.
+     * @param role details to save
+     * @throws CustomException if any issues occur while saving the role.
      */
     private void saveRole(Role role) {
         try {
@@ -47,8 +53,7 @@ public class RoleService {
      * Creates a new Role object and saves it in the repository.
      * </p>
      *
-     * @param roleDTO to create new role.
-     * @throws CustomException if exception is thrown.
+     * @param roleDTO to create a new role.
      */
     public void addRole(RoleDto roleDTO) {
         Role role = RoleMapper.dtoToModel(roleDTO);
@@ -60,11 +65,10 @@ public class RoleService {
 
     /**
      * <p>
-     * Retrieves and displays all role.
+     * Retrieves details of all roles.
      * </p>
      *
-     * @return {@link Set <RoleDto>} all the Role.
-     * @throws CustomException, when any custom Exception is thrown.
+     * @return {@link RoleDto} set containing all the information.
      */
     public Set<RoleDto> getAllRoles() throws CustomException {
         List<Role> roles = roleRepository.findAllByIsDeletedFalse();
@@ -80,8 +84,7 @@ public class RoleService {
      * </p>
      *
      * @param name the name of the role whose details are to be viewed
-     * @return the Role object.
-     * @throws NoSuchElementException when occurred.
+     * @return {@link RoleDto} of the role requested.
      */
     public RoleDto getRoleByName(String name) {
         Role role = getRoleModelByName(name);
@@ -94,10 +97,10 @@ public class RoleService {
      * </p>
      *
      * @param name the name of the role whose details are to be viewed
-     * @return the Role object.
-     * @throws NoSuchElementException when occurred.
+     * @return {@link Role} of the role requested.
+     * @throws NoSuchElementException if the role is not found.
      */
-    public Role getRoleModelByName(String name) {
+    protected Role getRoleModelByName(String name) {
         Role role = roleRepository.findByRoleNameAndIsDeletedFalse(name);
         if (role == null) {
             throw new NoSuchElementException("Role not found for the given name: " + name);
@@ -112,7 +115,6 @@ public class RoleService {
      * </p>
      *
      * @param name the name of the role to be deleted.
-     * @throws CustomException if exception is thrown.
      */
     public void deleteRole(String name) {
         Role role = getRoleModelByName(name);

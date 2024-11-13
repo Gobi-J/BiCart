@@ -38,7 +38,7 @@ public class ShipmentService {
      *
      * @param shipment to save.
      */
-    public void saveShipment(Shipment shipment) {
+    private void saveShipment(Shipment shipment) {
         try {
             shipmentRepository.save(shipment);
             logger.info("Shipment saved successfully");
@@ -62,44 +62,9 @@ public class ShipmentService {
         shipment.setId(UUID.randomUUID().toString());
         shipment.setAudit("SYSTEM");
         saveShipment(shipment);
-        shipmentDto = ShipmentMapper.modelToDto((shipment));
+        shipmentDto = ShipmentMapper.modelToDto(shipment);
         logger.info("Shipment added successfully with ID: {}", shipmentDto.getId());
         return shipmentDto;
-    }
-
-    /**
-     * <p>
-     * Retrieves and displays all shipment.
-     * </p>
-     *
-     * @return {@link Set <ShipmentDto>} all the Shipment.
-     * @throws CustomException, when any custom Exception is thrown.
-     */
-    public Set<ShipmentDto> getAllShipments(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Shipment> shipmentPage = shipmentRepository.findAllByIsDeletedFalse(pageable);
-        logger.info("Displayed shipment details for page : {}", page);
-        return shipmentPage.getContent().stream()
-                .map(ShipmentMapper::modelToDto)
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * <p>
-     * Retrieves and displays the details of an shipments.
-     * </p>
-     *
-     * @param id the ID of the Shipment whose details are to be viewed
-     * @return the Shipment object.
-     * @throws NoSuchElementException when occurred.
-     */
-    public ShipmentDto getShipmentById(String id) {
-        Shipment shipment = shipmentRepository.findByIdAndIsDeletedFalse(id);
-        if (shipment == null) {
-            throw new NoSuchElementException("Shipment not found for the given id: " + id);
-        }
-        logger.info("Retrieved shipment details for ID: {}", id);
-        return ShipmentMapper.modelToDto(shipment);
     }
 
     public void initializeShipment(Order order) {

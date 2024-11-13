@@ -1,5 +1,6 @@
 package com.bicart.service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -41,7 +42,7 @@ public class ReviewService {
      *
      * @param review model object to be saved.
      */
-    public void saveReview(Review review) {
+    private void saveReview(Review review) {
         try {
             reviewRepository.save(review);
             logger.info("Review saved successfully");
@@ -83,17 +84,10 @@ public class ReviewService {
      */
     public Set<ReviewDto> getReviewsByProductId(String productId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Review> reviews = reviewRepository.findByProductIdAndIsDeletedFalse(productId, pageable);
+        List<Review> reviews = reviewRepository.findByProductIdAndIsDeletedFalse(productId, pageable);
         logger.info("Displayed product's reviews for page : {}", page);
-        return reviews.getContent().stream()
+        return reviews.stream()
                 .map(ReviewMapper::modelToDto)
                 .collect(Collectors.toSet());
     }
 }
-
-
-
-
-
-
-

@@ -66,6 +66,9 @@ public class AddressController {
                                                            @RequestParam(defaultValue = "10") int size,
                                                            @RequestAttribute("id") String userId) {
         Set<AddressDto> addresses = addressService.getAllAddresses(userId, page, size);
+        if (null == addresses || addresses.isEmpty()) {
+            return SuccessResponse.setSuccessResponse("No addresses found", HttpStatus.NO_CONTENT);
+        }
         return SuccessResponse.setSuccessResponse("Addresses fetched successfully", HttpStatus.OK, addresses);
     }
 

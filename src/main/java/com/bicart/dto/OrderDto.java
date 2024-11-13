@@ -1,6 +1,7 @@
 package com.bicart.dto;
 
 import com.bicart.constant.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,11 +30,12 @@ public class OrderDto {
 
     @NotBlank(message = "Order must specify its price")
     private long price;
+    @JsonIgnore
     private PaymentDto payment;
+    @JsonIgnore
     private UserDto user;
     private AddressDto address;
 
     private Set<OrderItemDto> orderItems;
-
     private ShipmentDto shipment;
 }

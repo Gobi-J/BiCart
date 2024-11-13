@@ -1,6 +1,5 @@
 package com.bicart.service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -44,7 +43,7 @@ public class SubCategoryService {
      * @param subCategory the sub category to save
      * @throws CustomException if an error occurs while saving the sub category
      */
-    public void saveSubCategory(@NonNull SubCategory subCategory) {
+    private void saveSubCategory(@NonNull SubCategory subCategory) {
         try {
             subCategoryRepository.save(subCategory);
         } catch (Exception e) {
@@ -77,7 +76,7 @@ public class SubCategoryService {
      * @return {@link SubCategory} the sub category model with the given name
      * @throws NoSuchElementException if the sub category is not found
      */
-    public SubCategory getSubCategoryModelByName(String subCategoryName) {
+    protected SubCategory getSubCategoryModelByName(String subCategoryName) {
         SubCategory subCategory = subCategoryRepository.findByNameAndIsDeletedFalse(subCategoryName);
         if (subCategory == null) {
             logger.warn("Sub category not found for the Name: {} ", subCategoryName);
@@ -98,7 +97,7 @@ public class SubCategoryService {
      */
     public Set<SubCategoryDto> getSubCategories(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return subCategoryRepository.findAllByIsDeletedFalse(pageable).getContent().stream()
+        return subCategoryRepository.findAllByIsDeletedFalse(pageable).stream()
                 .map(SubCategoryMapper::modelToDto)
                 .collect(Collectors.toSet());
     }
@@ -157,29 +156,8 @@ public class SubCategoryService {
      */
     public void deleteSubCategory(@NonNull String subCategoryName) {
         SubCategory subCategory = getSubCategoryModelByName(subCategoryName);
-//        List<Product> products = productService.getAllProducts(subCategoryName);
-//        Category category = subCategory.getCategory();
-//        SubCategory unknownSubCategory =  subCategoryRepository.findByCategoryNameAndName(category.getName(), "Unknown");
-//        if(unknownSubCategory == null) {
-//            unknownSubCategory =  SubCategory.builder()
-//                    .id(UUID.randomUUID().toString())
-//                    .name("Unknown")
-//                    .description("Unknown subcategory")
-//                    .category(category)
-//                    .build();
-//            unknownSubCategory.setAudit("ADMIN");
-//           saveSubCategory(unknownSubCategory);
-//        }
-//        for(Product product : products) {
-//            product.setSubCategory(unknownSubCategory);
-//            productService.saveProduct(product);
-//        }
         subCategory.setIsDeleted(true);
         saveSubCategory(subCategory);
         logger.info("Sub category {} deleted successfully", subCategoryName);
-    }
-
-    public List<SubCategory> getAllCategories(String categoryName) {
-        return subCategoryRepository.findAllByCategoryNameAndIsDeletedFalse(categoryName);
     }
 }

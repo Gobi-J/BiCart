@@ -15,9 +15,5 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, String
 
     boolean existsByName(@NotBlank(message = "Sub category must have a name") String name);
 
-    Page<SubCategory> findAllByIsDeletedFalse(Pageable pageable);
-
-    SubCategory findByCategoryNameAndName(String name, String unknown);
-
-    List<SubCategory> findAllByCategoryNameAndIsDeletedFalse(String categoryName);
+    List<SubCategory> findAllByIsDeletedFalse(Pageable pageable);
 }

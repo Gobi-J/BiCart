@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -21,5 +22,5 @@ public interface ReviewRepository extends JpaRepository<Review, String> {
 
     Page<Review> findByUserIdAndIsDeletedFalse(String userId, Pageable pageable);
 
-    Page<Review> findByProductIdAndIsDeletedFalse(String productId, Pageable pageable);
+    List<Review> findByProductIdAndIsDeletedFalse(String productId, Pageable pageable);
 }

@@ -1,6 +1,8 @@
 package com.bicart.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Pattern;
+
 import lombok.*;
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
 
@@ -10,12 +12,12 @@ import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBl
 @Getter
 @Setter
 public class RoleDto {
-
+    @JsonIgnore
     private String id;
 
     @NotBlank(message = "Role is mandatory")
     @Pattern(regexp = "^[a-zA-Z]+")
     private String roleName;
-
+    @JsonIgnore
     private String description;
 }

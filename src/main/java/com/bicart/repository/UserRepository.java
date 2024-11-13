@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
 
-    Page<User> findAllByIsDeletedFalse(Pageable pageable);
+    List<User> findAllByIsDeletedFalse(Pageable pageable);
 
     User findByIdAndIsDeletedFalse(String id);
 

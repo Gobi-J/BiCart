@@ -162,13 +162,13 @@ public class AddressService {
      * @throws NoSuchElementException when occurred.
      */
     public Address getAddressModelByUserId(String id) {
-        Address address = addressRepository.findByUserIdAndIsDeletedFalse(id).getFirst();
-        if (address == null) {
+        List<Address> address = addressRepository.findByUserIdAndIsDeletedFalse(id);
+        if (address == null || address.isEmpty()) {
             logger.error("Address not found for the given user: {}", id);
             throw new NoSuchElementException("Address not found for the given user: " + id);
         }
         logger.info("Retrieved address for the given user: {}", id);
-        return address;
+        return address.getFirst();
     }
 
     /**

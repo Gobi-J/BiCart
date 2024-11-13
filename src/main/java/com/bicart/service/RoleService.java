@@ -1,6 +1,5 @@
 package com.bicart.service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -33,7 +32,7 @@ public class RoleService {
      *
      * @param role model.
      */
-    public void saveRole(Role role) {
+    private void saveRole(Role role) {
         try {
             roleRepository.save(role);
             logger.info("Role saved successfully");

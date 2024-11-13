@@ -1,13 +1,16 @@
 package com.bicart.service;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,7 +44,7 @@ public class ProductService {
      * @return {@link Product} saved object
      * @throws CustomException if error occurs while saving product
      */
-    public Product saveProduct(Product product) {
+    protected Product saveProduct(Product product) {
         try {
             return productRepository.save(product);
         } catch (Exception e) {
@@ -64,7 +67,7 @@ public class ProductService {
         product.setId(UUID.randomUUID().toString());
         product.setAudit("ADMIN");
         product.setSubCategory(subCategoryService.getSubCategoryModelByName(productDto.getSubCategory().getName()));
-        ProductMapper.modelToDto(saveProduct(product));
+        saveProduct(product);
     }
 
     /**
@@ -90,7 +93,7 @@ public class ProductService {
      * @return {@link Product} fetched object
      * @throws CustomException if error occurs while getting product
      */
-    public Product getProductModelById(@NonNull String id) {
+    protected Product getProductModelById(@NonNull String id) {
         Product product = productRepository.findByIdAndIsDeletedFalse(id);
         if (product == null) {
             logger.warn("Product not found for the Id: {}", id);
@@ -161,7 +164,7 @@ public class ProductService {
     public void updateCategory(@NonNull String productId, @NonNull String subCategoryName) {
         Product product = getProductModelById(productId);
         product.setSubCategory(subCategoryService.getSubCategoryModelByName(subCategoryName));
-        ProductMapper.modelToDto(saveProduct(product));
+        saveProduct(product);
     }
 
     /**
@@ -180,9 +183,5 @@ public class ProductService {
         return productRepository.findAllBySubCategoryNameAndIsDeletedFalse(subCategoryName, pageable).stream()
                 .map(ProductMapper::modelToDto)
                 .collect(Collectors.toSet());
-    }
-
-    public List<Product> getAllProducts(@NonNull String subCategoryName) {
-        return productRepository.findAllBySubCategoryNameAndIsDeletedFalse(subCategoryName);
     }
 }

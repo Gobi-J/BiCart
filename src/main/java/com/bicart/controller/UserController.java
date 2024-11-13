@@ -1,5 +1,6 @@
 package com.bicart.controller;
 
+import java.util.Map;
 import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,8 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<SuccessResponse> addUser(@Validated @RequestBody UserDto userDto) {
         userService.addUser(userDto);
-        return SuccessResponse.setSuccessResponse("User Registration Successful", HttpStatus.CREATED);
+        return SuccessResponse.setSuccessResponse("User Registration Successful",
+                HttpStatus.CREATED);
     }
 
     /**
@@ -61,7 +63,8 @@ public class UserController {
     @PatchMapping
     public ResponseEntity<SuccessResponse> updateUser(@RequestBody UserDto userDto) {
         UserDto user = userService.updateUser(userDto);
-        return SuccessResponse.setSuccessResponse("User updated successfully", HttpStatus.OK, user);
+        return SuccessResponse.setSuccessResponse("User updated successfully",
+                HttpStatus.OK, Map.of("user", user));
     }
 
     /**
@@ -78,7 +81,8 @@ public class UserController {
     public ResponseEntity<SuccessResponse> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {
         Set<ResponseUserDto> users = userService.getAllUsers(page, size);
-        return SuccessResponse.setSuccessResponse("Users fetched successfully", HttpStatus.OK, users);
+        return SuccessResponse.setSuccessResponse("Users fetched successfully",
+                HttpStatus.OK, Map.of("users", users));
     }
 
     /**
@@ -90,9 +94,10 @@ public class UserController {
      * @return {@link ResponseEntity<UserDto>} user with {@link HttpStatus} OK
      */
     @GetMapping("/me")
-    public ResponseEntity<SuccessResponse> getUserById(@RequestAttribute("id") String userId) {
-        UserRoleDto user = userService.getUserById(userId);
-        return SuccessResponse.setSuccessResponse("User fetched successfully", HttpStatus.OK, user);
+    public ResponseEntity<SuccessResponse> getUser(@RequestAttribute("id") String userId) {
+        UserRoleDto user = userService.getUser(userId);
+        return SuccessResponse.setSuccessResponse("User fetched successfully",
+                HttpStatus.OK, Map.of("user", user));
     }
 
     /**
@@ -106,7 +111,8 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public ResponseEntity<SuccessResponse> removeUser(@PathVariable String userId) {
         userService.deleteUser(userId);
-        return SuccessResponse.setSuccessResponse("User deleted successfully", HttpStatus.NO_CONTENT);
+        return SuccessResponse.setSuccessResponse("User deleted successfully",
+                HttpStatus.NO_CONTENT);
     }
 
     /**
@@ -120,13 +126,15 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<SuccessResponse> login(@RequestBody UserDto userDto) {
         String token = userService.authenticateUser(userDto);
-        return SuccessResponse.setSuccessResponse("User authenticated successfully", HttpStatus.OK, token);
+        return SuccessResponse.setSuccessResponse("User authenticated successfully",
+                HttpStatus.OK, Map.of("token", token));
     }
 
     @PatchMapping("/make-admin")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> makeAdmin(@RequestBody UserDto userDto) {
         userService.makeAdmin(userDto);
-        return SuccessResponse.setSuccessResponse("User updated successfully", HttpStatus.OK);
+        return SuccessResponse.setSuccessResponse("User updated successfully",
+                HttpStatus.OK);
     }
 }

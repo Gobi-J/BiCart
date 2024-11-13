@@ -1,6 +1,6 @@
 package com.bicart.service;
 
-import java.util.Date;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -75,12 +74,7 @@ public class UserService {
         user.setId(UUID.randomUUID().toString());
         user.setPassword(encoder.encode(userDTO.getPassword()));
         user.setAudit(user.getId());
-        try {
-            user.setRole(Set.of(roleService.getRoleModelByName("USER")));
-        } catch (Exception e) {
-            logger.error("Error in setting role for user", e);
-            throw new CustomException("Cannot apply role to an user");
-        }
+        user.setRole(Set.of(roleService.getRoleModelByName("USER")));
         saveUser(user);
         logger.info("User added successfully with name: {}", user.getName());
     }
@@ -98,7 +92,7 @@ public class UserService {
         User user = UserMapper.dtoToModel(userDto);
         saveUser(user);
         logger.info("User updated successfully for ID: {}", userDto.getId());
-        return UserMapper.modelToDto((user));
+        return UserMapper.modelToDto(user);
     }
 
     /**
@@ -111,9 +105,9 @@ public class UserService {
      */
     public Set<ResponseUserDto> getAllUsers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<User> userPage = userRepository.findAllByIsDeletedFalse(pageable);
+        List<User> userPage = userRepository.findAllByIsDeletedFalse(pageable);
         logger.info("Displayed user details for page : {}", page);
-        return userPage.getContent().stream()
+        return userPage.stream()
                 .map(UserMapper::modelToResponseUserDto)
                 .collect(Collectors.toSet());
     }
@@ -127,7 +121,7 @@ public class UserService {
      * @return the User object.
      * @throws NoSuchElementException when occurred.
      */
-    public UserRoleDto getUserById(String id) throws NoSuchElementException, CustomException {
+    public UserRoleDto getUser(String id) throws NoSuchElementException, CustomException {
         User user = userRepository.findByIdAndIsDeletedFalse(id);
         if (user == null) {
             logger.warn("User not found for the given id: {}", id);
@@ -145,7 +139,7 @@ public class UserService {
      * @param id of a user.
      * @return the User model
      */
-    public User getUserModelById(String id) {
+    protected User getUserModelById(String id) {
         User user = userRepository.findByIdAndIsDeletedFalse(id);
         if (user == null) {
             logger.error("User not found for the given id: {}", id);
@@ -153,13 +147,6 @@ public class UserService {
         }
         logger.info("Retrieved user for the given id: {}", id);
         return user;
-    }
-
-    public Set<UserDto> getUsersByRole(String name) {
-        Role role = roleService.getRoleModelByName(name);
-        return userRepository.findByRoleId(role.getId()).stream()
-                .map(UserMapper::modelToDto)
-                .collect(Collectors.toSet());
     }
 
     /**
@@ -171,11 +158,7 @@ public class UserService {
      * @throws NoSuchElementException and CustomException.
      */
     public void deleteUser(String id) throws NoSuchElementException, CustomException {
-        User user = userRepository.findByIdAndIsDeletedFalse(id);
-        if (user == null) {
-            logger.warn("User not found for the given id: {}", id);
-            throw new NoSuchElementException("User not found for the given id: " + id);
-        }
+        User user = getUserModelById(id);
         Set<Role> roles = user.getRole();
         if (roles != null && !roles.isEmpty()) {
             user.setRole(null);

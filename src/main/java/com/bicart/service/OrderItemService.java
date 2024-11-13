@@ -103,43 +103,6 @@ public class OrderItemService {
 
     /**
      * <p>
-     * Removes an item from the cart.
-     * </p>
-     *
-     * @param cartId    the id of the cart to remove the item from
-     * @param productId the id of the product to remove
-     */
-    public void removeFromCart(String cartId, String productId) {
-        List<OrderItemDto> orderItems = getOrderItemsByCartId(cartId);
-        for (OrderItemDto orderItem : orderItems) {
-            if (orderItem.getProduct().getId().equals(productId)) {
-                OrderItem item = orderItemRepository.findById(orderItem.getId()).get();
-                item.setCart(null);
-                saveOrderItem(item);
-                return;
-            }
-        }
-    }
-
-    /**
-     * <p>
-     * Updates an item in the cart.
-     * </p>
-     *
-     * @param cart      the cart to update the item in
-     * @param orderItem the item to update
-     */
-    public void updateCart(Cart cart, OrderItemDto orderItem) {
-        Product product = productService.getProductModelById(orderItem.getProduct().getId());
-        OrderItem item = OrderItemMapper.dtoToModel(orderItem);
-        item.setProduct(product);
-        item.setCart(cart);
-        item.setPrice(product.getPrice() * item.getQuantity());
-        saveOrderItem(item);
-    }
-
-    /**
-     * <p>
      * Updates the cart items.
      * </p>
      *

@@ -9,7 +9,7 @@ public class OrderItemMapper {
                 .id(orderItem.getId())
                 .price(orderItem.getPrice())
                 .quantity(orderItem.getQuantity())
-                .product(ProductMapper.dtoToModel(orderItem.getProduct()))
+                .product(ProductMapper.orderDtoToModel(orderItem.getProduct()))
                 .order(OrderMapper.dtoToModel(orderItem.getOrder()))
                 .cart(CartMapper.dtoToModel(orderItem.getCart()))
                 .build();
@@ -17,7 +17,7 @@ public class OrderItemMapper {
 
     public static OrderItemDto modelToDto(OrderItem orderItem) {
         return OrderItemDto.builder()
-                .product(ProductMapper.modelToDto(orderItem.getProduct()))
+                .product(ProductMapper.modelToOrderDto(orderItem.getProduct()))
                 .quantity(orderItem.getQuantity())
                 .price(orderItem.getPrice())
                 .build();

@@ -2,15 +2,10 @@ package com.bicart.config;
 
 import java.io.IOException;
 
-import com.bicart.helper.UnAuthorizedException;
-import com.bicart.model.User;
-import com.bicart.service.MyUserDetailService;
-import com.bicart.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
@@ -19,6 +14,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+
+import com.bicart.helper.UnAuthorizedException;
+import com.bicart.model.User;
+import com.bicart.service.MyUserDetailService;
+import com.bicart.util.JwtUtil;
 
 /**
  * JwtFilter is a custom filter that processes JWT authentication for each request.

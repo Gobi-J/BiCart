@@ -1,5 +1,7 @@
 package com.bicart.helper;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.NoSuchElementException;
 
 /**
  * <p>
@@ -36,7 +37,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        return ErrorResponse.setErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return ErrorResponse.setErrorResponse(e.getBindingResult().getFieldErrors().getFirst().getDefaultMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = {UnAuthorizedException.class, UsernameNotFoundException.class})

@@ -1,7 +1,6 @@
 package com.bicart.service;
 
 import java.util.NoSuchElementException;
-import java.util.UUID;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -76,7 +75,7 @@ public class CategoryService {
     protected Category getCategoryModelByName(String categoryName) {
         Category category = categoryRepository.findByNameAndIsDeletedFalse(categoryName);
         if (category == null) {
-            throw new NoSuchElementException("Category not found for the name : {}" + categoryName);
+            throw new NoSuchElementException("Category not found for the name : " + categoryName);
         }
         return category;
     }
@@ -111,7 +110,6 @@ public class CategoryService {
             throw new DuplicateKeyException("Category with name " + categoryDto.getName() + " already exists");
         }
         Category category = CategoryMapper.dtoToModel(categoryDto);
-        category.setId(UUID.randomUUID().toString());
         category.setAudit("ADMIN");
         saveCategory(category);
         logger.info("Saving the Category with the id : {}", category.getId());

@@ -3,7 +3,6 @@ package com.bicart.service;
 import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
@@ -61,11 +60,15 @@ public class ProductService {
      */
     public void addProduct(@NonNull ProductDto productDto) {
         logger.debug("Adding product with name: {} ", productDto.getName());
-        Product product = ProductMapper.dtoToModel(productDto);
-        product.setId(UUID.randomUUID().toString());
-        product.setAudit("ADMIN");
-        product.setSubCategory(subCategoryService.getSubCategoryModelByName(productDto.getSubCategory().getName()));
-        saveProduct(product);
+        try {
+            Product product = ProductMapper.dtoToModel(productDto);
+            product.setAudit("ADMIN");
+            product.setSubCategory(subCategoryService.getSubCategoryModelByName(productDto.getSubCategory().getName()));
+            saveProduct(product);
+        } catch (Exception e) {
+            logger.error("Error in adding product with name: {} ", productDto.getName(), e);
+            throw new CustomException(e.getMessage());
+        }
     }
 
     /**
@@ -108,8 +111,11 @@ public class ProductService {
      * @param size number of products per page
      * @return {@link ProductDto} set containing of all products
      */
-    public Set<ProductDto> getAllProducts(int page, int size) {
+    public Set<ProductDto> getAllProducts(int page, int size, String subCategoryName) {
         Pageable pageable = PageRequest.of(page, size);
+        if (!subCategoryName.equals("all")) {
+            return getProductsBySubCategoryName(subCategoryName, page, size);
+        }
         return productRepository.findAllByIsDeletedFalse(pageable).stream()
                 .map(ProductMapper::modelToDto)
                 .collect(Collectors.toSet());

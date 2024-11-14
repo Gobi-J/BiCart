@@ -3,7 +3,6 @@ package com.bicart.service;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -57,7 +56,6 @@ public class RoleService {
      */
     public void addRole(RoleDto roleDTO) {
         Role role = RoleMapper.dtoToModel(roleDTO);
-        role.setId(UUID.randomUUID().toString());
         role.setAudit("ADMIN");
         saveRole(role);
         logger.info("{} role added successfully", role.getRoleName());

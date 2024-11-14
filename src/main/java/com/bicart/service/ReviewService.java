@@ -2,7 +2,6 @@ package com.bicart.service;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -64,7 +63,6 @@ public class ReviewService {
     public void addReview(String userId, ReviewDto reviewDTO, String productId) {
         Review review = ReviewMapper.dtoToModel(reviewDTO);
         Product product = productService.getProductModelById(productId);
-        review.setId(UUID.randomUUID().toString());
         review.setProduct(product);
         review.setAudit(userId);
         review.setUser(userService.getUserModelById(userId));

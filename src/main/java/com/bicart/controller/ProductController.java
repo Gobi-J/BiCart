@@ -48,7 +48,7 @@ public class ProductController {
      */
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<SuccessResponse> addProduct(@Validated @RequestBody ProductDto product) {
+    public ResponseEntity<SuccessResponse> addProduct(@RequestBody ProductDto product) {
         productService.addProduct(product);
         return SuccessResponse.setSuccessResponse("Product Added Successfully", HttpStatus.CREATED);
     }
@@ -82,8 +82,9 @@ public class ProductController {
      */
     @GetMapping
     public ResponseEntity<SuccessResponse> getProducts(@RequestParam(defaultValue = "0") int page,
-                                                       @RequestParam(defaultValue = "10") int size) {
-        Set<ProductDto> products = productService.getAllProducts(page, size);
+                                                       @RequestParam(defaultValue = "10") int size,
+                                                       @RequestParam(defaultValue = "all") String subCategory) {
+        Set<ProductDto> products = productService.getAllProducts(page, size, subCategory);
         return SuccessResponse.setSuccessResponse("Products fetched Successfully", HttpStatus.OK, Map.of("products", products));
     }
 

@@ -56,7 +56,7 @@ public class OrderService {
             logger.info("Order saved successfully with id: {}", order.getId());
         } catch (Exception e) {
             logger.error("Error saving order", e);
-            throw new CustomException("Could not save order with id: " + order.getId(), e);
+            throw new CustomException("Could not save order with id: " + order.getId());
         }
     }
 
@@ -173,8 +173,8 @@ public class OrderService {
         Order order = getOrderModelById(userId, orderId);
         order.setPayment(payment);
         order.setStatus(OrderStatus.PAID);
-        cartService.deleteCart(order.getUser().getId());
         shipmentService.initializeShipment(order);
-        saveOrder(order);
+//        saveOrder(order);
+        cartService.deleteCart(userId);
     }
 }

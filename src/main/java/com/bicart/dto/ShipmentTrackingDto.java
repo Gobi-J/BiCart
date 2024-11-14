@@ -1,13 +1,13 @@
 package com.bicart.dto;
 
-import com.bicart.constant.ShipmentStatus;
-import com.bicart.model.Shipment;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.Pattern;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
+
+import com.bicart.constant.ShipmentStatus;
 
 @Builder
 @AllArgsConstructor

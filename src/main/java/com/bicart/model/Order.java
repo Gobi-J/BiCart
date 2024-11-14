@@ -1,6 +1,8 @@
 package com.bicart.model;
 
-import com.bicart.constant.OrderStatus;
+import java.util.Date;
+import java.util.Set;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,8 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-import java.util.Set;
+import com.bicart.constant.OrderStatus;
 
 @Entity
 @Builder

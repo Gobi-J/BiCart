@@ -2,7 +2,6 @@ package com.bicart.service;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -79,7 +78,6 @@ public class CartService {
         Cart cart = getCart(userId);
         if (cart == null) {
             cart = new Cart();
-            cart.setId(UUID.randomUUID().toString());
             cart.setUser(userService.getUserModelById(userId));
             cart.setAudit(userId);
         }
@@ -101,7 +99,10 @@ public class CartService {
      */
     public void deleteCart(String userId) {
         Cart cart = getCart(userId);
-        cart.getOrderItems().forEach(orderItem -> orderItem.setCart(null));
+        for(OrderItem orderItem: cart.getOrderItems()) {
+            orderItem.setCart(null);
+            orderItemService.saveOrderItem(orderItem);
+        }
         cartRepository.delete(cart);
         logger.info("Cart deleted successfully for user id: {}", userId);
     }

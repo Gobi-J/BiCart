@@ -1,11 +1,11 @@
 package com.bicart.repository;
 
-import com.bicart.model.ShipmentTracking;
-import com.bicart.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.bicart.model.ShipmentTracking;
 
 /**
  * Repository interface for performing CRUD operations on the ShipmentTracking entity.

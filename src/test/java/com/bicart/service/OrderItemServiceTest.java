@@ -1,29 +1,28 @@
 package com.bicart.service;
 
-import com.bicart.dto.CategoryDto;
-import com.bicart.dto.OrderItemDto;
-import com.bicart.dto.OrderProductDto;
-import com.bicart.dto.ProductDto;
-import com.bicart.helper.CustomException;
-import com.bicart.model.Cart;
-import com.bicart.model.Category;
-import com.bicart.model.OrderItem;
-import com.bicart.model.Product;
-import com.bicart.repository.CategoryRepository;
-import com.bicart.repository.OrderItemRepository;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.access.method.P;
 
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.bicart.dto.OrderItemDto;
+import com.bicart.dto.OrderProductDto;
+import com.bicart.helper.CustomException;
+import com.bicart.model.Cart;
+import com.bicart.model.OrderItem;
+import com.bicart.model.Product;
+import com.bicart.repository.OrderItemRepository;
 
 @ExtendWith(MockitoExtension.class)
 class OrderItemServiceTest {

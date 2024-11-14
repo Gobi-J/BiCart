@@ -1,11 +1,9 @@
 package com.bicart.service;
 
-import com.bicart.constant.OrderStatus;
-import com.bicart.dto.*;
-import com.bicart.helper.CustomException;
-import com.bicart.model.*;
-import com.bicart.repository.CategoryRepository;
-import com.bicart.repository.OrderRepository;
+import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,15 +13,25 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.bicart.constant.OrderStatus;
+import com.bicart.dto.OrderDto;
+import com.bicart.helper.CustomException;
+import com.bicart.model.Address;
+import com.bicart.model.Cart;
+import com.bicart.model.Order;
+import com.bicart.model.Payment;
+import com.bicart.model.User;
+import com.bicart.repository.OrderRepository;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {

@@ -1,10 +1,11 @@
 package com.bicart.service;
 
-import com.bicart.constant.ShipmentStatus;
-import com.bicart.dto.ShipmentDto;
-import com.bicart.model.Order;
-import com.bicart.model.Shipment;
-import com.bicart.repository.ShipmentRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,12 +14,11 @@ import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import com.bicart.constant.ShipmentStatus;
+import com.bicart.dto.ShipmentDto;
+import com.bicart.model.Order;
+import com.bicart.model.Shipment;
+import com.bicart.repository.ShipmentRepository;
 
 @ExtendWith(MockitoExtension.class)
 class ShipmentServiceTest {

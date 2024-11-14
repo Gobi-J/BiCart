@@ -58,7 +58,63 @@ public class OrderItemService {
      * @param cart the cart to update
      * @return {@link Boolean} true if the product is in the cart, false otherwise
      */
-    private boolean isProductInCart(Set<OrderItem> orderItems, Product product, OrderItemDto orderItemDto, Cart cart) {
+//    private boolean isProductInCart(Set<OrderItem> orderItems, Product product, OrderItemDto orderItemDto, Cart cart) {
+//        for (OrderItem orderItem : orderItems) {
+//            if (orderItem.getProduct().getId().equals(product.getId())) {
+//                if (product.getQuantity() + orderItem.getQuantity() < orderItemDto.getQuantity()) {
+//                    throw new NoSuchElementException("Product quantity is less than the requested quantity");
+//                }
+//                product.setQuantity(product.getQuantity() + orderItem.getQuantity() - orderItemDto.getQuantity());
+//                productService.saveProduct(product);
+//                cart.setPrice(cart.getPrice() - orderItem.getPrice());
+//                cart.setQuantity(cart.getQuantity() - orderItem.getQuantity());
+//                orderItem.setQuantity(orderItemDto.getQuantity());
+//                orderItem.setPrice(product.getPrice() * orderItemDto.getQuantity());
+//                cart.setPrice(cart.getPrice() + orderItem.getPrice());
+//                cart.setQuantity(cart.getQuantity() + orderItem.getQuantity());
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
+    /**
+     * <p>
+     * Updates the cart items.
+     * </p>
+     *
+     * @param orderItems    the order items to update
+     * @param orderItemDtos the order item dtos to update
+     * @param cart          the cart to update
+     * @return {@link Set<OrderItem>}the updated order items
+     */
+//    public Set<OrderItem> updateCartItems(Set<OrderItem> orderItems, Set<OrderItemDto> orderItemDtos, Cart cart) {
+//        OrderItemDto orderItemDto = orderItemDtos.stream().findFirst().get();
+//        Product product = productService.getProductModelById(orderItemDto.getProduct().getId());
+//        if (isProductInCart(orderItems, product, orderItemDto, cart)) {
+//            return orderItems;
+//        }
+//        if (product.getQuantity() < orderItemDto.getQuantity()) {
+//            throw new NoSuchElementException("Product quantity is less than the requested quantity");
+//        }
+//        product.setQuantity(product.getQuantity() - orderItemDto.getQuantity());
+//        productService.saveProduct(product);
+//        OrderItem orderItem = OrderItem.builder()
+//                .id(UUID.randomUUID().toString())
+//                .product(product)
+//                .quantity(orderItemDto.getQuantity())
+//                .price(product.getPrice() * orderItemDto.getQuantity())
+//                .cart(cart)
+//                .build();
+//        orderItem.setAudit(cart.getUser().getId());
+//        cart.setPrice(cart.getPrice() + orderItem.getPrice());
+//        cart.setQuantity(cart.getQuantity() + orderItem.getQuantity());
+//        orderItems.add(orderItem);
+//        return orderItems;
+//    }
+    public Set<OrderItem> updateCartItems(Set<OrderItem> orderItems, Set<OrderItemDto> orderItemDtos, Cart cart) {
+        OrderItemDto orderItemDto = orderItemDtos.stream().findFirst().get();
+        Product product = productService.getProductModelById(orderItemDto.getProduct().getId());
         for (OrderItem orderItem : orderItems) {
             if (orderItem.getProduct().getId().equals(product.getId())) {
                 if (product.getQuantity() + orderItem.getQuantity() < orderItemDto.getQuantity()) {
@@ -72,27 +128,8 @@ public class OrderItemService {
                 orderItem.setPrice(product.getPrice() * orderItemDto.getQuantity());
                 cart.setPrice(cart.getPrice() + orderItem.getPrice());
                 cart.setQuantity(cart.getQuantity() + orderItem.getQuantity());
-                return true;
+                return orderItems;
             }
-        }
-        return false;
-    }
-
-    /**
-     * <p>
-     * Updates the cart items.
-     * </p>
-     *
-     * @param orderItems    the order items to update
-     * @param orderItemDtos the order item dtos to update
-     * @param cart          the cart to update
-     * @return {@link Set<OrderItem>}the updated order items
-     */
-    public Set<OrderItem> updateCartItems(Set<OrderItem> orderItems, Set<OrderItemDto> orderItemDtos, Cart cart) {
-        OrderItemDto orderItemDto = orderItemDtos.stream().findFirst().get();
-        Product product = productService.getProductModelById(orderItemDto.getProduct().getId());
-        if (isProductInCart(orderItems, product, orderItemDto, cart)) {
-            return orderItems;
         }
         if (product.getQuantity() < orderItemDto.getQuantity()) {
             throw new NoSuchElementException("Product quantity is less than the requested quantity");

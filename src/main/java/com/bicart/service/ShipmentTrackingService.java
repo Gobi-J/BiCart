@@ -32,10 +32,9 @@ public class ShipmentTrackingService {
      *
      * @param shipmentTracking details of the shipment tracking to save
      */
-    private void saveShipmentTracking(ShipmentTracking shipmentTracking) {
+    private ShipmentTracking saveShipmentTracking(ShipmentTracking shipmentTracking) {
         try {
-            shipmentTrackingRepository.save(shipmentTracking);
-            logger.info("ShipmentTracking saved successfully with the id: {} ", shipmentTracking.getId());
+            return shipmentTrackingRepository.save(shipmentTracking);
         } catch (Exception e) {
             logger.error("Error in saving shipmentTracking with the id: {} ", shipmentTracking.getId());
             throw new CustomException("Cannot save Shipment Tracking", e);
@@ -49,7 +48,7 @@ public class ShipmentTrackingService {
      *
      * @return {@link ShipmentTracking} initial shipment which is in pending state
      */
-    protected ShipmentTracking initializeShipping() {
+    public ShipmentTracking initializeShipping() {
         ShipmentTracking shipmentTracking = ShipmentTracking.builder()
                 .id(UUID.randomUUID().toString())
                 .location("IN STORE")

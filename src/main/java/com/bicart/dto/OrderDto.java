@@ -1,6 +1,8 @@
 package com.bicart.dto;
 
-import com.bicart.constant.OrderStatus;
+import java.util.Date;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -9,8 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-import java.util.Date;
-import java.util.Set;
+import com.bicart.constant.OrderStatus;
 
 @Builder
 @Getter

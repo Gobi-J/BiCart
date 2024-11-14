@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.bicart.model.Product;
 
+/**
+ * Repository interface for performing CRUD operations on the Product entity.
+ */
 public interface ProductRepository extends JpaRepository<Product, String> {
     Product findByIdAndIsDeletedFalse(@NonNull String id);
 
@@ -17,5 +20,4 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     List<Product> findAllByIsDeletedFalse(Pageable pageable);
 
     List<Product> findAllBySubCategoryNameAndIsDeletedFalse(@NonNull String subCategoryName, Pageable pageable);
-    List<Product> findAllBySubCategoryNameAndIsDeletedFalse(@NonNull String subCategoryName);
 }

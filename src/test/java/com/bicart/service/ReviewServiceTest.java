@@ -3,26 +3,25 @@ package com.bicart.service;
 import java.util.List;
 import java.util.Set;
 
-import com.bicart.dto.ReviewDto;
-import com.bicart.model.Product;
-import com.bicart.model.Review;
-import com.bicart.model.User;
-import com.bicart.repository.ReviewRepository;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.bicart.dto.ReviewDto;
+import com.bicart.model.Product;
+import com.bicart.model.Review;
+import com.bicart.model.User;
+import com.bicart.repository.ReviewRepository;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {

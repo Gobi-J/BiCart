@@ -40,10 +40,9 @@ public class PaymentService {
      * @param payment details to be saved
      * @throws CustomException if any issue occurs while saving the payment.
      */
-    protected void savePayment(Payment payment) {
+    protected Payment savePayment(Payment payment) {
         try {
-            paymentRepository.save(payment);
-            logger.info("Payment saved successfully with the Id : {} ", payment.getId());
+            return paymentRepository.save(payment);
         } catch (Exception e) {
             logger.error("Error in saving payment with the Id : {} ", payment.getId());
             throw new CustomException("Server error!!", e);

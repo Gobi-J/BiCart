@@ -3,7 +3,6 @@ package com.bicart.service;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -77,7 +76,6 @@ public class UserService {
             logger.error("User with same Email Id or Mobile Number exists");
             throw new DuplicateKeyException("User with same Email or Mobile Number exists");
         }
-        user.setId(UUID.randomUUID().toString());
         user.setPassword(encoder.encode(userDTO.getPassword()));
         user.setAudit(user.getId());
         user.setRole(Set.of(roleService.getRoleModelByName("USER")));

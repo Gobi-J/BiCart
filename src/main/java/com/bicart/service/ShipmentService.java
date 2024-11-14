@@ -44,7 +44,7 @@ public class ShipmentService {
             shipmentRepository.save(shipment);
             logger.info("Shipment saved successfully");
         } catch (Exception e) {
-            logger.error("Error in saving shipment");
+            logger.error("Error in saving shipment", e);
             throw new CustomException("Cannot save shipment");
         }
     }
@@ -59,7 +59,6 @@ public class ShipmentService {
      */
     public ShipmentDto addShipment(ShipmentDto shipmentDto) {
         Shipment shipment = ShipmentMapper.dtoToModel(shipmentDto);
-        shipment.setId(UUID.randomUUID().toString());
         shipment.setAudit("SYSTEM");
         saveShipment(shipment);
         shipmentDto = ShipmentMapper.modelToDto(shipment);
@@ -70,13 +69,12 @@ public class ShipmentService {
     public void initializeShipment(Order order) {
         ShipmentTracking shipmentTracking = shipmentTrackingService.initializeShipping();
         Shipment shipment = Shipment.builder()
-                .id(UUID.randomUUID().toString())
                 .currentStatus(ShipmentStatus.PENDING)
                 .shipmentTracking(Set.of(shipmentTracking))
                 .build();
         shipment.setAudit("SYSTEM");
-        saveShipment(shipment);
         order.setShipment(shipment);
+        saveShipment(shipment);
     }
 
     /**

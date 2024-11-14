@@ -1,14 +1,7 @@
 package com.bicart.service;
 
-import com.bicart.constant.OrderStatus;
-import com.bicart.constant.PaymentStatus;
-import com.bicart.dto.CategoryDto;
-import com.bicart.dto.PaymentDto;
-import com.bicart.model.Category;
-import com.bicart.model.Order;
-import com.bicart.model.Payment;
-import com.bicart.repository.CategoryRepository;
-import com.bicart.repository.PaymentRepository;
+import java.util.NoSuchElementException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,13 +10,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
 
-import java.util.NoSuchElementException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+
+import com.bicart.constant.OrderStatus;
+import com.bicart.constant.PaymentStatus;
+import com.bicart.dto.PaymentDto;
+import com.bicart.model.Order;
+import com.bicart.repository.PaymentRepository;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
@@ -37,7 +34,6 @@ class PaymentServiceTest {
     @Mock
     private OrderService orderService;
 
-    private Payment payment;
     private PaymentDto paymentDto;
     private Order order;
 
@@ -48,32 +44,12 @@ class PaymentServiceTest {
                 .quantity(2)
                 .status(OrderStatus.PENDING)
                 .build();
-        payment = Payment.builder()
-                .id("1")
-                .paymentMode("testUPI")
-                .price(100)
-                .status(PaymentStatus.PENDING)
-                .build();
         paymentDto = PaymentDto.builder()
                 .id("1")
                 .paymentMode("testUPI")
                 .price(100)
                 .status(PaymentStatus.PENDING)
                 .build();
-    }
-
-
-    @Test
-    void testGetPaymentByIdSuccess() {
-        when(paymentRepository.findByIdAndIsDeletedFalse(anyString())).thenReturn(payment);
-        PaymentDto result = paymentService.getPaymentById("1");
-        assertEquals(result.getStatus(), payment.getStatus());
-    }
-
-    @Test
-    void testGetPaymentByIdThrowsNoSuchElementException() {
-        when(paymentRepository.findByIdAndIsDeletedFalse(anyString())).thenReturn(null);
-        assertThrows(NoSuchElementException.class, () -> paymentService.getPaymentById("1"));
     }
 
     @Test

@@ -1,12 +1,7 @@
 package com.bicart.service;
 
-import com.bicart.dto.AddressDto;
-import com.bicart.dto.CartDto;
-import com.bicart.dto.OrderItemDto;
-import com.bicart.helper.CustomException;
-import com.bicart.model.*;
-import com.bicart.repository.AddressRepository;
-import com.bicart.repository.CartRepository;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,12 +9,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.bicart.dto.CartDto;
+import com.bicart.dto.OrderItemDto;
+import com.bicart.helper.CustomException;
+import com.bicart.model.Cart;
+import com.bicart.model.OrderItem;
+import com.bicart.model.User;
+import com.bicart.repository.CartRepository;
 
 @ExtendWith(MockitoExtension.class)
 class CartServiceTest {
@@ -93,7 +98,7 @@ class CartServiceTest {
         when(userService.getUserModelById(anyString())).thenReturn(user);
         when(orderItemService.updateCartItems(any(Set.class), any(Set.class), any(Cart.class))).thenReturn(orderItems);
         when(cartRepository.save(any(Cart.class))).thenReturn(cart);
-        cartService.addToCart( "1",cartDto);
+        cartService.addToCart("1", cartDto);
         verify(cartRepository, times(1)).save(any(Cart.class));
     }
 

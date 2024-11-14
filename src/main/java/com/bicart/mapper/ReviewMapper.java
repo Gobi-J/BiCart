@@ -1,8 +1,6 @@
 package com.bicart.mapper;
 
-import com.bicart.dto.PaymentDto;
 import com.bicart.dto.ReviewDto;
-import com.bicart.model.Payment;
 import com.bicart.model.Review;
 
 public class ReviewMapper {

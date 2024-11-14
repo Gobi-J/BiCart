@@ -1,14 +1,7 @@
 package com.bicart.service;
 
-import com.bicart.dto.AddressDto;
-import com.bicart.dto.CartDto;
-import com.bicart.dto.CategoryDto;
-import com.bicart.helper.CustomException;
-import com.bicart.model.Address;
-import com.bicart.model.Cart;
-import com.bicart.model.Category;
-import com.bicart.repository.CartRepository;
-import com.bicart.repository.CategoryRepository;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,13 +9,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import com.bicart.dto.CategoryDto;
+import com.bicart.model.Category;
+import com.bicart.repository.CategoryRepository;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {

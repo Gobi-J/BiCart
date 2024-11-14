@@ -1,9 +1,13 @@
 package com.bicart.dto;
 
-import com.bicart.constant.PaymentStatus;
-import jakarta.validation.constraints.Pattern;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
+
+import com.bicart.constant.PaymentStatus;
 
 @Builder
 @AllArgsConstructor

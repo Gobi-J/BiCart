@@ -3,7 +3,6 @@ package com.bicart.service;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,7 @@ public class AddressService {
      * @param address details to save.
      * @throws CustomException if any issues occur while saving.
      */
-    private void saveAddress(Address address) {
+    protected void saveAddress(Address address) {
         try {
             addressRepository.save(address);
             logger.info("Address saved successfully with the id : {} ", address.getId());
@@ -60,7 +59,6 @@ public class AddressService {
      */
     public void addAddress(AddressDto addressDTO, String userId) {
         Address address = AddressMapper.dtoToModel(addressDTO);
-        address.setId(UUID.randomUUID().toString());
         address.setUser(userService.getUserModelById(userId));
         address.setAudit(userId);
         saveAddress(address);

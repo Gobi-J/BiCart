@@ -2,7 +2,6 @@ package com.bicart.service;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
@@ -115,7 +114,6 @@ public class SubCategoryService {
         SubCategory subCategory = SubCategoryMapper.dtoToModel(subCategoryDto);
         Category category = categoryService.getCategoryModelByName(subCategoryDto.getCategory().getName());
         subCategory.setCategory(category);
-        subCategory.setId(UUID.randomUUID().toString());
         subCategory.setAudit("ADMIN");
         saveSubCategory(subCategory);
         logger.info("Sub category {} added successfully", subCategoryDto.getName());

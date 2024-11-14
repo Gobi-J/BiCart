@@ -1,26 +1,30 @@
 package com.bicart.service;
 
-import com.bicart.dto.AddressDto;
-import com.bicart.helper.CustomException;
-import com.bicart.model.Address;
-import com.bicart.model.User;
-import com.bicart.repository.AddressRepository;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.bicart.dto.AddressDto;
+import com.bicart.helper.CustomException;
+import com.bicart.model.Address;
+import com.bicart.model.User;
+import com.bicart.repository.AddressRepository;
 
 @ExtendWith(MockitoExtension.class)
 class AddressServiceTest {

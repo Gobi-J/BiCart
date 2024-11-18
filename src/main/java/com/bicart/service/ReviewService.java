@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bicart.dto.ReviewDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.mapper.ReviewMapper;
 import com.bicart.model.Product;
 import com.bicart.model.Review;
@@ -39,7 +39,7 @@ public class ReviewService {
      * </p>
      *
      * @param review model object to be saved.
-     * @throws CustomException if any issue occurs while saving the review.
+     * @throws BiCartException if any issue occurs while saving the review.
      */
     private void saveReview(Review review) {
         try {
@@ -47,7 +47,7 @@ public class ReviewService {
             logger.info("Review saved successfully");
         } catch (Exception e) {
             logger.error("Error in saving review");
-            throw new CustomException("Cannot save review for product " + review.getProduct().getName(), e);
+            throw new BiCartException("Cannot save review for product " + review.getProduct().getName(), e);
         }
     }
 

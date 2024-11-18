@@ -43,7 +43,7 @@ public class RoleController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> addRole(@RequestBody RoleDto roleDto) {
         roleService.addRole(roleDto);
-        return SuccessResponse.setSuccessResponse("Role added Successfully", HttpStatus.CREATED);
+        return SuccessResponse.setSuccessResponseCreated("Role added Successfully", null);
     }
 
     /**
@@ -57,7 +57,7 @@ public class RoleController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> getAllRoles() {
         Set<RoleDto> roles = roleService.getAllRoles();
-        return SuccessResponse.setSuccessResponse("Roles fetched Successfully", HttpStatus.OK, Map.of("roles", roles));
+        return SuccessResponse.setSuccessResponseOk("Roles fetched Successfully", Map.of("roles", roles));
     }
 
     /**
@@ -72,7 +72,7 @@ public class RoleController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> getRoleByName(@PathVariable String name) {
         RoleDto role = roleService.getRoleByName(name);
-        return SuccessResponse.setSuccessResponse("Role fetched Successfully", HttpStatus.OK, Map.of("role", role));
+        return SuccessResponse.setSuccessResponseOk("Role fetched Successfully", Map.of("role", role));
     }
 
     /**
@@ -87,6 +87,6 @@ public class RoleController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> removeRole(@PathVariable String name) {
         roleService.deleteRole(name);
-        return SuccessResponse.setSuccessResponse("Role deleted Successfully", HttpStatus.NO_CONTENT);
+        return SuccessResponse.setSuccessResponseNoContent("Role deleted Successfully");
     }
 }

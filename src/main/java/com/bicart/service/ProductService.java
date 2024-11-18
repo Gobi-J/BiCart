@@ -14,7 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bicart.dto.ProductDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.mapper.ProductMapper;
 import com.bicart.model.Product;
 import com.bicart.repository.ProductRepository;
@@ -40,14 +40,14 @@ public class ProductService {
      *
      * @param product object to be saved
      * @return {@link Product} saved object
-     * @throws CustomException if error occurs while saving product
+     * @throws BiCartException if error occurs while saving product
      */
     protected Product saveProduct(Product product) {
         try {
             return productRepository.save(product);
         } catch (Exception e) {
             logger.error("Error in saving the product with the id : {} ", product.getId(), e);
-            throw new CustomException("Cannot save product");
+            throw new BiCartException("Cannot save product");
         }
     }
 
@@ -67,7 +67,7 @@ public class ProductService {
             saveProduct(product);
         } catch (Exception e) {
             logger.error("Error in adding product with name: {} ", productDto.getName(), e);
-            throw new CustomException(e.getMessage());
+            throw new BiCartException(e.getMessage());
         }
     }
 
@@ -91,7 +91,7 @@ public class ProductService {
      *
      * @param id of product to be fetched
      * @return {@link Product} fetched object
-     * @throws CustomException if error occurs while getting product
+     * @throws BiCartException if error occurs while getting product
      */
     protected Product getProductModelById(@NonNull String id) {
         Product product = productRepository.findByIdAndIsDeletedFalse(id);

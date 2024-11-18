@@ -3,6 +3,7 @@ package com.bicart.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,10 +40,11 @@ public class CartController {
     @GetMapping
     public ResponseEntity<SuccessResponse> getCart(@RequestAttribute("id") String userId) {
         CartDto cartDto = cartService.getCartByUserId(userId);
-        if (cartDto == null) {
-            return SuccessResponse.setSuccessResponse("Cart is empty", HttpStatus.OK);
+        String message = "Cart fetched successfully";
+        if (ObjectUtils.isEmpty(cartDto)) {
+            message = "Cart is empty";
         }
-        return SuccessResponse.setSuccessResponse("Cart fetched successfully", HttpStatus.OK, cartDto);
+        return SuccessResponse.setSuccessResponseOk(message, cartDto);
     }
 
     /**
@@ -57,7 +59,7 @@ public class CartController {
     @PutMapping
     public ResponseEntity<SuccessResponse> addToCart(@Validated @RequestAttribute("id") String userId, @RequestBody CartDto cartDto) {
         cartService.addToCart(userId, cartDto);
-        return SuccessResponse.setSuccessResponse("Cart updated successfully", HttpStatus.OK);
+        return SuccessResponse.setSuccessResponseOk("Cart updated successfully", null);
     }
 
     /**
@@ -71,6 +73,6 @@ public class CartController {
     @DeleteMapping
     public ResponseEntity<SuccessResponse> deleteCart(@RequestAttribute("id") String userId) {
         cartService.deleteCartBeforeOrder(userId);
-        return SuccessResponse.setSuccessResponse("Cart deleted successfully", HttpStatus.NO_CONTENT);
+        return SuccessResponse.setSuccessResponseNoContent("Cart deleted successfully");
     }
 }

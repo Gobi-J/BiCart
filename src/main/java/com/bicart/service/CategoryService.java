@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bicart.dto.CategoryDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.mapper.CategoryMapper;
 import com.bicart.model.Category;
 import com.bicart.repository.CategoryRepository;
@@ -37,7 +37,7 @@ public class CategoryService {
      * </p>
      *
      * @param category details to be saved
-     * @throws CustomException if any issues occur while saving the category
+     * @throws BiCartException if any issues occur while saving the category
      */
     private void saveCategory(Category category) {
         logger.debug("Saving Category with the id : {}", category.getId());
@@ -46,7 +46,7 @@ public class CategoryService {
             logger.info("Saved Category with the id : {}", category.getId());
         } catch (Exception e) {
             logger.error("Error in saving the category with the id : {}", category.getId(), e);
-            throw new CustomException("Error while saving category");
+            throw new BiCartException("Error while saving category");
         }
     }
 

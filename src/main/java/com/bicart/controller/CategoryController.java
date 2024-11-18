@@ -46,7 +46,7 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> addCategory(@Validated @RequestBody CategoryDto category) {
         categoryService.addCategory(category);
-        return SuccessResponse.setSuccessResponse("Category Added Successfully", HttpStatus.CREATED);
+        return SuccessResponse.setSuccessResponseCreated("Category Added Successfully", null);
     }
 
     /**
@@ -60,7 +60,7 @@ public class CategoryController {
     @GetMapping("/{categoryName}")
     public ResponseEntity<SuccessResponse> getCategory(@PathVariable String categoryName) {
         CategoryDto category = categoryService.getCategoryByName(categoryName);
-        return SuccessResponse.setSuccessResponse("Category Fetched Successfully", HttpStatus.OK, Map.of("category", category));
+        return SuccessResponse.setSuccessResponseOk("Category Fetched Successfully", Map.of("category", category));
     }
 
     /**
@@ -76,7 +76,7 @@ public class CategoryController {
     public ResponseEntity<SuccessResponse> getCategories(@RequestParam(defaultValue = "0") int page,
                                                          @RequestParam(defaultValue = "10") int size) {
         Set<CategoryDto> categories = categoryService.getAllCategories(page, size);
-        return SuccessResponse.setSuccessResponse("Categories Fetched Successfully", HttpStatus.OK, Map.of("categories", categories));
+        return SuccessResponse.setSuccessResponseOk("Categories Fetched Successfully", Map.of("categories", categories));
     }
 
     /**
@@ -91,7 +91,7 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> updateCategory(@RequestBody CategoryDto categoryDto) {
         CategoryDto category = categoryService.updateCategory(categoryDto);
-        return SuccessResponse.setSuccessResponse("Category updated Successfully", HttpStatus.OK, Map.of("category", category));
+        return SuccessResponse.setSuccessResponseOk("Category updated Successfully", Map.of("category", category));
     }
 
     /**
@@ -106,6 +106,6 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> deleteCategory(@PathVariable String categoryName) {
         categoryService.deleteCategory(categoryName);
-        return SuccessResponse.setSuccessResponse("Category Deleted Successfully", HttpStatus.NO_CONTENT);
+        return SuccessResponse.setSuccessResponseNoContent("Category Deleted Successfully");
     }
 }

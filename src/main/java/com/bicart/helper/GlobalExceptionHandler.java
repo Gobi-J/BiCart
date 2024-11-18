@@ -11,7 +11,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-
 /**
  * <p>
  *   Global exception handler class that handles exceptions thrown by the application.
@@ -50,8 +49,8 @@ public class GlobalExceptionHandler {
         return ErrorResponse.setErrorResponse(e.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(value = {CustomException.class, Exception.class})
-    public ResponseEntity<ErrorResponse> handleException(CustomException e) {
+    @ExceptionHandler(value = {BiCartException.class, Exception.class})
+    public ResponseEntity<ErrorResponse> handleException(BiCartException e) {
         String message = "Error occurred with the server. " + e.getMessage();
         return ErrorResponse.setErrorResponse(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

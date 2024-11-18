@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 import com.bicart.dto.CartDto;
 import com.bicart.dto.OrderItemDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.model.Cart;
 import com.bicart.model.OrderItem;
 import com.bicart.model.User;
@@ -89,8 +89,8 @@ class CartServiceTest {
 
     @Test
     void testGetCartThrowsException() {
-        when(cartRepository.findByUserId("1")).thenThrow(CustomException.class);
-        assertThrows(CustomException.class, () -> cartService.getCart("1"));
+        when(cartRepository.findByUserId("1")).thenThrow(BiCartException.class);
+        assertThrows(BiCartException.class, () -> cartService.getCart("1"));
     }
 
     @Test

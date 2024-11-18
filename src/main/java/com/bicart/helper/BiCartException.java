@@ -3,14 +3,14 @@ package com.bicart.helper;
 /**
  * Custom Exception class for handling custom Database Exception
  */
-public class CustomException extends RuntimeException {
+public class BiCartException extends RuntimeException {
 
     /**
      * Constructs a new CustomException with the specified detail message.
      *
      * @param message the detail message.
      */
-    public CustomException(String message) {
+    public BiCartException(String message) {
         super(message);
     }
 
@@ -19,7 +19,7 @@ public class CustomException extends RuntimeException {
      *
      * @param error the detail error.
      */
-    public CustomException(Throwable error) {
+    public BiCartException(Throwable error) {
         super(error);
     }
 
@@ -29,7 +29,7 @@ public class CustomException extends RuntimeException {
      * @param message the detail message
      * @param error   the detail error.
      */
-    public CustomException(String message, Throwable error) {
+    public BiCartException(String message, Throwable error) {
         super(message, error);
     }
 }

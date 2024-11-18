@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import com.bicart.constant.OrderStatus;
 import com.bicart.constant.PaymentStatus;
 import com.bicart.dto.PaymentDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.mapper.PaymentMapper;
 import com.bicart.model.Order;
 import com.bicart.model.Payment;
@@ -38,14 +38,14 @@ public class PaymentService {
      * </p>
      *
      * @param payment details to be saved
-     * @throws CustomException if any issue occurs while saving the payment.
+     * @throws BiCartException if any issue occurs while saving the payment.
      */
     protected Payment savePayment(Payment payment) {
         try {
             return paymentRepository.save(payment);
         } catch (Exception e) {
             logger.error("Error in saving payment with the Id : {} ", payment.getId());
-            throw new CustomException("Server error!!", e);
+            throw new BiCartException("Server error!!", e);
         }
     }
 
@@ -56,7 +56,7 @@ public class PaymentService {
      *
      * @param orderId    the ID of the order for which payment is to be updated.
      * @param paymentDto the updated payment details.
-     * @throws CustomException if any custom exception is thrown.
+     * @throws BiCartException if any custom exception is thrown.
      */
     public void createPayment(String userId, String orderId, PaymentDto paymentDto) {
         Order order = orderService.getOrderModelById(userId, orderId);

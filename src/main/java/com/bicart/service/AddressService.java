@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bicart.dto.AddressDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.mapper.AddressMapper;
 import com.bicart.model.Address;
 import com.bicart.repository.AddressRepository;
@@ -38,7 +38,7 @@ public class AddressService {
      * </p>
      *
      * @param address details to save.
-     * @throws CustomException if any issues occur while saving.
+     * @throws BiCartException if any issues occur while saving.
      */
     protected void saveAddress(Address address) {
         try {
@@ -46,7 +46,7 @@ public class AddressService {
             logger.info("Address saved successfully with the id : {} ", address.getId());
         } catch (Exception e) {
             logger.error("Error in saving address with the id : {}", address.getId());
-            throw new CustomException("Cannot save address with the id : " + address.getId());
+            throw new BiCartException("Cannot save address with the id : " + address.getId());
         }
     }
 

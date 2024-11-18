@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.bicart.dto.CartDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.mapper.CartMapper;
 import com.bicart.model.Cart;
 import com.bicart.model.OrderItem;
@@ -38,14 +38,14 @@ public class CartService {
      *
      * @param userId the id of the user to fetch the cart for
      * @return {@link Cart} cart of the user
-     * @throws CustomException if an error occurs while fetching the cart
+     * @throws BiCartException if an error occurs while fetching the cart
      */
     protected Cart getCart(String userId) {
         try {
             return cartRepository.findByUserId(userId);
         } catch (Exception e) {
             logger.error("Error in getting cart by user id: {}", userId, e);
-            throw new CustomException("Error getting cart by user id " + userId);
+            throw new BiCartException("Error getting cart by user id " + userId);
         }
     }
 
@@ -55,14 +55,14 @@ public class CartService {
      * </p>
      *
      * @param cart the cart to save
-     * @throws CustomException if an error occurs while saving the cart
+     * @throws BiCartException if an error occurs while saving the cart
      */
     protected void saveCart(Cart cart) {
         try {
             cartRepository.save(cart);
         } catch (Exception e) {
             logger.error("Error saving cart with the id: {} ", cart.getId(), e);
-            throw new CustomException("Cannot save cart. Try again");
+            throw new BiCartException("Cannot save cart. Try again");
         }
     }
 

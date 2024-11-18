@@ -48,8 +48,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<SuccessResponse> addUser(@Validated @RequestBody UserDto user) {
         userService.addUser(user);
-        return SuccessResponse.setSuccessResponse("User Registration Successful",
-                HttpStatus.CREATED);
+        return SuccessResponse.setSuccessResponseCreated("User Registration Successful", null);
     }
 
     /**
@@ -63,8 +62,8 @@ public class UserController {
     @PatchMapping
     public ResponseEntity<SuccessResponse> updateUser(@RequestBody UserDto user) {
         user = userService.updateUser(user);
-        return SuccessResponse.setSuccessResponse("User updated successfully",
-                HttpStatus.OK, Map.of("user", user));
+        return SuccessResponse.setSuccessResponseOk("User updated successfully",
+                Map.of("user", user));
     }
 
     /**
@@ -81,8 +80,7 @@ public class UserController {
     public ResponseEntity<SuccessResponse> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {
         Set<ResponseUserDto> users = userService.getAllUsers(page, size);
-        return SuccessResponse.setSuccessResponse("Users fetched successfully",
-                HttpStatus.OK, Map.of("users", users));
+        return SuccessResponse.setSuccessResponseOk("Users fetched successfully", Map.of("users", users));
     }
 
     /**
@@ -96,8 +94,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<SuccessResponse> getUser(@RequestAttribute("id") String userId) {
         UserRoleDto user = userService.getUser(userId);
-        return SuccessResponse.setSuccessResponse("User fetched successfully",
-                HttpStatus.OK, Map.of("user", user));
+        return SuccessResponse.setSuccessResponseOk("User fetched successfully", Map.of("user", user));
     }
 
     /**
@@ -111,8 +108,7 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public ResponseEntity<SuccessResponse> removeUser(@PathVariable String userId) {
         userService.deleteUser(userId);
-        return SuccessResponse.setSuccessResponse("User deleted successfully",
-                HttpStatus.NO_CONTENT);
+        return SuccessResponse.setSuccessResponseNoContent("User deleted successfully");
     }
 
     /**
@@ -126,8 +122,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<SuccessResponse> login(@RequestBody UserDto user) {
         String token = userService.authenticateUser(user);
-        return SuccessResponse.setSuccessResponse("User authenticated successfully",
-                HttpStatus.OK, Map.of("token", token));
+        return SuccessResponse.setSuccessResponseOk("User authenticated successfully", Map.of("token", token));
     }
 
     /**
@@ -142,7 +137,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> makeAdmin(@RequestBody UserDto userDto) {
         userService.makeAdmin(userDto);
-        return SuccessResponse.setSuccessResponse("User updated successfully",
-                HttpStatus.OK);
+        return SuccessResponse.setSuccessResponseOk("User updated successfully", null);
     }
 }
+

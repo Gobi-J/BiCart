@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.bicart.dto.RoleDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.mapper.RoleMapper;
 import com.bicart.model.Role;
 import com.bicart.repository.RoleRepository;
@@ -35,7 +35,7 @@ public class RoleService {
      * </p>
      *
      * @param role details to save
-     * @throws CustomException if any issues occur while saving the role.
+     * @throws BiCartException if any issues occur while saving the role.
      */
     private void saveRole(Role role) {
         try {
@@ -43,7 +43,7 @@ public class RoleService {
             logger.info("Role saved successfully");
         } catch (Exception e) {
             logger.error("Error in saving role");
-            throw new CustomException("Cannot save role");
+            throw new BiCartException("Cannot save role");
         }
     }
 
@@ -68,7 +68,7 @@ public class RoleService {
      *
      * @return {@link RoleDto} set containing all the information.
      */
-    public Set<RoleDto> getAllRoles() throws CustomException {
+    public Set<RoleDto> getAllRoles() throws BiCartException {
         List<Role> roles = roleRepository.findAllByIsDeletedFalse();
         logger.info("Displayed role details for page");
         return roles.stream()

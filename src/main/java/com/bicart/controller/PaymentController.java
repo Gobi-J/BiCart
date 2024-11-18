@@ -40,6 +40,6 @@ public class PaymentController {
     public ResponseEntity<SuccessResponse> createPayment(@Validated @RequestAttribute("id") String userId, @PathVariable String orderId,
                                                          @RequestBody PaymentDto payment) {
         paymentService.createPayment(userId, orderId, payment);
-        return SuccessResponse.setSuccessResponse("Payment Completed Successfully!", HttpStatus.CREATED);
+        return SuccessResponse.setSuccessResponseCreated("Payment Completed Successfully!", null);
     }
 }

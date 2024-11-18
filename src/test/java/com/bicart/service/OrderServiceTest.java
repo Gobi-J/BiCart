@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 import com.bicart.constant.OrderStatus;
 import com.bicart.dto.OrderDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.model.Address;
 import com.bicart.model.Cart;
 import com.bicart.model.Order;
@@ -133,8 +133,8 @@ class OrderServiceTest {
 
     @Test
     void testSaveOrderThrowsCustomException() {
-        when(orderRepository.save(any(Order.class))).thenThrow(CustomException.class);
-        assertThrows(CustomException.class, () -> orderService.saveOrder(order));
+        when(orderRepository.save(any(Order.class))).thenThrow(BiCartException.class);
+        assertThrows(BiCartException.class, () -> orderService.saveOrder(order));
     }
 
     @Test

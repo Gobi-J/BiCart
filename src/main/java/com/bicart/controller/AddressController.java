@@ -7,7 +7,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.bicart.dto.AddressDto;
 import com.bicart.helper.SuccessResponse;
@@ -36,7 +45,7 @@ public class AddressController {
     @PostMapping
     public ResponseEntity<SuccessResponse> addAddress(@Validated @RequestAttribute("id") String userId, @RequestBody AddressDto addressDto) {
         addressService.addAddress(addressDto, userId);
-        return SuccessResponse.setSuccessResponse("Address Added Successful", HttpStatus.CREATED);
+        return SuccessResponse.setSuccessResponseCreated("Address Added Successful", null);
     }
 
     /**
@@ -50,7 +59,7 @@ public class AddressController {
     @PatchMapping
     public ResponseEntity<SuccessResponse> updateAddress(@RequestBody AddressDto addressDto) {
         AddressDto address = addressService.updateAddress(addressDto);
-        return SuccessResponse.setSuccessResponse("User updated successfully", HttpStatus.OK, address);
+        return SuccessResponse.setSuccessResponseOk("User updated successfully", address);
     }
 
     /**
@@ -67,10 +76,7 @@ public class AddressController {
                                                            @RequestParam(defaultValue = "10") int size,
                                                            @RequestAttribute("id") String userId) {
         Set<AddressDto> addresses = addressService.getAllAddresses(userId, page, size);
-//        if (null == addresses || addresses.isEmpty()) {
-//            return SuccessResponse.setSuccessResponse("No addresses found", HttpStatus.OK);
-//        }
-        return SuccessResponse.setSuccessResponse("Addresses fetched successfully", HttpStatus.OK, Map.of("addresses", addresses));
+        return SuccessResponse.setSuccessResponseOk("Addresses fetched successfully", Map.of("addresses", addresses));
     }
 
     /**
@@ -84,7 +90,7 @@ public class AddressController {
     @GetMapping("/{addressId}")
     public ResponseEntity<SuccessResponse> getAddressById(@PathVariable String addressId) {
         AddressDto address = addressService.getAddressById(addressId);
-        return SuccessResponse.setSuccessResponse("Address fetched successfully", HttpStatus.OK, Map.of("address", address));
+        return SuccessResponse.setSuccessResponseOk("Address fetched successfully", Map.of("address", address));
     }
 
     /**
@@ -98,6 +104,6 @@ public class AddressController {
     @DeleteMapping("/{addressId}")
     public ResponseEntity<SuccessResponse> removeAddress(@PathVariable String addressId) {
         addressService.deleteAddressById(addressId);
-        return SuccessResponse.setSuccessResponse("Address deleted successfully", HttpStatus.NO_CONTENT);
+        return SuccessResponse.setSuccessResponseNoContent("Address deleted successfully");
     }
 }

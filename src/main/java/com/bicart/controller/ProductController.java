@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -50,7 +49,7 @@ public class ProductController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> addProduct(@RequestBody ProductDto product) {
         productService.addProduct(product);
-        return SuccessResponse.setSuccessResponse("Product Added Successfully", HttpStatus.CREATED);
+        return SuccessResponse.setSuccessResponseCreated("Product Added Successfully", null);
     }
 
     /**
@@ -68,7 +67,7 @@ public class ProductController {
                                                             @PathVariable String productId,
                                                             @RequestBody ReviewDto reviewDto) {
         reviewService.addReview(userId, reviewDto, productId);
-        return SuccessResponse.setSuccessResponse("Review added Successfully", HttpStatus.CREATED);
+        return SuccessResponse.setSuccessResponseCreated("Review added Successfully", null);
     }
 
     /**
@@ -85,7 +84,7 @@ public class ProductController {
                                                        @RequestParam(defaultValue = "10") int size,
                                                        @RequestParam(defaultValue = "all") String subCategory) {
         Set<ProductDto> products = productService.getAllProducts(page, size, subCategory);
-        return SuccessResponse.setSuccessResponse("Products fetched Successfully", HttpStatus.OK, Map.of("products", products));
+        return SuccessResponse.setSuccessResponseOk("Products fetched Successfully", Map.of("products", products));
     }
 
     /**
@@ -99,7 +98,7 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ResponseEntity<SuccessResponse> getProduct(@PathVariable String productId) {
         ProductDto product = productService.getProductById(productId);
-        return SuccessResponse.setSuccessResponse("Product fetched Successfully", HttpStatus.OK, Map.of("product", product));
+        return SuccessResponse.setSuccessResponseOk("Product fetched Successfully", Map.of("product", product));
     }
 
     /**
@@ -117,7 +116,7 @@ public class ProductController {
                                                              @RequestParam(defaultValue = "10") int size,
                                                              @PathVariable String productId) {
         Set<ReviewDto> reviews = reviewService.getReviewsByProductId(productId, page, size);
-        return SuccessResponse.setSuccessResponse("Reviews of the product fetched Successfully", HttpStatus.OK, Map.of("reviews", reviews));
+        return SuccessResponse.setSuccessResponseOk("Reviews of the product fetched Successfully", Map.of("reviews", reviews));
     }
 
     /**
@@ -132,7 +131,7 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SuccessResponse> updateProduct(@RequestBody ProductDto productDto) {
         ProductDto product = productService.updateProduct(productDto);
-        return SuccessResponse.setSuccessResponse("Product updated Successfully", HttpStatus.OK, Map.of("product", product));
+        return SuccessResponse.setSuccessResponseOk("Product updated Successfully", Map.of("product", product));
     }
 
     /**
@@ -147,6 +146,6 @@ public class ProductController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> deleteProduct(@PathVariable String productId) {
         productService.deleteProduct(productId);
-        return SuccessResponse.setSuccessResponse("Product deleted Successfully", HttpStatus.NO_CONTENT);
+        return SuccessResponse.setSuccessResponseNoContent("Product deleted Successfully");
     }
 }

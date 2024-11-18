@@ -21,7 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.bicart.dto.AddressDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.model.Address;
 import com.bicart.model.User;
 import com.bicart.repository.AddressRepository;
@@ -73,8 +73,8 @@ class AddressServiceTest {
 
     @Test
     void testSaveAddressThrowsException() {
-        when(addressRepository.save(any(Address.class))).thenThrow(CustomException.class);
-        assertThrows(CustomException.class, () -> addressService.saveAddress(address));
+        when(addressRepository.save(any(Address.class))).thenThrow(BiCartException.class);
+        assertThrows(BiCartException.class, () -> addressService.saveAddress(address));
     }
 
     @Test

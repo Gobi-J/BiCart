@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.bicart.constant.OrderStatus;
 import com.bicart.dto.OrderDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.mapper.OrderMapper;
 import com.bicart.model.Address;
 import com.bicart.model.Cart;
@@ -48,7 +48,7 @@ public class OrderService {
      * </p>
      *
      * @param order order to save
-     * @throws CustomException if any issues while saving order
+     * @throws BiCartException if any issues while saving order
      */
     public void saveOrder(Order order) {
         try {
@@ -56,7 +56,7 @@ public class OrderService {
             logger.info("Order saved successfully with id: {}", order.getId());
         } catch (Exception e) {
             logger.error("Error saving order", e);
-            throw new CustomException("Could not save order with id: " + order.getId());
+            throw new BiCartException("Could not save order with id: " + order.getId());
         }
     }
 

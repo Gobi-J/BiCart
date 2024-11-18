@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.bicart.dto.OrderItemDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.model.Cart;
 import com.bicart.model.OrderItem;
 import com.bicart.model.Product;
@@ -43,7 +43,7 @@ public class OrderItemService {
             logger.info("Order item saved successfully");
         } catch (Exception e) {
             logger.error("Error saving order item", e);
-            throw new CustomException("Error saving order item");
+            throw new BiCartException("Error saving order item");
         }
     }
 

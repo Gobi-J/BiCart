@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.bicart.constant.ShipmentStatus;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.model.ShipmentTracking;
 import com.bicart.repository.ShipmentTrackingRepository;
 
@@ -37,7 +37,7 @@ public class ShipmentTrackingService {
             return shipmentTrackingRepository.save(shipmentTracking);
         } catch (Exception e) {
             logger.error("Error in saving shipmentTracking with the id: {} ", shipmentTracking.getId());
-            throw new CustomException("Cannot save Shipment Tracking", e);
+            throw new BiCartException("Cannot save Shipment Tracking", e);
         }
     }
 

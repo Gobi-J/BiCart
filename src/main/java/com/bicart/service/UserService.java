@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import com.bicart.dto.ResponseUserDto;
 import com.bicart.dto.UserDto;
 import com.bicart.dto.UserRoleDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.helper.UnAuthorizedException;
 import com.bicart.mapper.UserMapper;
 import com.bicart.model.Role;
@@ -50,7 +50,7 @@ public class UserService {
      * </p>
      *
      * @param user model to save. Must have its ID assigned manually.
-     * @throws CustomException if any issue with the server.
+     * @throws BiCartException if any issue with the server.
      */
     public void saveUser(User user) {
         try {
@@ -58,7 +58,7 @@ public class UserService {
             logger.info("User saved successfully with id : {}", user.getId());
         } catch (Exception e) {
             logger.error("Error in saving user with id : {}", user.getId(), e);
-            throw new CustomException("Cannot save user. Try Again");
+            throw new BiCartException("Cannot save user. Try Again");
         }
     }
 
@@ -194,7 +194,7 @@ public class UserService {
      * </p>
      *
      * @param userDto to make an admin. Must contain the ID of the user.
-     * @throws CustomException if an error occurs while making a user an admin.
+     * @throws BiCartException if an error occurs while making a user an admin.
      */
     public void makeAdmin(UserDto userDto) {
         User user = getUserModelById(userDto.getId());
@@ -204,7 +204,7 @@ public class UserService {
             user.setRole(roles);
         } catch (Exception e) {
             logger.error("Error in setting role for user", e);
-            throw new CustomException("Cannot apply role to an user");
+            throw new BiCartException("Cannot apply role to an user");
         }
         saveUser(user);
         logger.info("User updated successfully for ID: {}", userDto.getId());

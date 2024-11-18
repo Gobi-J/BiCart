@@ -1,7 +1,6 @@
 package com.bicart.service;
 
 import java.util.Set;
-import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.bicart.constant.ShipmentStatus;
 import com.bicart.dto.ShipmentDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.mapper.ShipmentMapper;
 import com.bicart.model.Order;
 import com.bicart.model.Shipment;
@@ -37,7 +36,7 @@ public class ShipmentService {
      * </p>
      *
      * @param shipment to save.
-     * @throws CustomException if any issues occur while saving the shipment.
+     * @throws BiCartException if any issues occur while saving the shipment.
      */
     private void saveShipment(Shipment shipment) {
         try {
@@ -45,7 +44,7 @@ public class ShipmentService {
             logger.info("Shipment saved successfully");
         } catch (Exception e) {
             logger.error("Error in saving shipment", e);
-            throw new CustomException("Cannot save shipment");
+            throw new BiCartException("Cannot save shipment");
         }
     }
 

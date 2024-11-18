@@ -45,7 +45,7 @@ public class SubCategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> addSubCategory(@RequestBody SubCategoryDto subCategory) {
         subCategoryService.addSubCategory(subCategory);
-        return SuccessResponse.setSuccessResponse("SubCategory added Successfully", HttpStatus.CREATED);
+        return SuccessResponse.setSuccessResponseCreated("SubCategory added Successfully", null);
     }
 
     /**
@@ -59,7 +59,7 @@ public class SubCategoryController {
     @GetMapping("/{subCategoryName}")
     public ResponseEntity<SuccessResponse> getSubCategory(@PathVariable String subCategoryName) {
         SubCategoryDto subCategory = subCategoryService.getSubCategoryByName(subCategoryName);
-        return SuccessResponse.setSuccessResponse("SubCategory fetched Successfully", HttpStatus.OK, Map.of("subCategory", subCategory));
+        return SuccessResponse.setSuccessResponseOk("SubCategory fetched Successfully", Map.of("subCategory", subCategory));
     }
 
     /**
@@ -75,7 +75,7 @@ public class SubCategoryController {
     public ResponseEntity<SuccessResponse> getSubCategories(@RequestParam(defaultValue = "0") int page,
                                                             @RequestParam(defaultValue = "10") int size) {
         Set<SubCategoryDto> subCategories = subCategoryService.getSubCategories(page, size);
-        return SuccessResponse.setSuccessResponse("SubCategories fetched Successfully", HttpStatus.OK, Map.of("subCategories", subCategories));
+        return SuccessResponse.setSuccessResponseOk("SubCategories fetched Successfully", Map.of("subCategories", subCategories));
     }
 
     /**
@@ -90,7 +90,7 @@ public class SubCategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> updateSubCategory(@RequestBody SubCategoryDto subCategory) {
         subCategory = subCategoryService.updateSubCategory(subCategory);
-        return SuccessResponse.setSuccessResponse("SubCategory Updated Successfully", HttpStatus.OK, Map.of("subCategory", subCategory));
+        return SuccessResponse.setSuccessResponseOk("SubCategory Updated Successfully", Map.of("subCategory", subCategory));
     }
 
     /**
@@ -105,7 +105,7 @@ public class SubCategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SuccessResponse> deleteSubCategory(@PathVariable String subCategoryName) {
         subCategoryService.deleteSubCategory(subCategoryName);
-        return SuccessResponse.setSuccessResponse("SubCategory deleted Successfully", HttpStatus.NO_CONTENT);
+        return SuccessResponse.setSuccessResponseNoContent("SubCategory deleted Successfully");
 
     }
 }

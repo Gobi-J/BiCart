@@ -14,7 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bicart.dto.SubCategoryDto;
-import com.bicart.helper.CustomException;
+import com.bicart.helper.BiCartException;
 import com.bicart.mapper.SubCategoryMapper;
 import com.bicart.model.Category;
 import com.bicart.model.SubCategory;
@@ -40,14 +40,14 @@ public class SubCategoryService {
      * </p>
      *
      * @param subCategory the subcategory to save
-     * @throws CustomException if an error occurs while saving the subcategory
+     * @throws BiCartException if an error occurs while saving the subcategory
      */
     private void saveSubCategory(@NonNull SubCategory subCategory) {
         try {
             subCategoryRepository.save(subCategory);
         } catch (Exception e) {
             logger.error("Error in saving the sub category ", e);
-            throw new CustomException("Cannot save sub category with name " + subCategory.getName());
+            throw new BiCartException("Cannot save sub category with name " + subCategory.getName());
         }
     }
 
